@@ -1,6 +1,8 @@
 #include <QApplication>
 
-#include "meshModel.h"
+#include "MeshModel.h"
+#include "SwithButton.h"
+#include "CameraWrapper.h"
 
 #include <QGuiApplication>
 #include <QtGui/QScreen>
@@ -34,11 +36,13 @@
 #include <Qt3DExtras/qforwardrenderer.h>
 #include <Qt3DExtras/qt3dwindow.h>
 #include <Qt3DExtras/qfirstpersoncameracontroller.h>
+#include <Qt3DExtras/qorbitcameracontroller.h>
 
 QCommandLinkButton *info;
 
 void setUpCamera(Qt3DRender::QCamera *cameraEntity){
-    cameraEntity->lens()->setPerspectiveProjection(45.0f, 16.0f/9.0f, 0.1f, 1000.0f);
+    //cameraEntity->lens()->setPerspectiveProjection(45.0f, 16.0f/9.0f, 0.1f, 1000.0f);
+    cameraEntity->setProjectionType(Qt3DRender::QCameraLens::OrthographicProjection);
     cameraEntity->setPosition(QVector3D(0, 0, 20.0f));
     cameraEntity->setUpVector(QVector3D(0, 1, 0));
     cameraEntity->setViewCenter(QVector3D(0, 0, 0));
@@ -106,7 +110,6 @@ void setupControlPanel(QVBoxLayout *vLayout, QWidget *widget, MeshModel *dectect
     QSlider *sliderZ = new QSlider(widget);
     setUpSliderController(labelZ, sliderZ, "rotation slider Z (0-360)", 0);
 
-    vLayout->addWidget(info);
     vLayout->addWidget(meshCB);
     vLayout->addWidget(labelScale);
     vLayout->addWidget(sliderScale);
@@ -151,9 +154,10 @@ int main(int argc, char **argv){
     // Camera
     Qt3DRender::QCamera *cameraEntity = view->camera();
     setUpCamera(cameraEntity);
+    CameraWrapper *cameraWrapper = new CameraWrapper(widget, cameraEntity);
 
     // Camera controls
-    Qt3DExtras::QFirstPersonCameraController *camController = new Qt3DExtras::QFirstPersonCameraController(rootEntity);
+    Qt3DExtras::QOrbitCameraController *camController = new Qt3DExtras::QOrbitCameraController(rootEntity);
     camController->setCamera(cameraEntity);
 
     // Light
@@ -166,6 +170,12 @@ int main(int argc, char **argv){
     // Create detector mesh model
     MeshModel *dectectorModel = new MeshModel(rootEntity);
     setupControlPanel(vLayout, widget, dectectorModel);
+
+    SwitchButton* sbtn = new SwitchButton(widget); // Default style is Style::ONOFF
+    vLayout->addWidget(sbtn);
+    QObject::connect(sbtn, SIGNAL(valueChanged(bool)),  cameraWrapper, SLOT(setProjectiveMode(bool)));
+
+
 
     // Show window
     widget->show();

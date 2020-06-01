@@ -1,4 +1,4 @@
-#include "meshModel.h"
+#include "MeshModel.h"
 
 #include <QString>
 
@@ -83,8 +83,7 @@ void MeshModel::rotateMeshY(int degree){
     transform->setRotationY(degreeF);
 }
 
-void MeshModel::rotateMeshZ(int degree)
-{
+void MeshModel::rotateMeshZ(int degree){
     float degreeF = degree * 360.0 / 100.0;
     Qt3DCore::QTransform *transform =  (Qt3DCore::QTransform*)(m_meshEntity->componentsOfType<Qt3DCore::QTransform>()[0]);
     transform->setRotationZ(degreeF);
