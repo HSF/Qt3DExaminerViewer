@@ -4,10 +4,14 @@ QT += 3dcore 3drender 3dinput 3dextras core
 QT += widgets
 
 SOURCES += main.cpp \
-    meshModel.cpp
+    CameraWrapper.cpp \
+    MeshModel.cpp \
+    SwithButton.cpp
 
 HEADERS += \
-    meshModel.h
+    CameraWrapper.h \
+    MeshModel.h \
+    SwithButton.h
 
 RESOURCES += \
     resources.qrc
