@@ -10,4 +10,4 @@ HEADERS += \
     meshModel.h
 
 RESOURCES += \
-    TrackML-PixelDetector.qrc
+    resources.qrc
