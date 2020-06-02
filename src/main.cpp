@@ -1,8 +1,8 @@
 #include <QApplication>
 
-#include "MeshModel.h"
-#include "SwithButton.h"
-#include "CameraWrapper.h"
+#include "headers/MeshModel.h"
+#include "headers/SwithButton.h"
+#include "headers/CameraWrapper.h"
 
 #include <QGuiApplication>
 #include <QtGui/QScreen>

@@ -1,5 +1,6 @@
 *.user
 *.DS_Store
+*.autosave
 
 # Prerequisites
 *.d
@@ -8,7 +9,6 @@
 *.slo
 *.lo
 *.o
-*.obj
 
 # Precompiled Headers
 *.gch

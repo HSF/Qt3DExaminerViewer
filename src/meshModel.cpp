@@ -1,4 +1,4 @@
-#include "MeshModel.h"
+#include "headers/MeshModel.h"
 
 #include <QString>
 
