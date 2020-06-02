@@ -1,4 +1,4 @@
-#include "CameraWrapper.h"
+#include "headers/CameraWrapper.h"
 
 CameraWrapper::CameraWrapper(QWidget *parent,  Qt3DRender::QCamera *camera) : QWidget(parent)
 {

@@ -1,4 +1,4 @@
-#include "SwithButton.h"
+#include "headers/SwithButton.h"
 #include <QPainter>
 
 SwitchButton::SwitchButton(QWidget* parent, Style style)
