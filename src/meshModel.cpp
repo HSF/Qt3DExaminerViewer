@@ -18,7 +18,7 @@ MeshModel::MeshModel(Qt3DCore::QEntity *rootEntity)
     : m_rootEntity(rootEntity){
     // Set picking method
     Qt3DRender::QPickingSettings *settings = new Qt3DRender::QPickingSettings();
-    settings->setPickMethod(Qt3DRender::QPickingSettings::PickMethod::TrianglePicking);
+    settings->setPickMethod(Qt3DRender::QPickingSettings::PickMethod::PrimitivePicking);
 
     // Mesh shape and properties
     Qt3DRender::QMesh *mesh = new Qt3DRender::QMesh();
@@ -39,8 +39,9 @@ MeshModel::MeshModel(Qt3DCore::QEntity *rootEntity)
 
     // Mesh picker
     Qt3DRender::QObjectPicker *picker = new Qt3DRender::QObjectPicker();
-
     picker->setEnabled(true);
+    picker->setHoverEnabled(true);
+    picker->setDragEnabled(true);
 
     // Build Mesh Entity
     m_meshEntity = new Qt3DCore::QEntity(m_rootEntity);
@@ -48,17 +49,33 @@ MeshModel::MeshModel(Qt3DCore::QEntity *rootEntity)
     m_meshEntity->addComponent(meshMaterial);
     m_meshEntity->addComponent(meshTransform);
     m_meshEntity->addComponent(picker);
-    QObject::connect(picker, &Qt3DRender::QObjectPicker::clicked, this, &MeshModel::onClicked);
+    QObject::connect(picker, &Qt3DRender::QObjectPicker::clicked, this, &MeshModel::changeState);
+    QObject::connect(picker, &Qt3DRender::QObjectPicker::containsMouseChanged, this, &MeshModel::showInfo);
+    QObject::connect(picker, &Qt3DRender::QObjectPicker::released, this, &MeshModel::restoreState);
 }
 
 MeshModel::~MeshModel(){
 }
 
-void MeshModel::onClicked(Qt3DRender::QPickEvent* event){
-    Qt3DRender::QMesh *mesh =  (Qt3DRender::QMesh*)(m_meshEntity->componentsOfType<Qt3DRender::QMesh>()[0]);
-    info->setDescription(QString("Vertices: ") + mesh->property("Vertices").toString() +
-                         QString("\nEdges: ") + mesh->property("Edges").toString() +
-                         QString("\nFaces: ") + mesh->property("Faces").toString());
+void MeshModel::showInfo(bool isContainsMouse){
+    if(isContainsMouse){
+        Qt3DRender::QMesh *mesh =  (Qt3DRender::QMesh*)(m_meshEntity->componentsOfType<Qt3DRender::QMesh>()[0]);
+        info->setDescription(QString("Vertices: ") + mesh->property("Vertices").toString() +
+                             QString("\nEdges: ") + mesh->property("Edges").toString() +
+                             QString("\nFaces: ") + mesh->property("Faces").toString());
+    }
+    else
+        info->setDescription(QString("Move cursor inside Volumns to trigger Info"));
+}
+
+void MeshModel::changeState(Qt3DRender::QPickEvent* event){
+     Qt3DExtras::QPhongMaterial *material =  (Qt3DExtras::QPhongMaterial*)(m_meshEntity->componentsOfType<Qt3DExtras::QPhongMaterial>()[0]);
+     material->setDiffuse(QColor(255, 0, 0, 127));
+}
+
+void MeshModel::restoreState(Qt3DRender::QPickEvent *event){
+    Qt3DExtras::QPhongMaterial *material =  (Qt3DExtras::QPhongMaterial*)(m_meshEntity->componentsOfType<Qt3DExtras::QPhongMaterial>()[0]);
+    material->setDiffuse(QColor(QRgb(0xbeb32b)));
 }
 
 void MeshModel::enableMesh(bool enabled){

@@ -79,6 +79,7 @@ void setUpInfoWindow(){
     info->setIconSize(QSize(0,0));
     info->setFixedSize(QSize(200, 100));
     info->setFont(QFont ("Courier", 15));
+    info->show();
 }
 
 void setupControlPanel(QVBoxLayout *vLayout, QWidget *widget, MeshModel *dectectorModel){
@@ -110,6 +111,7 @@ void setupControlPanel(QVBoxLayout *vLayout, QWidget *widget, MeshModel *dectect
     QSlider *sliderZ = new QSlider(widget);
     setUpSliderController(labelZ, sliderZ, "rotation slider Z (0-360)", 0);
 
+    vLayout->addWidget(info);
     vLayout->addWidget(meshCB);
     vLayout->addWidget(labelScale);
     vLayout->addWidget(sliderScale);
@@ -139,7 +141,7 @@ int main(int argc, char **argv){
     container->setMinimumSize(QSize(200, 100));
     container->setMaximumSize(screenSize);
 
-    //Layout
+    // Layout
     QWidget *widget = new QWidget;
     QHBoxLayout *hLayout = new QHBoxLayout(widget);
     QVBoxLayout *vLayout = new QVBoxLayout();
@@ -174,8 +176,6 @@ int main(int argc, char **argv){
     SwitchButton* sbtn = new SwitchButton(widget); // Default style is Style::ONOFF
     vLayout->addWidget(sbtn);
     QObject::connect(sbtn, SIGNAL(valueChanged(bool)),  cameraWrapper, SLOT(setProjectiveMode(bool)));
-
-
 
     // Show window
     widget->show();

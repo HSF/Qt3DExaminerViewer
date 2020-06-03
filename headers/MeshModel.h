@@ -26,7 +26,9 @@ public slots:
     void rotateMeshZ(int degree);
     void scaleMesh(int magnitude);
 private slots:
-    void onClicked(Qt3DRender::QPickEvent* event);
+    void showInfo(bool isContainsMouse);
+    void changeState(Qt3DRender::QPickEvent* event);
+    void restoreState(Qt3DRender::QPickEvent *event);
 
 private:
     Qt3DCore::QEntity *m_rootEntity;
