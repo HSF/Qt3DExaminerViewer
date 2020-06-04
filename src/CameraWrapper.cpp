@@ -11,3 +11,16 @@ void CameraWrapper::setProjectiveMode(bool isPerspective){
     else
         m_camera->setProjectionType(Qt3DRender::QCameraLens::OrthographicProjection);
 }
+
+
+void CameraWrapper::addCameraController(Qt3DExtras::QAbstractCameraController *camController){
+    m_camController = camController;
+    m_camController ->setCamera(m_camera);
+}
+
+void CameraWrapper::enableCameraController(bool isEnble){
+    if(isEnble)
+        m_camController ->setCamera(nullptr);
+    else
+        m_camController ->setCamera(m_camera);
+}

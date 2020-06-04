@@ -83,33 +83,38 @@ void setUpInfoWindow(){
 }
 
 void setupControlPanel(QVBoxLayout *vLayout, QWidget *widget, MeshModel *dectectorModel){
-    //Create a info window to display mesh properties
+    // Create a info window to display mesh properties
     setUpInfoWindow();
 
-    //Control visibility of model
+    // Control visibility of Volume
     QCheckBox *meshCB = new QCheckBox(widget);
     meshCB->setChecked(true);
-    meshCB->setText(QStringLiteral("Display Detector Mesh"));
+    meshCB->setText(QStringLiteral("Display Detector Volume"));
 
-    //Control scale of model
+    // Control scale of Volume
     QLabel *labelScale = new QLabel(widget);
     QSlider *sliderScale = new QSlider(widget);
-    setUpSliderController(labelScale, sliderScale, "Scale slider (0.001-0.011)", 50);
+    setUpSliderController(labelScale, sliderScale, "Scale slider", 50);
 
-    //Create rotation X of camera
+    // Control rotation X of Volume
     QLabel *labelX = new QLabel(widget);
     QSlider *sliderX = new QSlider(widget);
     setUpSliderController(labelX, sliderX, "rotation slider X (0-360)", 0);
 
-    //Create rotation Y of camera
+    // Control rotation Y of Volume
     QLabel *labelY = new QLabel(widget);
     QSlider *sliderY = new QSlider(widget);
     setUpSliderController(labelY, sliderY, "rotation slider Y (0-360)", 0);
 
-    //Create rotation Z of camera
-    QLabel *labelZ= new QLabel(widget);
+    // Control rotation Z of Volume
+    QLabel *labelZ = new QLabel(widget);
     QSlider *sliderZ = new QSlider(widget);
     setUpSliderController(labelZ, sliderZ, "rotation slider Z (0-360)", 0);
+
+    QPushButton *restoreBtn = new QPushButton(widget);
+    restoreBtn->setEnabled(true);
+    restoreBtn->setFixedSize(QSize(80, 20));
+    restoreBtn->setText(QString("cancel select"));
 
     vLayout->addWidget(info);
     vLayout->addWidget(meshCB);
@@ -121,13 +126,17 @@ void setupControlPanel(QVBoxLayout *vLayout, QWidget *widget, MeshModel *dectect
     vLayout->addWidget(sliderY);
     vLayout->addWidget(labelZ);
     vLayout->addWidget(sliderZ);
+    vLayout->addWidget(restoreBtn);
+
 
     // Connect UI with model
-    QObject::connect(meshCB, &QCheckBox::stateChanged, dectectorModel, &MeshModel::enableMesh);
+    QObject::connect(meshCB, &QCheckBox::stateChanged, dectectorModel, &MeshModel::showMesh);
     QObject::connect(sliderScale, &QSlider::valueChanged, dectectorModel, &MeshModel::scaleMesh);
     QObject::connect(sliderX, SIGNAL(valueChanged(int)), dectectorModel, SLOT(rotateMeshX(int)));
     QObject::connect(sliderY, SIGNAL(valueChanged(int)), dectectorModel, SLOT(rotateMeshY(int)));
     QObject::connect(sliderZ, SIGNAL(valueChanged(int)), dectectorModel, SLOT(rotateMeshZ(int)));
+    QObject::connect(restoreBtn, SIGNAL(clicked(bool)), dectectorModel, SLOT(restoreState(bool)));
+
 }
 
 int main(int argc, char **argv){
@@ -153,13 +162,14 @@ int main(int argc, char **argv){
     // Root entity
     Qt3DCore::QEntity *rootEntity = new Qt3DCore::QEntity();
 
-    // Camera
+    // Camera and Camera controls
     Qt3DRender::QCamera *cameraEntity = view->camera();
+    Qt3DExtras::QOrbitCameraController *camController = new Qt3DExtras::QOrbitCameraController(rootEntity);
     setUpCamera(cameraEntity);
     CameraWrapper *cameraWrapper = new CameraWrapper(widget, cameraEntity);
+    cameraWrapper->addCameraController(camController);
 
-    // Camera controls
-    Qt3DExtras::QOrbitCameraController *camController = new Qt3DExtras::QOrbitCameraController(rootEntity);
+
     camController->setCamera(cameraEntity);
 
     // Light
@@ -173,9 +183,15 @@ int main(int argc, char **argv){
     MeshModel *dectectorModel = new MeshModel(rootEntity);
     setupControlPanel(vLayout, widget, dectectorModel);
 
-    SwitchButton* sbtn = new SwitchButton(widget); // Default style is Style::ONOFF
+    SwitchButton* sbtn = new SwitchButton(widget);
+    SwitchButton* selectBtn = new SwitchButton(widget);
+
     vLayout->addWidget(sbtn);
+    vLayout->addWidget(selectBtn);
+
     QObject::connect(sbtn, SIGNAL(valueChanged(bool)),  cameraWrapper, SLOT(setProjectiveMode(bool)));
+    QObject::connect(selectBtn, SIGNAL(valueChanged(bool)),  cameraWrapper, SLOT(enableCameraController(bool)));
+    QObject::connect(selectBtn, SIGNAL(valueChanged(bool)),  dectectorModel, SLOT(enablePick(bool)));
 
     // Show window
     widget->show();
