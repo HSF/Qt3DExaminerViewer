@@ -50,6 +50,7 @@ MeshModel::MeshModel(Qt3DCore::QEntity *rootEntity)
     m_meshEntity->addComponent(meshTransform);
     m_meshEntity->addComponent(picker);
     QObject::connect(picker, &Qt3DRender::QObjectPicker::clicked, this, &MeshModel::changeState);
+    QObject::connect(picker, &Qt3DRender::QObjectPicker::clicked, this, &MeshModel::showCancelInfo);
     QObject::connect(picker, &Qt3DRender::QObjectPicker::containsMouseChanged, this, &MeshModel::showInfo);
 }
 
@@ -65,6 +66,10 @@ void MeshModel::showInfo(bool isContainsMouse){
     }
     else
         info->setDescription(QString("Move cursor close to Volumns for more Info"));
+}
+
+void MeshModel::showCancelInfo(Qt3DRender::QPickEvent* event){
+    info->setDescription(QString("click \"cancel select\" button to restore, switch to \"view\" to move viewpoint "));
 }
 
 void MeshModel::changeState(Qt3DRender::QPickEvent* event){

@@ -19,7 +19,7 @@ public:
   };
 
 public:
-  explicit SwitchButton(QWidget* parent = nullptr, Style style = Style::ONOFF);
+  explicit SwitchButton(QWidget* parent = nullptr, QString label1="Yes", QString label2="No");
   ~SwitchButton() override;
 
   //-- QWidget methods
