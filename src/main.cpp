@@ -78,7 +78,7 @@ void setUpInfoWindow(){
     info->setDescription(QString::fromLatin1("Click dectector volumes to see some properties."));
     info->setIconSize(QSize(0,0));
     info->setFixedSize(QSize(200, 100));
-    info->setFont(QFont ("Courier", 15));
+    info->setFont(QFont ("Courier", 14));
     info->show();
 }
 
@@ -113,7 +113,7 @@ void setupControlPanel(QVBoxLayout *vLayout, QWidget *widget, MeshModel *dectect
 
     QPushButton *restoreBtn = new QPushButton(widget);
     restoreBtn->setEnabled(true);
-    restoreBtn->setFixedSize(QSize(80, 20));
+    restoreBtn->setFixedSize(QSize(130, 30));
     restoreBtn->setText(QString("cancel select"));
 
     vLayout->addWidget(info);
@@ -183,8 +183,8 @@ int main(int argc, char **argv){
     MeshModel *dectectorModel = new MeshModel(rootEntity);
     setupControlPanel(vLayout, widget, dectectorModel);
 
-    SwitchButton* sbtn = new SwitchButton(widget);
-    SwitchButton* selectBtn = new SwitchButton(widget);
+    SwitchButton* sbtn = new SwitchButton(widget, "", "Perspe");
+    SwitchButton* selectBtn = new SwitchButton(widget, "", "Select");
 
     vLayout->addWidget(sbtn);
     vLayout->addWidget(selectBtn);

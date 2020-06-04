@@ -1,7 +1,7 @@
 #include "headers/SwithButton.h"
 #include <QPainter>
 
-SwitchButton::SwitchButton(QWidget* parent, Style style)
+SwitchButton::SwitchButton(QWidget* parent, QString label1, QString label2)
   : QWidget(parent)
   , _value(false)
   , _duration(100)
@@ -46,43 +46,19 @@ SwitchButton::SwitchButton(QWidget* parent, Style style)
      setWindowFlags(Qt::FramelessWindowHint);
      setAttribute(Qt::WA_TranslucentBackground);
 
-     _labeloff->setText("");
-     _labelon->setText("pers");
+     _labeloff->setText(label1);
+     _labelon->setText(label2);
      _labeloff->move(31, 5);
      _labelon->move(15, 5);
-     setFixedSize(QSize(75, 24));
-     if (style == Style::YESNO)
-     {
-       _labeloff->setText("No");
-       _labelon->setText("Yes");
-       _labeloff->move(33, 5);
-       _labelon->move(12, 5);
-       setFixedSize(QSize(60, 24));
-     }
-  else if (style == Style::BOOL)
-  {
-    _labeloff->setText("False");
-    _labelon->setText("True");
-    _labeloff->move(37, 5);
-    _labelon->move(12, 5);
-    setFixedSize(QSize(75, 24));
-  }
-  if (style == Style::EMPTY)
-  {
-    _labeloff->setText("");
-    _labelon->setText("");
-    _labeloff->move(31, 5);
-    _labelon->move(12, 5);
-    setFixedSize(QSize(45, 24));
-  }
+     setFixedSize(QSize(90, 24));
 
-  _labeloff->setStyleSheet("color: rgb(120, 120, 120); font-weight: bold;");
-  _labelon->setStyleSheet("color: rgb(255, 255, 255); font-weight: bold;");
+      _labeloff->setStyleSheet("color: rgb(120, 120, 120); font-weight: bold;");
+      _labelon->setStyleSheet("color: rgb(255, 255, 255); font-weight: bold;");
 
-  _background->resize(20, 20);
+      _background->resize(20, 20);
 
-  _background->move(2, 2);
-  _circle->move(2, 2);
+      _background->move(2, 2);
+      _circle->move(2, 2);
 }
 
 SwitchButton::~SwitchButton()
@@ -250,9 +226,9 @@ SwitchButton::SwitchBackground::SwitchBackground(QWidget* parent, QColor color, 
   _lg.setColorAt(0.95, QColor(154, 194, 50));
 
   _lg_disabled = QLinearGradient(0, 25, 70, 0);
-  _lg_disabled.setColorAt(0, QColor(190, 190, 190));
-  _lg_disabled.setColorAt(0.25, QColor(230, 230, 230));
-  _lg_disabled.setColorAt(0.95, QColor(190, 190, 190));
+  _lg_disabled.setColorAt(0, QColor(190, 110, 190));
+  _lg_disabled.setColorAt(0.25, QColor(230, 150, 230));
+  _lg_disabled.setColorAt(0.95, QColor(190, 110, 190));
 
   if (_rect)
     _borderradius = 0;

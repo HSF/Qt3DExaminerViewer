@@ -27,6 +27,7 @@ public slots:
     void scaleMesh(int magnitude);
 private slots:
     void showInfo(bool isContainsMouse);
+    void showCancelInfo(Qt3DRender::QPickEvent* event);
     void changeState(Qt3DRender::QPickEvent* event);
     void enablePick(bool enable);
     void restoreState(bool checked);
