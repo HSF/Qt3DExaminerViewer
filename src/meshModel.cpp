@@ -19,6 +19,7 @@ MeshModel::MeshModel(Qt3DCore::QEntity *rootEntity)
     // Set picking method
     Qt3DRender::QPickingSettings *settings = new Qt3DRender::QPickingSettings();
     settings->setPickMethod(Qt3DRender::QPickingSettings::PickMethod::PrimitivePicking);
+    settings->setEnabled(true);
 
     // Mesh shape and properties
     Qt3DRender::QMesh *mesh = new Qt3DRender::QMesh();
@@ -41,7 +42,6 @@ MeshModel::MeshModel(Qt3DCore::QEntity *rootEntity)
     Qt3DRender::QObjectPicker *picker = new Qt3DRender::QObjectPicker();
     picker->setEnabled(true);
     picker->setHoverEnabled(true);
-    picker->setDragEnabled(true);
 
     // Build Mesh Entity
     m_meshEntity = new Qt3DCore::QEntity(m_rootEntity);
@@ -51,7 +51,6 @@ MeshModel::MeshModel(Qt3DCore::QEntity *rootEntity)
     m_meshEntity->addComponent(picker);
     QObject::connect(picker, &Qt3DRender::QObjectPicker::clicked, this, &MeshModel::changeState);
     QObject::connect(picker, &Qt3DRender::QObjectPicker::containsMouseChanged, this, &MeshModel::showInfo);
-    QObject::connect(picker, &Qt3DRender::QObjectPicker::released, this, &MeshModel::restoreState);
 }
 
 MeshModel::~MeshModel(){
@@ -65,21 +64,27 @@ void MeshModel::showInfo(bool isContainsMouse){
                              QString("\nFaces: ") + mesh->property("Faces").toString());
     }
     else
-        info->setDescription(QString("Move cursor inside Volumns to trigger Info"));
+        info->setDescription(QString("Move cursor close to Volumns for more Info"));
 }
 
 void MeshModel::changeState(Qt3DRender::QPickEvent* event){
      Qt3DExtras::QPhongMaterial *material =  (Qt3DExtras::QPhongMaterial*)(m_meshEntity->componentsOfType<Qt3DExtras::QPhongMaterial>()[0]);
      material->setDiffuse(QColor(255, 0, 0, 127));
+
 }
 
-void MeshModel::restoreState(Qt3DRender::QPickEvent *event){
+void MeshModel::enablePick(bool enable){
+    Qt3DRender::QObjectPicker *picker =  (Qt3DRender::QObjectPicker*)(m_meshEntity->componentsOfType<Qt3DRender::QObjectPicker>()[0]);
+    picker->setEnabled(enable);
+}
+
+void MeshModel::restoreState(bool checked){
     Qt3DExtras::QPhongMaterial *material =  (Qt3DExtras::QPhongMaterial*)(m_meshEntity->componentsOfType<Qt3DExtras::QPhongMaterial>()[0]);
     material->setDiffuse(QColor(QRgb(0xbeb32b)));
 }
 
-void MeshModel::enableMesh(bool enabled){
-    m_meshEntity->setEnabled(enabled);
+void MeshModel::showMesh(bool visible){
+    m_meshEntity->setEnabled(visible);
 }
 
 void MeshModel::scaleMesh(int magnitude){

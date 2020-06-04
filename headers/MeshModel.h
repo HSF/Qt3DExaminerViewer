@@ -20,7 +20,7 @@ public:
     ~MeshModel();
 
 public slots:
-    void enableMesh(bool enabled);
+    void showMesh(bool visible);
     void rotateMeshX(int degree);
     void rotateMeshY(int degree);
     void rotateMeshZ(int degree);
@@ -28,7 +28,8 @@ public slots:
 private slots:
     void showInfo(bool isContainsMouse);
     void changeState(Qt3DRender::QPickEvent* event);
-    void restoreState(Qt3DRender::QPickEvent *event);
+    void enablePick(bool enable);
+    void restoreState(bool checked);
 
 private:
     Qt3DCore::QEntity *m_rootEntity;
