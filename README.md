@@ -8,9 +8,13 @@ open `Qt3DExaminerViewer.pro` file with QtCreator, click `run` button then it wi
 
 ## current functionalities
 
-- switch between perspective and orthographic camera projection mode
-- change visibility of entire volume
--  rotate and scale volume 
+- "perspective" vs "orthographic": switch between perspective and orthographic camera projection mode: 
+- change visibility of entire volume:
+- rotate and scale volume 
+- show tips in info window when moving/clicking mouse
+- "navigation" vs "select" mode: disable moving viewpoint after opening "select" mode, disable selecting volume after opening "navigation" mode 
+- after volume is selected, change some state(currently, color) of volume
+- cancel selection by click push button
 - control camera/the view of observation. mapping relationpship as table below
 
 | input | action |
@@ -30,3 +34,6 @@ open `Qt3DExaminerViewer.pro` file with QtCreator, click `run` button then it wi
 
 - orthographic projection mode
 ![orthographic](https://firebasestorage.googleapis.com/v0/b/steam-key-269816.appspot.com/o/Screenshot%202020-06-02%20at%2010.13.19.png?alt=media&token=e7cbd7c3-8d56-43d4-82c0-9a9bd65f4352)
+
+- select mode
+![select](https://firebasestorage.googleapis.com/v0/b/steam-key-269816.appspot.com/o/Screenshot%202020-06-04%20at%2010.37.57.png?alt=media&token=8fafd8c1-d61e-4c0c-963a-c87cc90edf98)
