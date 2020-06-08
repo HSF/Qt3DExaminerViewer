@@ -52,6 +52,13 @@ MeshModel::MeshModel(Qt3DCore::QEntity *rootEntity)
     QObject::connect(picker, &Qt3DRender::QObjectPicker::clicked, this, &MeshModel::changeState);
     QObject::connect(picker, &Qt3DRender::QObjectPicker::clicked, this, &MeshModel::showCancelInfo);
     QObject::connect(picker, &Qt3DRender::QObjectPicker::containsMouseChanged, this, &MeshModel::showInfo);
+
+    Qt3DCore::QEntity *m_subMeshEntity = new Qt3DCore::QEntity(m_meshEntity);
+    m_subMeshEntity->setParent(m_meshEntity);
+    info->setDescription(QString((m_meshEntity->childNodes()).size()));
+    //m_subMeshEntity->setProperty("good", QVariant(10));
+    //Qt3DCore::QEntity *foundChild = (Qt3DCore::QEntity*)(m_meshEntity->childNodes()).takeAt(0);
+    //info->setDescription(foundChild->property("good").toString());
 }
 
 MeshModel::~MeshModel(){
