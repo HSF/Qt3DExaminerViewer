@@ -136,7 +136,6 @@ void setupControlPanel(QVBoxLayout *vLayout, QWidget *widget, MeshModel *dectect
     QObject::connect(sliderY, SIGNAL(valueChanged(int)), dectectorModel, SLOT(rotateMeshY(int)));
     QObject::connect(sliderZ, SIGNAL(valueChanged(int)), dectectorModel, SLOT(rotateMeshZ(int)));
     QObject::connect(restoreBtn, SIGNAL(clicked(bool)), dectectorModel, SLOT(restoreState(bool)));
-
 }
 
 int main(int argc, char **argv){
@@ -157,7 +156,7 @@ int main(int argc, char **argv){
     vLayout->setAlignment(Qt::AlignTop);
     hLayout->addWidget(container, 1);
     hLayout->addLayout(vLayout);
-    widget->setWindowTitle(QStringLiteral("Basic shapes"));
+    widget->setWindowTitle(QStringLiteral("Geo3D Examiner Viewer"));
 
     // Root entity
     Qt3DCore::QEntity *rootEntity = new Qt3DCore::QEntity();
@@ -166,10 +165,8 @@ int main(int argc, char **argv){
     Qt3DRender::QCamera *cameraEntity = view->camera();
     Qt3DExtras::QOrbitCameraController *camController = new Qt3DExtras::QOrbitCameraController(rootEntity);
     setUpCamera(cameraEntity);
-    CameraWrapper *cameraWrapper = new CameraWrapper(widget, cameraEntity);
+    CameraWrapper *cameraWrapper = new CameraWrapper(rootEntity, cameraEntity);
     cameraWrapper->addCameraController(camController);
-
-
     camController->setCamera(cameraEntity);
 
     // Light

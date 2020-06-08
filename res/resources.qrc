@@ -1,5 +1,8 @@
 <RCC>
-    <qresource prefix="mesh">
+    <qresource prefix="/mesh">
         <file>TrackML-PixelDetector.obj</file>
+        <file>left_part.obj</file>
+        <file>middle_part.obj</file>
+        <file>right_part.obj</file>
     </qresource>
 </RCC>

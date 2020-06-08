@@ -1,6 +1,6 @@
 #include "headers/CameraWrapper.h"
 
-CameraWrapper::CameraWrapper(QWidget *parent,  Qt3DRender::QCamera *camera) : QWidget(parent)
+CameraWrapper::CameraWrapper(Qt3DCore::QEntity *rootEntity,  Qt3DRender::QCamera *camera) : m_rootEntity(rootEntity)
 {
     m_camera = camera;
 }
