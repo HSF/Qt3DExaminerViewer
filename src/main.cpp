@@ -32,6 +32,7 @@
 #include <Qt3DRender/qrenderaspect.h>
 #include <Qt3DRender/qcameralens.h>
 #include <Qt3DRender/qcamera.h>
+#include <Qt3DRender/QPickingSettings>
 
 #include <Qt3DExtras/qforwardrenderer.h>
 #include <Qt3DExtras/qt3dwindow.h>
@@ -48,14 +49,14 @@ void setUpCamera(Qt3DRender::QCamera *cameraEntity){
     cameraEntity->setViewCenter(QVector3D(0, 0, 0));
 }
 
-void setUpLight(Qt3DCore::QEntity *lightEntity, Qt3DRender::QCamera *cameraEntity){
+void setUpLight(Qt3DCore::QEntity *lightEntity, QVector3D position){
     Qt3DRender::QPointLight *light = new Qt3DRender::QPointLight(lightEntity);
     light->setColor("white");
     light->setIntensity(1);
     lightEntity->addComponent(light);
 
     Qt3DCore::QTransform *lightTransform = new Qt3DCore::QTransform(lightEntity);
-    lightTransform->setTranslation(cameraEntity->position());
+    lightTransform->setTranslation(position);
     lightEntity->addComponent(lightTransform);
 }
 
@@ -82,7 +83,7 @@ void setUpInfoWindow(){
     info->show();
 }
 
-void setupControlPanel(QVBoxLayout *vLayout, QWidget *widget, MeshModel *dectectorModel){
+void setupControlPanel(QVBoxLayout *vLayout, QWidget *widget, MeshModel *detectorModel){
     // Create a info window to display mesh properties
     setUpInfoWindow();
 
@@ -130,12 +131,12 @@ void setupControlPanel(QVBoxLayout *vLayout, QWidget *widget, MeshModel *dectect
 
 
     // Connect UI with model
-    QObject::connect(meshCB, &QCheckBox::stateChanged, dectectorModel, &MeshModel::showMesh);
-    QObject::connect(sliderScale, &QSlider::valueChanged, dectectorModel, &MeshModel::scaleMesh);
-    QObject::connect(sliderX, SIGNAL(valueChanged(int)), dectectorModel, SLOT(rotateMeshX(int)));
-    QObject::connect(sliderY, SIGNAL(valueChanged(int)), dectectorModel, SLOT(rotateMeshY(int)));
-    QObject::connect(sliderZ, SIGNAL(valueChanged(int)), dectectorModel, SLOT(rotateMeshZ(int)));
-    QObject::connect(restoreBtn, SIGNAL(clicked(bool)), dectectorModel, SLOT(restoreState(bool)));
+    QObject::connect(meshCB, &QCheckBox::stateChanged, detectorModel, &MeshModel::showMesh);
+    QObject::connect(sliderScale, &QSlider::valueChanged, detectorModel, &MeshModel::scaleMesh);
+    QObject::connect(sliderX, SIGNAL(valueChanged(int)), detectorModel, SLOT(rotateMeshX(int)));
+    QObject::connect(sliderY, SIGNAL(valueChanged(int)), detectorModel, SLOT(rotateMeshY(int)));
+    QObject::connect(sliderZ, SIGNAL(valueChanged(int)), detectorModel, SLOT(rotateMeshZ(int)));
+    QObject::connect(restoreBtn, SIGNAL(clicked(bool)), detectorModel, SLOT(restoreState(bool)));
 }
 
 int main(int argc, char **argv){
@@ -171,14 +172,52 @@ int main(int argc, char **argv){
 
     // Light
     Qt3DCore::QEntity *lightEntity = new Qt3DCore::QEntity(rootEntity);
-    setUpLight(lightEntity, cameraEntity);
+    setUpLight(lightEntity, cameraEntity->position());
+
 
     // Set root object of the scene
     view->setRootEntity(rootEntity);
 
+
+    // Set picking method
+    Qt3DRender::QPickingSettings *settings = new Qt3DRender::QPickingSettings();
+    settings->setPickMethod(Qt3DRender::QPickingSettings::PickMethod::PrimitivePicking);
+    settings->setEnabled(true);
     // Create detector mesh model
-    MeshModel *dectectorModel = new MeshModel(rootEntity);
-    setupControlPanel(vLayout, widget, dectectorModel);
+    // Mesh shape and properties
+    Qt3DRender::QMesh *mesh = new Qt3DRender::QMesh();
+    mesh->setSource(QUrl("qrc:/mesh/TrackML-PixelDetector.obj"));
+    mesh->setProperty("Vertices", QVariant(37216));
+    mesh->setProperty("Edges", QVariant(58416));
+    mesh->setProperty("Faces", QVariant(29208));
+    MeshModel *detectorModel = new MeshModel(rootEntity, mesh);
+    setupControlPanel(vLayout, widget, detectorModel);
+
+    Qt3DRender::QMesh *meshLeft = new Qt3DRender::QMesh();
+    meshLeft->setSource(QUrl("qrc:/mesh/left_part.obj"));
+    meshLeft->setProperty("Vertices", QVariant(3));
+    meshLeft->setProperty("Edges", QVariant(5));
+    meshLeft->setProperty("Faces", QVariant(29));
+    MeshModel *subModelLeft = new MeshModel(rootEntity, meshLeft);
+
+
+    Qt3DRender::QMesh *meshRight = new Qt3DRender::QMesh();
+    meshRight->setSource(QUrl("qrc:/mesh/right_part.obj"));
+    meshRight->setProperty("Vertices", QVariant(32));
+    meshRight->setProperty("Edges", QVariant(58));
+    meshRight->setProperty("Faces", QVariant(2));
+    MeshModel *subModelRight = new MeshModel(rootEntity, meshRight);
+
+    Qt3DRender::QMesh *meshMiddle = new Qt3DRender::QMesh();
+    meshMiddle->setSource(QUrl("qrc:/mesh/middle_part.obj"));
+    meshMiddle->setProperty("Vertices", QVariant(16));
+    meshMiddle->setProperty("Edges", QVariant(56));
+    meshMiddle->setProperty("Faces", QVariant(8));
+    MeshModel *subModelMiddle = new MeshModel(rootEntity, meshMiddle);
+
+    detectorModel->add_subModel(subModelLeft);
+    detectorModel->add_subModel(subModelRight);
+    detectorModel->add_subModel(subModelMiddle);
 
     SwitchButton* sbtn = new SwitchButton(widget, "", "Perspe");
     SwitchButton* selectBtn = new SwitchButton(widget, "", "Select");
@@ -188,7 +227,7 @@ int main(int argc, char **argv){
 
     QObject::connect(sbtn, SIGNAL(valueChanged(bool)),  cameraWrapper, SLOT(setProjectiveMode(bool)));
     QObject::connect(selectBtn, SIGNAL(valueChanged(bool)),  cameraWrapper, SLOT(enableCameraController(bool)));
-    QObject::connect(selectBtn, SIGNAL(valueChanged(bool)),  dectectorModel, SLOT(enablePick(bool)));
+    QObject::connect(selectBtn, SIGNAL(valueChanged(bool)),  detectorModel, SLOT(enablePick(bool)));
 
     // Show window
     widget->show();

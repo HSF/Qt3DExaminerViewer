@@ -8,26 +8,13 @@
 #include <QtWidgets/QCommandLinkButton>
 
 #include <Qt3DRender/QObjectPicker>
-#include <Qt3DRender/QPickingSettings>
 
 #include <Qt3DExtras/QTorusMesh>
 
 extern QCommandLinkButton *info;
 
-MeshModel::MeshModel(Qt3DCore::QEntity *rootEntity)
+MeshModel::MeshModel(Qt3DCore::QEntity *rootEntity, Qt3DRender::QMesh *mesh)
     : m_rootEntity(rootEntity){
-    // Set picking method
-    Qt3DRender::QPickingSettings *settings = new Qt3DRender::QPickingSettings();
-    settings->setPickMethod(Qt3DRender::QPickingSettings::PickMethod::PrimitivePicking);
-    settings->setEnabled(true);
-
-    // Mesh shape and properties
-    Qt3DRender::QMesh *mesh = new Qt3DRender::QMesh();
-    mesh->setSource(QUrl("qrc:/mesh/TrackML-PixelDetector.obj"));
-    mesh->setProperty("Vertices", QVariant(37216));
-    mesh->setProperty("Edges", QVariant(58416));
-    mesh->setProperty("Faces", QVariant(29208));
-
     // Mesh Transform
     Qt3DCore::QTransform *meshTransform = new Qt3DCore::QTransform();
     meshTransform->setScale(0.006f);
@@ -52,16 +39,13 @@ MeshModel::MeshModel(Qt3DCore::QEntity *rootEntity)
     QObject::connect(picker, &Qt3DRender::QObjectPicker::clicked, this, &MeshModel::changeState);
     QObject::connect(picker, &Qt3DRender::QObjectPicker::clicked, this, &MeshModel::showCancelInfo);
     QObject::connect(picker, &Qt3DRender::QObjectPicker::containsMouseChanged, this, &MeshModel::showInfo);
-
-    Qt3DCore::QEntity *m_subMeshEntity = new Qt3DCore::QEntity(m_meshEntity);
-    m_subMeshEntity->setParent(m_meshEntity);
-    info->setDescription(QString((m_meshEntity->childNodes()).size()));
-    //m_subMeshEntity->setProperty("good", QVariant(10));
-    //Qt3DCore::QEntity *foundChild = (Qt3DCore::QEntity*)(m_meshEntity->childNodes()).takeAt(0);
-    //info->setDescription(foundChild->property("good").toString());
 }
 
 MeshModel::~MeshModel(){
+}
+
+void MeshModel::add_subModel(MeshModel *subModel){
+    m_subModels.push_back(subModel);
 }
 
 void MeshModel::showInfo(bool isContainsMouse){
@@ -91,6 +75,9 @@ void MeshModel::enablePick(bool enable){
 }
 
 void MeshModel::restoreState(bool checked){
+    for(MeshModel *subModel:m_subModels){
+        subModel->restoreState(checked);
+    }
     Qt3DExtras::QPhongMaterial *material =  (Qt3DExtras::QPhongMaterial*)(m_meshEntity->componentsOfType<Qt3DExtras::QPhongMaterial>()[0]);
     material->setDiffuse(QColor(QRgb(0xbeb32b)));
 }

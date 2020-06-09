@@ -16,8 +16,9 @@ class MeshModel : public QObject{
     Q_OBJECT
 
 public:
-    explicit MeshModel(Qt3DCore::QEntity *rootEntity);
+    explicit MeshModel(Qt3DCore::QEntity *rootEntity, Qt3DRender::QMesh *mesh);
     ~MeshModel();
+    void add_subModel(MeshModel *subModel);
 
 public slots:
     void showMesh(bool visible);
@@ -35,6 +36,8 @@ private slots:
 private:
     Qt3DCore::QEntity *m_rootEntity;
     Qt3DCore::QEntity *m_meshEntity;
+
+    QVector<MeshModel*> m_subModels;
 };
 
 #endif // SCENEMODIFIER_H
