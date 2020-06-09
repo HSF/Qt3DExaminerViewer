@@ -50,7 +50,7 @@ void MeshModel::add_subModel(MeshModel *subModel){
 
 void MeshModel::showInfo(bool isContainsMouse){
     if(isContainsMouse){
-        Qt3DRender::QMesh *mesh =  (Qt3DRender::QMesh*)(m_meshEntity->componentsOfType<Qt3DRender::QMesh>()[0]);
+        Qt3DRender::QMesh *mesh = (Qt3DRender::QMesh*)(m_meshEntity->componentsOfType<Qt3DRender::QMesh>()[0]);
         info->setDescription(QString("Vertices: ") + mesh->property("Vertices").toString() +
                              QString("\nEdges: ") + mesh->property("Edges").toString() +
                              QString("\nFaces: ") + mesh->property("Faces").toString());
@@ -64,13 +64,13 @@ void MeshModel::showCancelInfo(Qt3DRender::QPickEvent* event){
 }
 
 void MeshModel::changeState(Qt3DRender::QPickEvent* event){
-     Qt3DExtras::QPhongMaterial *material =  (Qt3DExtras::QPhongMaterial*)(m_meshEntity->componentsOfType<Qt3DExtras::QPhongMaterial>()[0]);
+     Qt3DExtras::QPhongMaterial *material = (Qt3DExtras::QPhongMaterial*)(m_meshEntity->componentsOfType<Qt3DExtras::QPhongMaterial>()[0]);
      material->setDiffuse(QColor(255, 0, 0, 127));
 
 }
 
 void MeshModel::enablePick(bool enable){
-    Qt3DRender::QObjectPicker *picker =  (Qt3DRender::QObjectPicker*)(m_meshEntity->componentsOfType<Qt3DRender::QObjectPicker>()[0]);
+    Qt3DRender::QObjectPicker *picker = (Qt3DRender::QObjectPicker*)(m_meshEntity->componentsOfType<Qt3DRender::QObjectPicker>()[0]);
     picker->setEnabled(enable);
 }
 
@@ -78,7 +78,7 @@ void MeshModel::restoreState(bool checked){
     for(MeshModel *subModel:m_subModels){
         subModel->restoreState(checked);
     }
-    Qt3DExtras::QPhongMaterial *material =  (Qt3DExtras::QPhongMaterial*)(m_meshEntity->componentsOfType<Qt3DExtras::QPhongMaterial>()[0]);
+    Qt3DExtras::QPhongMaterial *material = (Qt3DExtras::QPhongMaterial*)(m_meshEntity->componentsOfType<Qt3DExtras::QPhongMaterial>()[0]);
     material->setDiffuse(QColor(QRgb(0xbeb32b)));
 }
 
@@ -92,7 +92,7 @@ void MeshModel::scaleMesh(int magnitude){
         subModel->scaleMesh(magnitude);
     }
     float magnitudeF = 0.001 + (float)(magnitude) * 0.01 / 100.0;
-    Qt3DCore::QTransform *transform =  (Qt3DCore::QTransform*)(m_meshEntity->componentsOfType<Qt3DCore::QTransform>()[0]);
+    Qt3DCore::QTransform *transform = (Qt3DCore::QTransform*)(m_meshEntity->componentsOfType<Qt3DCore::QTransform>()[0]);
     transform->setScale(magnitudeF);
 }
 
@@ -101,7 +101,7 @@ void MeshModel::rotateMeshX(int degree){
         subModel->rotateMeshX(degree);
     }
     float degreeF = degree * 360.0 / 100.0;
-    Qt3DCore::QTransform *transform =  (Qt3DCore::QTransform*)(m_meshEntity->componentsOfType<Qt3DCore::QTransform>()[0]);
+    Qt3DCore::QTransform *transform = (Qt3DCore::QTransform*)(m_meshEntity->componentsOfType<Qt3DCore::QTransform>()[0]);
     transform->setRotationX(degreeF);
 }
 
@@ -110,7 +110,7 @@ void MeshModel::rotateMeshY(int degree){
         subModel->rotateMeshY(degree);
     }
     float degreeF = degree * 360.0 / 100.0;
-    Qt3DCore::QTransform *transform =  (Qt3DCore::QTransform*)(m_meshEntity->componentsOfType<Qt3DCore::QTransform>()[0]);
+    Qt3DCore::QTransform *transform = (Qt3DCore::QTransform*)(m_meshEntity->componentsOfType<Qt3DCore::QTransform>()[0]);
     transform->setRotationY(degreeF);
 }
 
@@ -119,7 +119,7 @@ void MeshModel::rotateMeshZ(int degree){
         subModel->rotateMeshZ(degree);
     }
     float degreeF = degree * 360.0 / 100.0;
-    Qt3DCore::QTransform *transform =  (Qt3DCore::QTransform*)(m_meshEntity->componentsOfType<Qt3DCore::QTransform>()[0]);
+    Qt3DCore::QTransform *transform = (Qt3DCore::QTransform*)(m_meshEntity->componentsOfType<Qt3DCore::QTransform>()[0]);
     transform->setRotationZ(degreeF);
 }
 
