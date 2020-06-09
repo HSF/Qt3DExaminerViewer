@@ -84,27 +84,40 @@ void MeshModel::restoreState(bool checked){
 
 void MeshModel::showMesh(bool visible){
     m_meshEntity->setEnabled(visible);
+    enablePick(visible);
 }
 
 void MeshModel::scaleMesh(int magnitude){
+    for(MeshModel *subModel:m_subModels){
+        subModel->scaleMesh(magnitude);
+    }
     float magnitudeF = 0.001 + (float)(magnitude) * 0.01 / 100.0;
     Qt3DCore::QTransform *transform =  (Qt3DCore::QTransform*)(m_meshEntity->componentsOfType<Qt3DCore::QTransform>()[0]);
     transform->setScale(magnitudeF);
 }
 
 void MeshModel::rotateMeshX(int degree){
+    for(MeshModel *subModel:m_subModels){
+        subModel->rotateMeshX(degree);
+    }
     float degreeF = degree * 360.0 / 100.0;
     Qt3DCore::QTransform *transform =  (Qt3DCore::QTransform*)(m_meshEntity->componentsOfType<Qt3DCore::QTransform>()[0]);
     transform->setRotationX(degreeF);
 }
 
 void MeshModel::rotateMeshY(int degree){
+    for(MeshModel *subModel:m_subModels){
+        subModel->rotateMeshY(degree);
+    }
     float degreeF = degree * 360.0 / 100.0;
     Qt3DCore::QTransform *transform =  (Qt3DCore::QTransform*)(m_meshEntity->componentsOfType<Qt3DCore::QTransform>()[0]);
     transform->setRotationY(degreeF);
 }
 
 void MeshModel::rotateMeshZ(int degree){
+    for(MeshModel *subModel:m_subModels){
+        subModel->rotateMeshZ(degree);
+    }
     float degreeF = degree * 360.0 / 100.0;
     Qt3DCore::QTransform *transform =  (Qt3DCore::QTransform*)(m_meshEntity->componentsOfType<Qt3DCore::QTransform>()[0]);
     transform->setRotationZ(degreeF);

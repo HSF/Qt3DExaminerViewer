@@ -7,9 +7,10 @@ CameraWrapper::CameraWrapper(Qt3DCore::QEntity *rootEntity,  Qt3DRender::QCamera
 
 void CameraWrapper::setProjectiveMode(bool isPerspective){
     if(isPerspective)
-        m_camera->setProjectionType(Qt3DRender::QCameraLens::PerspectiveProjection);
-    else
         m_camera->setProjectionType(Qt3DRender::QCameraLens::OrthographicProjection);
+    else
+        m_camera->setProjectionType(Qt3DRender::QCameraLens::PerspectiveProjection);
+
 }
 
 

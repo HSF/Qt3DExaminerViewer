@@ -43,7 +43,7 @@ QCommandLinkButton *info;
 
 void setUpCamera(Qt3DRender::QCamera *cameraEntity){
     //cameraEntity->lens()->setPerspectiveProjection(45.0f, 16.0f/9.0f, 0.1f, 1000.0f);
-    cameraEntity->setProjectionType(Qt3DRender::QCameraLens::OrthographicProjection);
+    cameraEntity->setProjectionType(Qt3DRender::QCameraLens::PerspectiveProjection);
     cameraEntity->setPosition(QVector3D(0, 0, 20.0f));
     cameraEntity->setUpVector(QVector3D(0, 1, 0));
     cameraEntity->setViewCenter(QVector3D(0, 0, 0));
@@ -207,17 +207,17 @@ int main(int argc, char **argv){
     meshRight->setProperty("Edges", QVariant(58));
     meshRight->setProperty("Faces", QVariant(2));
     MeshModel *subModelRight = new MeshModel(rootEntity, meshRight);
-
+/*
     Qt3DRender::QMesh *meshMiddle = new Qt3DRender::QMesh();
     meshMiddle->setSource(QUrl("qrc:/mesh/middle_part.obj"));
     meshMiddle->setProperty("Vertices", QVariant(16));
     meshMiddle->setProperty("Edges", QVariant(56));
     meshMiddle->setProperty("Faces", QVariant(8));
     MeshModel *subModelMiddle = new MeshModel(rootEntity, meshMiddle);
-
+*/
     detectorModel->add_subModel(subModelLeft);
     detectorModel->add_subModel(subModelRight);
-    detectorModel->add_subModel(subModelMiddle);
+    //detectorModel->add_subModel(subModelMiddle);
 
     SwitchButton* sbtn = new SwitchButton(widget, "", "Perspe");
     SwitchButton* selectBtn = new SwitchButton(widget, "", "Select");
