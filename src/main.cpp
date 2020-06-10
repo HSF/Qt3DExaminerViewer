@@ -3,6 +3,7 @@
 #include "headers/MeshModel.h"
 #include "headers/SwithButton.h"
 #include "headers/CameraWrapper.h"
+#include "headers/GeneralMeshModel.h"
 
 #include <QGuiApplication>
 #include <QtGui/QScreen>
@@ -38,6 +39,8 @@
 #include <Qt3DExtras/qt3dwindow.h>
 #include <Qt3DExtras/qfirstpersoncameracontroller.h>
 #include <Qt3DExtras/qorbitcameracontroller.h>
+#include <Qt3DExtras/QCylinderMesh>
+#include <Qt3DExtras/QCuboidMesh>
 
 QCommandLinkButton *info;
 
@@ -83,14 +86,18 @@ void setUpInfoWindow(){
     info->show();
 }
 
-void setupControlPanel(QVBoxLayout *vLayout, QWidget *widget, MeshModel *detectorModel){
+void setupControlPanel(QVBoxLayout *vLayout, QWidget *widget, MeshModel *detectorModel, GeneralMeshModel *cylinerModel){
     // Create a info window to display mesh properties
     setUpInfoWindow();
 
     // Control visibility of Volume
-    QCheckBox *meshCB = new QCheckBox(widget);
-    meshCB->setChecked(true);
-    meshCB->setText(QStringLiteral("Display Detector Volume"));
+    QCheckBox *meshVisibleBtn = new QCheckBox(widget);
+    meshVisibleBtn->setChecked(true);
+    meshVisibleBtn->setText(QStringLiteral("Display Detector Volume"));
+
+    QCheckBox *unpackBtn = new QCheckBox(widget);
+    unpackBtn->setChecked(false);
+    unpackBtn->setText(QStringLiteral("unpack children Volume"));
 
     // Control scale of Volume
     QLabel *labelScale = new QLabel(widget);
@@ -115,10 +122,11 @@ void setupControlPanel(QVBoxLayout *vLayout, QWidget *widget, MeshModel *detecto
     QPushButton *restoreBtn = new QPushButton(widget);
     restoreBtn->setEnabled(true);
     restoreBtn->setFixedSize(QSize(130, 30));
-    restoreBtn->setText(QString("cancel select"));
+    restoreBtn->setText(QString("restore"));
 
     vLayout->addWidget(info);
-    vLayout->addWidget(meshCB);
+    vLayout->addWidget(meshVisibleBtn);
+    vLayout->addWidget(unpackBtn);
     vLayout->addWidget(labelScale);
     vLayout->addWidget(sliderScale);
     vLayout->addWidget(labelX);
@@ -131,12 +139,14 @@ void setupControlPanel(QVBoxLayout *vLayout, QWidget *widget, MeshModel *detecto
 
 
     // Connect UI with model
-    QObject::connect(meshCB, &QCheckBox::stateChanged, detectorModel, &MeshModel::showMesh);
+    QObject::connect(meshVisibleBtn, &QCheckBox::stateChanged, detectorModel, &MeshModel::showMesh);
+    QObject::connect(unpackBtn, &QCheckBox::stateChanged, cylinerModel, &GeneralMeshModel::unpackSubMesh);
     QObject::connect(sliderScale, &QSlider::valueChanged, detectorModel, &MeshModel::scaleMesh);
     QObject::connect(sliderX, SIGNAL(valueChanged(int)), detectorModel, SLOT(rotateMeshX(int)));
     QObject::connect(sliderY, SIGNAL(valueChanged(int)), detectorModel, SLOT(rotateMeshY(int)));
     QObject::connect(sliderZ, SIGNAL(valueChanged(int)), detectorModel, SLOT(rotateMeshZ(int)));
     QObject::connect(restoreBtn, SIGNAL(clicked(bool)), detectorModel, SLOT(restoreState(bool)));
+    QObject::connect(restoreBtn, SIGNAL(clicked(bool)), cylinerModel, SLOT(restoreState(bool)));
 }
 
 int main(int argc, char **argv){
@@ -179,10 +189,29 @@ int main(int argc, char **argv){
     view->setRootEntity(rootEntity);
 
 
-    // Set picking method
-    Qt3DRender::QPickingSettings *settings = new Qt3DRender::QPickingSettings();
-    settings->setPickMethod(Qt3DRender::QPickingSettings::PickMethod::PrimitivePicking);
-    settings->setEnabled(true);
+    Qt3DExtras::QCylinderMesh *meshCyliner = new Qt3DExtras::QCylinderMesh();
+    meshCyliner->setProperty("Vertices", QVariant(32));
+    meshCyliner->setProperty("Edges", QVariant(58));
+    meshCyliner->setProperty("Faces", QVariant(2));
+    GeneralMeshModel *cylinerModel = new GeneralMeshModel(rootEntity, meshCyliner);
+    cylinerModel->translateMesh(QVector3D(-3.0f, 0.0f, 0.0f));
+    cylinerModel->scaleMesh(3);
+
+    Qt3DExtras::QCuboidMesh *meshBox1 = new Qt3DExtras::QCuboidMesh();
+    meshBox1->setProperty("Vertices", QVariant(32));
+    meshBox1->setProperty("Edges", QVariant(58));
+    meshBox1->setProperty("Faces", QVariant(2));
+    GeneralMeshModel *cuboidModel1 = new GeneralMeshModel(rootEntity, meshBox1);
+    cuboidModel1->translateMesh(QVector3D(-3.0f, 1.0f, 0.0f));
+
+    Qt3DExtras::QCuboidMesh *meshBox2 = new Qt3DExtras::QCuboidMesh();
+    meshBox2->setProperty("Vertices", QVariant(32));
+    meshBox2->setProperty("Edges", QVariant(58));
+    meshBox2->setProperty("Faces", QVariant(2));
+    GeneralMeshModel *cuboidModel2 = new GeneralMeshModel(rootEntity, meshBox2);
+    cuboidModel2->translateMesh(QVector3D(-3.0f, -1.0f, 0.0f));
+
+
     // Create detector mesh model
     // Mesh shape and properties
     Qt3DRender::QMesh *mesh = new Qt3DRender::QMesh();
@@ -191,33 +220,38 @@ int main(int argc, char **argv){
     mesh->setProperty("Edges", QVariant(58416));
     mesh->setProperty("Faces", QVariant(29208));
     MeshModel *detectorModel = new MeshModel(rootEntity, mesh);
-    setupControlPanel(vLayout, widget, detectorModel);
 
-    Qt3DRender::QMesh *meshLeft = new Qt3DRender::QMesh();
-    meshLeft->setSource(QUrl("qrc:/mesh/left_part.obj"));
-    meshLeft->setProperty("Vertices", QVariant(3));
-    meshLeft->setProperty("Edges", QVariant(5));
-    meshLeft->setProperty("Faces", QVariant(29));
-    MeshModel *subModelLeft = new MeshModel(rootEntity, meshLeft);
+    /*   Qt3DRender::QMesh *meshLeft = new Qt3DRender::QMesh();
+       meshLeft->setSource(QUrl("qrc:/mesh/left_part.obj"));
+       meshLeft->setProperty("Vertices", QVariant(3));
+       meshLeft->setProperty("Edges", QVariant(5));
+       meshLeft->setProperty("Faces", QVariant(29));
+       MeshModel *subModelLeft = new MeshModel(rootEntity, meshLeft);
 
 
-    Qt3DRender::QMesh *meshRight = new Qt3DRender::QMesh();
-    meshRight->setSource(QUrl("qrc:/mesh/right_part.obj"));
-    meshRight->setProperty("Vertices", QVariant(32));
-    meshRight->setProperty("Edges", QVariant(58));
-    meshRight->setProperty("Faces", QVariant(2));
-    MeshModel *subModelRight = new MeshModel(rootEntity, meshRight);
-/*
-    Qt3DRender::QMesh *meshMiddle = new Qt3DRender::QMesh();
-    meshMiddle->setSource(QUrl("qrc:/mesh/middle_part.obj"));
-    meshMiddle->setProperty("Vertices", QVariant(16));
-    meshMiddle->setProperty("Edges", QVariant(56));
-    meshMiddle->setProperty("Faces", QVariant(8));
-    MeshModel *subModelMiddle = new MeshModel(rootEntity, meshMiddle);
-*/
-    detectorModel->add_subModel(subModelLeft);
-    detectorModel->add_subModel(subModelRight);
-    //detectorModel->add_subModel(subModelMiddle);
+       Qt3DRender::QMesh *meshRight = new Qt3DRender::QMesh();
+       meshRight->setSource(QUrl("qrc:/mesh/right_part.obj"));
+       meshRight->setProperty("Vertices", QVariant(32));
+       meshRight->setProperty("Edges", QVariant(58));
+       meshRight->setProperty("Faces", QVariant(2));
+       MeshModel *subModelRight = new MeshModel(rootEntity, meshRight);
+
+       Qt3DRender::QMesh *meshMiddle = new Qt3DRender::QMesh();
+       meshMiddle->setSource(QUrl("qrc:/mesh/middle_part.obj"));
+       meshMiddle->setProperty("Vertices", QVariant(16));
+       meshMiddle->setProperty("Edges", QVariant(56));
+       meshMiddle->setProperty("Faces", QVariant(8));
+       MeshModel *subModelMiddle = new MeshModel(rootEntity, meshMiddle);
+
+       detectorModel->add_subModel(subModelLeft);
+       detectorModel->add_subModel(subModelRight);
+       //detectorModel->add_subModel(subModelMiddle);
+
+   */
+    setupControlPanel(vLayout, widget, detectorModel, cylinerModel);
+
+
+
 
     SwitchButton* sbtn = new SwitchButton(widget, "", "Perspe");
     SwitchButton* selectBtn = new SwitchButton(widget, "", "Select");
@@ -228,7 +262,6 @@ int main(int argc, char **argv){
     QObject::connect(sbtn, SIGNAL(valueChanged(bool)),  cameraWrapper, SLOT(setProjectiveMode(bool)));
     QObject::connect(selectBtn, SIGNAL(valueChanged(bool)),  cameraWrapper, SLOT(enableCameraController(bool)));
     QObject::connect(selectBtn, SIGNAL(valueChanged(bool)),  detectorModel, SLOT(enablePick(bool)));
-
     // Show window
     widget->show();
     widget->resize(1200, 800);

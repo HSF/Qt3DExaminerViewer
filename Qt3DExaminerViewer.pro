@@ -5,6 +5,7 @@ QT += widgets
 
 SOURCES += src/main.cpp \
     src/CameraWrapper.cpp \
+    src/GeneralMeshModel.cpp \
     src/MeshModel.cpp \
     src/SwithButton.cpp \
 

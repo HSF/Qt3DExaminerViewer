@@ -9,7 +9,6 @@
 
 #include <Qt3DRender/QObjectPicker>
 
-#include <Qt3DExtras/QTorusMesh>
 
 extern QCommandLinkButton *info;
 
@@ -60,7 +59,7 @@ void MeshModel::showInfo(bool isContainsMouse){
 }
 
 void MeshModel::showCancelInfo(Qt3DRender::QPickEvent* event){
-    info->setDescription(QString("click \"cancel select\" button to restore, switch to \"view\" to move viewpoint "));
+    info->setDescription(QString("click \"retore\" button to restore, close \"select\" switch button to move viewpoint "));
 }
 
 void MeshModel::changeState(Qt3DRender::QPickEvent* event){
@@ -85,6 +84,14 @@ void MeshModel::restoreState(bool checked){
 void MeshModel::showMesh(bool visible){
     m_meshEntity->setEnabled(visible);
     enablePick(visible);
+}
+
+void MeshModel::translateMesh(QVector3D translation){
+    for(MeshModel *subModel:m_subModels){
+        subModel->translateMesh(translation);
+    }
+    Qt3DCore::QTransform *transform = (Qt3DCore::QTransform*)(m_meshEntity->componentsOfType<Qt3DCore::QTransform>()[0]);
+    transform->setTranslation(translation);
 }
 
 void MeshModel::scaleMesh(int magnitude){
