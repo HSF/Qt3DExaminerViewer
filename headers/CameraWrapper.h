@@ -5,8 +5,7 @@
 #include <QCamera>
 #include <Qt3DExtras/QAbstractCameraController.h>
 
-class CameraWrapper : public QObject
-{
+class CameraWrapper : public QObject{
     Q_OBJECT
     Qt3DCore::QEntity *m_rootEntity;
     Qt3DRender::QCamera *m_camera;

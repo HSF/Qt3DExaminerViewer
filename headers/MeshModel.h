@@ -26,6 +26,7 @@ public slots:
     void rotateMeshY(int degree);
     void rotateMeshZ(int degree);
     void scaleMesh(int magnitude);
+    void translateMesh(QVector3D translation);
 private slots:
     void showInfo(bool isContainsMouse);
     void showCancelInfo(Qt3DRender::QPickEvent* event);
