@@ -36,7 +36,7 @@ public slots:
     void showMesh(bool visible);
     void translateMesh(QVector3D translation);
     void scaleMesh(int magnitude);
-    void unpackSubMesh(bool isUnpack);
+    void unpackSubMesh(Qt3DRender::QPickEvent* event);
 private slots:
     void changeState(Qt3DRender::QPickEvent* event);
     void enablePick(bool enable);

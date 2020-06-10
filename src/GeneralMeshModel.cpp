@@ -1,5 +1,7 @@
 #include "headers/GeneralMeshModel.h"
 
+#include <QGuiApplication>
+
 #include <QString>
 
 #include <QtCore/QDebug>
@@ -14,6 +16,10 @@ extern QCommandLinkButton *info;
 
 GeneralMeshModel::GeneralMeshModel(Qt3DCore::QEntity *rootEntity, Qt3DRender::QGeometryRenderer *mesh)
     : m_rootEntity(rootEntity){
+
+    // Build Mesh Entity
+    m_meshEntity = new Qt3DCore::QEntity(m_rootEntity);
+
     // Mesh Transform
     Qt3DCore::QTransform *meshTransform = new Qt3DCore::QTransform();
     meshTransform->setScale(1.0f);
@@ -25,17 +31,16 @@ GeneralMeshModel::GeneralMeshModel(Qt3DCore::QEntity *rootEntity, Qt3DRender::QG
     meshMaterial->setDiffuse(QColor(QRgb(0xbeb32b)));
 
     // Mesh picker
-    Qt3DRender::QObjectPicker *picker = new Qt3DRender::QObjectPicker();
+    Qt3DRender::QObjectPicker *picker = new Qt3DRender::QObjectPicker(m_meshEntity);
     picker->setEnabled(true);
     picker->setHoverEnabled(true);
 
-    // Build Mesh Entity
-    m_meshEntity = new Qt3DCore::QEntity(m_rootEntity);
+
     m_meshEntity->addComponent(mesh);
     m_meshEntity->addComponent(meshMaterial);
     m_meshEntity->addComponent(meshTransform);
     m_meshEntity->addComponent(picker);
-    QObject::connect(picker, &Qt3DRender::QObjectPicker::clicked, this, &GeneralMeshModel::changeState);
+    QObject::connect(picker, &Qt3DRender::QObjectPicker::clicked, this, &GeneralMeshModel::unpackSubMesh);
 }
 
 GeneralMeshModel::~GeneralMeshModel(){
@@ -64,11 +69,15 @@ void GeneralMeshModel::restoreState(bool checked){
     showMesh(true);
 }
 
-void GeneralMeshModel::unpackSubMesh(bool isUnpack){
-    showMesh(!isUnpack);
-    for(GeneralMeshModel *subModel:m_subModels){
-        subModel->showMesh(isUnpack);
+void GeneralMeshModel::unpackSubMesh(Qt3DRender::QPickEvent* event){
+    if(event->modifiers() == Qt::ControlModifier && event->button() == Qt3DRender::QPickEvent::LeftButton){
+        showMesh(false);
+        for(GeneralMeshModel *subModel:m_subModels){
+            subModel->showMesh(true);
+        }
+        qInfo() << "control + picked" << endl;
     }
+    qInfo() << "picked" << endl;
 }
 
 void GeneralMeshModel::showMesh(bool visible){

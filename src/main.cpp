@@ -45,9 +45,9 @@
 QCommandLinkButton *info;
 
 void setUpCamera(Qt3DRender::QCamera *cameraEntity){
-    //cameraEntity->lens()->setPerspectiveProjection(45.0f, 16.0f/9.0f, 0.1f, 1000.0f);
+    cameraEntity->lens()->setPerspectiveProjection(45.0f, 16.0f/9.0f, 0.1f, 1000.0f);
     cameraEntity->setProjectionType(Qt3DRender::QCameraLens::PerspectiveProjection);
-    cameraEntity->setPosition(QVector3D(0, 0, 20.0f));
+    cameraEntity->setPosition(QVector3D(0, 0, 5));
     cameraEntity->setUpVector(QVector3D(0, 1, 0));
     cameraEntity->setViewCenter(QVector3D(0, 0, 0));
 }
@@ -86,7 +86,7 @@ void setUpInfoWindow(){
     info->show();
 }
 
-void setupControlPanel(QVBoxLayout *vLayout, QWidget *widget, MeshModel *detectorModel, GeneralMeshModel *cylinerModel){
+void setupControlPanel(QVBoxLayout *vLayout, QWidget *widget, MeshModel *detectorModel, GeneralMeshModel *cylinerModel, CameraWrapper *cameraWrapper){
     // Create a info window to display mesh properties
     setUpInfoWindow();
 
@@ -140,11 +140,11 @@ void setupControlPanel(QVBoxLayout *vLayout, QWidget *widget, MeshModel *detecto
 
     // Connect UI with model
     QObject::connect(meshVisibleBtn, &QCheckBox::stateChanged, detectorModel, &MeshModel::showMesh);
-    QObject::connect(unpackBtn, &QCheckBox::stateChanged, cylinerModel, &GeneralMeshModel::unpackSubMesh);
-    QObject::connect(sliderScale, &QSlider::valueChanged, detectorModel, &MeshModel::scaleMesh);
-    QObject::connect(sliderX, SIGNAL(valueChanged(int)), detectorModel, SLOT(rotateMeshX(int)));
-    QObject::connect(sliderY, SIGNAL(valueChanged(int)), detectorModel, SLOT(rotateMeshY(int)));
-    QObject::connect(sliderZ, SIGNAL(valueChanged(int)), detectorModel, SLOT(rotateMeshZ(int)));
+   // QObject::connect(unpackBtn, &QCheckBox::stateChanged, cylinerModel, &GeneralMeshModel::unpackSubMesh);
+    QObject::connect(sliderScale,SIGNAL(valueChanged(int)), cameraWrapper, SLOT(scaleView(int)));
+    QObject::connect(sliderX, SIGNAL(valueChanged(int)), cameraWrapper, SLOT(rotateViewX(int)));
+    QObject::connect(sliderY, SIGNAL(valueChanged(int)), cameraWrapper, SLOT(rotateViewY(int)));
+    QObject::connect(sliderZ, SIGNAL(valueChanged(int)), cameraWrapper, SLOT(rotateViewZ(int)));
     QObject::connect(restoreBtn, SIGNAL(clicked(bool)), detectorModel, SLOT(restoreState(bool)));
     QObject::connect(restoreBtn, SIGNAL(clicked(bool)), cylinerModel, SLOT(restoreState(bool)));
 }
@@ -203,6 +203,7 @@ int main(int argc, char **argv){
     meshBox1->setProperty("Faces", QVariant(2));
     GeneralMeshModel *cuboidModel1 = new GeneralMeshModel(rootEntity, meshBox1);
     cuboidModel1->translateMesh(QVector3D(-3.0f, 1.0f, 0.0f));
+    cuboidModel1->showMesh(false);
 
     Qt3DExtras::QCuboidMesh *meshBox2 = new Qt3DExtras::QCuboidMesh();
     meshBox2->setProperty("Vertices", QVariant(32));
@@ -210,6 +211,7 @@ int main(int argc, char **argv){
     meshBox2->setProperty("Faces", QVariant(2));
     GeneralMeshModel *cuboidModel2 = new GeneralMeshModel(rootEntity, meshBox2);
     cuboidModel2->translateMesh(QVector3D(-3.0f, -1.0f, 0.0f));
+    cuboidModel2->showMesh(false);
 
 
     // Create detector mesh model
@@ -248,7 +250,7 @@ int main(int argc, char **argv){
        //detectorModel->add_subModel(subModelMiddle);
 
    */
-    setupControlPanel(vLayout, widget, detectorModel, cylinerModel);
+    setupControlPanel(vLayout, widget, detectorModel, cylinerModel, cameraWrapper);
 
 
 
