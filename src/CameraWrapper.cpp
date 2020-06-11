@@ -1,14 +1,16 @@
 #include "headers/CameraWrapper.h"
 #include <Qt3DCore/qtransform.h>
+#include <QtMath>
 
 CameraWrapper::CameraWrapper(Qt3DCore::QEntity *rootEntity,  Qt3DRender::QCamera *camera) : m_rootEntity(rootEntity)
 {
     m_camera = camera;
-    m_cameraTransform = new Qt3DCore::QTransform();
-    m_cameraTransform->setScale(1.0f);
-    m_cameraTransform->setRotation(QQuaternion::fromAxisAndAngle(QVector3D(0.0f, 1.0f, 0.0f), 0.0f));
-    m_cameraTransform->setTranslation(QVector3D(0.0f, 0.0f, 20.0f));
-    m_camera->addComponent(m_cameraTransform);
+    float x0 = m_camera->position()[0];
+    float y0 = m_camera->position()[1];
+    float z0 = m_camera->position()[2];
+    m_distanceToOrigin = qSqrt(qPow(x0,2) + qPow(z0,2) + qPow(y0,2));
+    m_latitude = qAsin(y0/m_distanceToOrigin);
+    m_longitude = qAtan2(x0,z0);
 }
 
 void CameraWrapper::setProjectiveMode(bool isPerspective){
@@ -33,23 +35,51 @@ void CameraWrapper::enableCameraController(bool isEnble){
 }
 
 void CameraWrapper::scaleView(int magnitude){
-    float magnitudeF = (float)(magnitude - 30);
-   // m_camera->setPosition(QVector3D(0, 0, magnitudeF));
-    m_cameraTransform->setTranslation(QVector3D(0, 0, magnitudeF));
-    qInfo() << "position" << m_camera->position() << endl;
+    // prevent divided by zero later
+    magnitude += 1;
+    QVector3D position = m_camera -> position();
+    m_camera->setPosition(position * magnitude / m_distanceToOrigin);
+    m_distanceToOrigin = (float)(magnitude);
 }
 
 void CameraWrapper::rotateViewX(int degree){
-    float degreeF = degree * 360.0 / 100.0;
-    m_cameraTransform ->setRotationX(degreeF);
+    m_latitude = (degree - 50) * M_PI / 2 / 50.0;
+    float y = m_distanceToOrigin * qSin(m_latitude);
+    float x = m_distanceToOrigin * qCos(m_latitude) * qSin(m_longitude);
+    float z = m_distanceToOrigin * qCos(m_latitude) * qCos(m_longitude);
+    m_camera -> setPosition(QVector3D(x, y, z));
+    m_camera -> setViewCenter(QVector3D(0, 0, 0));
+    float upVectorY, upVectorX, upVectorZ;
+    upVectorY = qCos(m_latitude);
+    upVectorX = - qSin(m_latitude) * qSin(m_longitude);
+    upVectorZ = - qSin(m_latitude) * qCos(m_longitude);
+    m_camera -> setUpVector(QVector3D(upVectorX, upVectorY, upVectorZ));
 }
 
 void CameraWrapper::rotateViewY(int degree){
-    float degreeF = degree * 360.0 / 100.0;
-    m_cameraTransform->setRotationY(degreeF);
+    m_longitude = degree * 2 * M_PI / 100.0;
+    float x0 = m_camera->position()[0];
+    float y0 = m_camera->position()[1];
+    float z0 = m_camera->position()[2];
+    float xzNorm = qSqrt(qPow(x0,2) + qPow(z0,2));
+    float x = xzNorm * qSin(m_longitude);
+    float z = xzNorm * qCos(m_longitude);
+    m_camera -> setPosition(QVector3D(x, y0, z));
+    m_camera -> setViewCenter(QVector3D(0, 0, 0));
+    float upVectorY, upVectorX, upVectorZ;
+    upVectorY = qCos(m_latitude);
+    upVectorX = - qSin(qAbs(m_latitude)) * qSin(m_longitude);
+    upVectorZ = - qSin(qAbs(m_latitude)) * qCos(m_longitude);
+    m_camera -> setUpVector(QVector3D(upVectorX, upVectorY, upVectorZ));
 }
 
 void CameraWrapper::rotateViewZ(int degree){
-    float degreeF = degree * 360.0 / 100.0;
-    m_cameraTransform->setRotationZ(degreeF);
+    m_roll = degree * 2 * M_PI / 100.0;
+    float x = qCos(m_roll);
+    float y = qSin(m_roll);
+    QVector3D position = m_camera->position();
+    QVector3D extraAxisY = QVector3D::crossProduct(position.normalized(), QVector3D(0,1,0));
+    QVector3D extraAxisX = QVector3D::crossProduct(-position.normalized(), extraAxisY);
+    QVector3D newUpVector = x * extraAxisX + y * extraAxisY;
+    m_camera -> setUpVector(newUpVector);
 }

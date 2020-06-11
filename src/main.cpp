@@ -47,7 +47,7 @@ QCommandLinkButton *info;
 void setUpCamera(Qt3DRender::QCamera *cameraEntity){
     cameraEntity->lens()->setPerspectiveProjection(45.0f, 16.0f/9.0f, 0.1f, 1000.0f);
     cameraEntity->setProjectionType(Qt3DRender::QCameraLens::PerspectiveProjection);
-    cameraEntity->setPosition(QVector3D(0, 0, 5));
+    cameraEntity->setPosition(QVector3D(0, 0, 20));
     cameraEntity->setUpVector(QVector3D(0, 1, 0));
     cameraEntity->setViewCenter(QVector3D(0, 0, 0));
 }
@@ -102,22 +102,22 @@ void setupControlPanel(QVBoxLayout *vLayout, QWidget *widget, MeshModel *detecto
     // Control scale of Volume
     QLabel *labelScale = new QLabel(widget);
     QSlider *sliderScale = new QSlider(widget);
-    setUpSliderController(labelScale, sliderScale, "Scale slider", 50);
+    setUpSliderController(labelScale, sliderScale, "Scale slider", 20);
 
     // Control rotation X of Volume
     QLabel *labelX = new QLabel(widget);
     QSlider *sliderX = new QSlider(widget);
-    setUpSliderController(labelX, sliderX, "rotation slider X (0-360)", 0);
+    setUpSliderController(labelX, sliderX, "rotation slider latitude (-90~90)", 50);
 
     // Control rotation Y of Volume
     QLabel *labelY = new QLabel(widget);
     QSlider *sliderY = new QSlider(widget);
-    setUpSliderController(labelY, sliderY, "rotation slider Y (0-360)", 0);
+    setUpSliderController(labelY, sliderY, "rotation slider longitude (0~360)", 0);
 
     // Control rotation Z of Volume
     QLabel *labelZ = new QLabel(widget);
     QSlider *sliderZ = new QSlider(widget);
-    setUpSliderController(labelZ, sliderZ, "rotation slider Z (0-360)", 0);
+    setUpSliderController(labelZ, sliderZ, "rotation slider Z (0~360)", 0);
 
     QPushButton *restoreBtn = new QPushButton(widget);
     restoreBtn->setEnabled(true);
