@@ -7,6 +7,10 @@
 
 class CameraWrapper : public QObject{
     Q_OBJECT
+private:
+    float m_distanceToOrigin;
+    float m_longitude, m_latitude;
+    float m_roll, m_yaw, m_pitch;
     Qt3DCore::QEntity *m_rootEntity;
     Qt3DRender::QCamera *m_camera;
     Qt3DCore::QTransform *m_cameraTransform;
