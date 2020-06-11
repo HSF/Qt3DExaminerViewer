@@ -34,10 +34,10 @@ MeshModel::MeshModel(Qt3DCore::QEntity *rootEntity, Qt3DRender::QMesh *mesh)
     m_meshEntity->addComponent(mesh);
     m_meshEntity->addComponent(meshMaterial);
     m_meshEntity->addComponent(meshTransform);
-    m_meshEntity->addComponent(picker);
-    QObject::connect(picker, &Qt3DRender::QObjectPicker::clicked, this, &MeshModel::changeState);
-    QObject::connect(picker, &Qt3DRender::QObjectPicker::clicked, this, &MeshModel::showCancelInfo);
-    QObject::connect(picker, &Qt3DRender::QObjectPicker::containsMouseChanged, this, &MeshModel::showInfo);
+    //m_meshEntity->addComponent(picker);
+    //QObject::connect(picker, &Qt3DRender::QObjectPicker::clicked, this, &MeshModel::changeState);
+    //QObject::connect(picker, &Qt3DRender::QObjectPicker::clicked, this, &MeshModel::showCancelInfo);
+    //QObject::connect(picker, &Qt3DRender::QObjectPicker::containsMouseChanged, this, &MeshModel::showInfo);
 }
 
 MeshModel::~MeshModel(){
@@ -83,7 +83,6 @@ void MeshModel::restoreState(bool checked){
 
 void MeshModel::showMesh(bool visible){
     m_meshEntity->setEnabled(visible);
-    enablePick(visible);
 }
 
 void MeshModel::translateMesh(QVector3D translation){

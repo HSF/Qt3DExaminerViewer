@@ -22,8 +22,9 @@ public:
 signals:
 
 public slots:
+    void resetCameraView(bool isReset);
     void setProjectiveMode(bool isPerspective);
-    void enableCameraController(bool isEnble);
+    void disableCameraController(bool disEnble);
     void scaleView(int magnitude);
     void rotateViewX(int degree);
     void rotateViewY(int degree);

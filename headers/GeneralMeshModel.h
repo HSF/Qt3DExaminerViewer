@@ -37,6 +37,7 @@ public slots:
     void translateMesh(QVector3D translation);
     void scaleMesh(int magnitude);
     void unpackSubMesh(Qt3DRender::QPickEvent* event);
+    void enablePickAll(bool enable);
 private slots:
     void changeState(Qt3DRender::QPickEvent* event);
     void enablePick(bool enable);
@@ -46,7 +47,9 @@ private slots:
 private:
     Qt3DCore::QEntity *m_rootEntity;
     Qt3DCore::QEntity *m_meshEntity;
+    Qt3DRender::QObjectPicker *m_picker;
     QVector<GeneralMeshModel*> m_subModels;
+    bool m_isSelectMode;
 };
 
 #endif // GENERALMESHMODEL_H
