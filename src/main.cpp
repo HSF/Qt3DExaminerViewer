@@ -44,14 +44,6 @@
 
 QCommandLinkButton *info;
 
-void setUpCamera(Qt3DRender::QCamera *cameraEntity){
-    cameraEntity->lens()->setPerspectiveProjection(45.0f, 16.0f/9.0f, 0.1f, 1000.0f);
-    cameraEntity->setProjectionType(Qt3DRender::QCameraLens::PerspectiveProjection);
-    cameraEntity->setPosition(QVector3D(0, 0, 20));
-    cameraEntity->setUpVector(QVector3D(0, 1, 0));
-    cameraEntity->setViewCenter(QVector3D(0, 0, 0));
-}
-
 void setUpLight(Qt3DCore::QEntity *lightEntity, QVector3D position){
     Qt3DRender::QPointLight *light = new Qt3DRender::QPointLight(lightEntity);
     light->setColor("white");
@@ -86,7 +78,7 @@ void setUpInfoWindow(){
     info->show();
 }
 
-void setupControlPanel(QVBoxLayout *vLayout, QWidget *widget, MeshModel *detectorModel, GeneralMeshModel *cylinerModel, CameraWrapper *cameraWrapper){
+inline void setupControlPanel(QVBoxLayout *vLayout, QWidget *widget, MeshModel *detectorModel, GeneralMeshModel *cylinerModel, CameraWrapper *cameraWrapper){
     // Create a info window to display mesh properties
     setUpInfoWindow();
 
@@ -95,38 +87,44 @@ void setupControlPanel(QVBoxLayout *vLayout, QWidget *widget, MeshModel *detecto
     meshVisibleBtn->setChecked(true);
     meshVisibleBtn->setText(QStringLiteral("Display Detector Volume"));
 
-    QCheckBox *unpackBtn = new QCheckBox(widget);
-    unpackBtn->setChecked(false);
-    unpackBtn->setText(QStringLiteral("unpack children Volume"));
-
     // Control scale of Volume
     QLabel *labelScale = new QLabel(widget);
     QSlider *sliderScale = new QSlider(widget);
-    setUpSliderController(labelScale, sliderScale, "Scale slider", 20);
+    setUpSliderController(labelScale, sliderScale, "Scale/radius slider", 35);
 
     // Control rotation X of Volume
     QLabel *labelX = new QLabel(widget);
     QSlider *sliderX = new QSlider(widget);
-    setUpSliderController(labelX, sliderX, "rotation slider latitude (-90~90)", 50);
+    setUpSliderController(labelX, sliderX, "latitude/pitch slider (-90~90)", 50);
 
     // Control rotation Y of Volume
     QLabel *labelY = new QLabel(widget);
     QSlider *sliderY = new QSlider(widget);
-    setUpSliderController(labelY, sliderY, "rotation slider longitude (0~360)", 0);
+    setUpSliderController(labelY, sliderY, "longitude/yaw slider (0~360)", 0);
 
     // Control rotation Z of Volume
     QLabel *labelZ = new QLabel(widget);
     QSlider *sliderZ = new QSlider(widget);
-    setUpSliderController(labelZ, sliderZ, "rotation slider Z (0~360)", 0);
+    setUpSliderController(labelZ, sliderZ, "roll slider (0~360)", 0);
 
-    QPushButton *restoreBtn = new QPushButton(widget);
-    restoreBtn->setEnabled(true);
-    restoreBtn->setFixedSize(QSize(130, 30));
-    restoreBtn->setText(QString("restore"));
+    QPushButton *restoreSelectBtn = new QPushButton(widget);
+    restoreSelectBtn->setEnabled(true);
+    restoreSelectBtn->setFixedSize(QSize(200, 30));
+    restoreSelectBtn->setText(QString("revert original state"));
+
+    QPushButton *restoreViewBtn = new QPushButton(widget);
+    restoreViewBtn->setEnabled(true);
+    restoreViewBtn->setFixedSize(QSize(200, 30));
+    restoreViewBtn->setText(QString("revert original view"));
+
+    SwitchButton* projSwitch = new SwitchButton(widget, "Ortho", "Persp");
+    projSwitch->setInitialState(true);
+
+    SwitchButton* selectSwitch = new SwitchButton(widget, "View", "Select");
+    selectSwitch->setInitialState(true);
 
     vLayout->addWidget(info);
     vLayout->addWidget(meshVisibleBtn);
-    vLayout->addWidget(unpackBtn);
     vLayout->addWidget(labelScale);
     vLayout->addWidget(sliderScale);
     vLayout->addWidget(labelX);
@@ -135,18 +133,22 @@ void setupControlPanel(QVBoxLayout *vLayout, QWidget *widget, MeshModel *detecto
     vLayout->addWidget(sliderY);
     vLayout->addWidget(labelZ);
     vLayout->addWidget(sliderZ);
-    vLayout->addWidget(restoreBtn);
-
+    vLayout->addWidget(restoreSelectBtn);
+    vLayout->addWidget(restoreViewBtn);
+    vLayout->addWidget(projSwitch);
+    vLayout->addWidget(selectSwitch);
 
     // Connect UI with model
     QObject::connect(meshVisibleBtn, &QCheckBox::stateChanged, detectorModel, &MeshModel::showMesh);
-   // QObject::connect(unpackBtn, &QCheckBox::stateChanged, cylinerModel, &GeneralMeshModel::unpackSubMesh);
     QObject::connect(sliderScale,SIGNAL(valueChanged(int)), cameraWrapper, SLOT(scaleView(int)));
     QObject::connect(sliderX, SIGNAL(valueChanged(int)), cameraWrapper, SLOT(rotateViewX(int)));
     QObject::connect(sliderY, SIGNAL(valueChanged(int)), cameraWrapper, SLOT(rotateViewY(int)));
     QObject::connect(sliderZ, SIGNAL(valueChanged(int)), cameraWrapper, SLOT(rotateViewZ(int)));
-    QObject::connect(restoreBtn, SIGNAL(clicked(bool)), detectorModel, SLOT(restoreState(bool)));
-    QObject::connect(restoreBtn, SIGNAL(clicked(bool)), cylinerModel, SLOT(restoreState(bool)));
+    QObject::connect(restoreSelectBtn, SIGNAL(clicked(bool)), cylinerModel, SLOT(restoreState(bool)));
+    QObject::connect(restoreViewBtn, SIGNAL(clicked(bool)), cameraWrapper, SLOT(resetCameraView(bool)));
+    QObject::connect(projSwitch, SIGNAL(valueChanged(bool)),  cameraWrapper, SLOT(setProjectiveMode(bool)));
+    QObject::connect(selectSwitch, SIGNAL(valueChanged(bool)),  cameraWrapper, SLOT(disableCameraController(bool)));
+    QObject::connect(selectSwitch, SIGNAL(valueChanged(bool)),  cylinerModel, SLOT(enablePickAll(bool)));
 }
 
 int main(int argc, char **argv){
@@ -174,11 +176,10 @@ int main(int argc, char **argv){
 
     // Camera and Camera controls
     Qt3DRender::QCamera *cameraEntity = view->camera();
-    Qt3DExtras::QOrbitCameraController *camController = new Qt3DExtras::QOrbitCameraController(rootEntity);
-    setUpCamera(cameraEntity);
     CameraWrapper *cameraWrapper = new CameraWrapper(rootEntity, cameraEntity);
+    Qt3DExtras::QOrbitCameraController *camController = new Qt3DExtras::QOrbitCameraController(rootEntity);
     cameraWrapper->addCameraController(camController);
-    camController->setCamera(cameraEntity);
+    camController->setCamera(nullptr);
 
     // Light
     Qt3DCore::QEntity *lightEntity = new Qt3DCore::QEntity(rootEntity);
@@ -190,29 +191,31 @@ int main(int argc, char **argv){
 
 
     Qt3DExtras::QCylinderMesh *meshCyliner = new Qt3DExtras::QCylinderMesh();
-    meshCyliner->setProperty("Vertices", QVariant(32));
-    meshCyliner->setProperty("Edges", QVariant(58));
-    meshCyliner->setProperty("Faces", QVariant(2));
     GeneralMeshModel *cylinerModel = new GeneralMeshModel(rootEntity, meshCyliner);
-    cylinerModel->translateMesh(QVector3D(-3.0f, 0.0f, 0.0f));
-    cylinerModel->scaleMesh(3);
+    cylinerModel->translateMesh(QVector3D(-5.0f, 0.0f, 0.0f));
+    cylinerModel->scaleMesh(4);
 
     Qt3DExtras::QCuboidMesh *meshBox1 = new Qt3DExtras::QCuboidMesh();
-    meshBox1->setProperty("Vertices", QVariant(32));
-    meshBox1->setProperty("Edges", QVariant(58));
-    meshBox1->setProperty("Faces", QVariant(2));
     GeneralMeshModel *cuboidModel1 = new GeneralMeshModel(rootEntity, meshBox1);
-    cuboidModel1->translateMesh(QVector3D(-3.0f, 1.0f, 0.0f));
+    cuboidModel1->translateMesh(QVector3D(-5.0f, 1.0f, 0.0f));
+    cuboidModel1->scaleMesh(2);
     cuboidModel1->showMesh(false);
 
     Qt3DExtras::QCuboidMesh *meshBox2 = new Qt3DExtras::QCuboidMesh();
-    meshBox2->setProperty("Vertices", QVariant(32));
-    meshBox2->setProperty("Edges", QVariant(58));
-    meshBox2->setProperty("Faces", QVariant(2));
     GeneralMeshModel *cuboidModel2 = new GeneralMeshModel(rootEntity, meshBox2);
-    cuboidModel2->translateMesh(QVector3D(-3.0f, -1.0f, 0.0f));
+    cuboidModel2->translateMesh(QVector3D(-5.0f, -1.0f, 0.0f));
+    cuboidModel2->scaleMesh(2);
     cuboidModel2->showMesh(false);
 
+
+    Qt3DExtras::QCuboidMesh *meshBox3 = new Qt3DExtras::QCuboidMesh();
+    GeneralMeshModel *cuboidModel3 = new GeneralMeshModel(rootEntity, meshBox3);
+    cuboidModel3->translateMesh(QVector3D(-5.0f, 1.0f, 0.0f));
+    cuboidModel3->showMesh(false);
+
+    cylinerModel->add_subModel(cuboidModel1);
+    cylinerModel->add_subModel(cuboidModel2);
+    cuboidModel1->add_subModel(cuboidModel3);
 
     // Create detector mesh model
     // Mesh shape and properties
@@ -252,18 +255,6 @@ int main(int argc, char **argv){
    */
     setupControlPanel(vLayout, widget, detectorModel, cylinerModel, cameraWrapper);
 
-
-
-
-    SwitchButton* sbtn = new SwitchButton(widget, "", "Perspe");
-    SwitchButton* selectBtn = new SwitchButton(widget, "", "Select");
-
-    vLayout->addWidget(sbtn);
-    vLayout->addWidget(selectBtn);
-
-    QObject::connect(sbtn, SIGNAL(valueChanged(bool)),  cameraWrapper, SLOT(setProjectiveMode(bool)));
-    QObject::connect(selectBtn, SIGNAL(valueChanged(bool)),  cameraWrapper, SLOT(enableCameraController(bool)));
-    QObject::connect(selectBtn, SIGNAL(valueChanged(bool)),  detectorModel, SLOT(enablePick(bool)));
     // Show window
     widget->show();
     widget->resize(1200, 800);

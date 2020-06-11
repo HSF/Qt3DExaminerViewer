@@ -1,5 +1,6 @@
 #include "headers/SwithButton.h"
 #include <QPainter>
+#include <QtCore/QDebug>
 
 SwitchButton::SwitchButton(QWidget* parent, QString label1, QString label2)
   : QWidget(parent)
@@ -22,12 +23,12 @@ SwitchButton::SwitchButton(QWidget* parent, QString label1, QString label2)
      _lg2.setColorAt(1, QColor(230, 230, 230));
 
      _lg_disabled = QLinearGradient(50, 30, 35, 0);
-     _lg_disabled.setColorAt(0, QColor(200, 200, 200));
-     _lg_disabled.setColorAt(0.25, QColor(230, 230, 230));
-     _lg_disabled.setColorAt(0.82, QColor(230, 230, 230));
-     _lg_disabled.setColorAt(1, QColor(200, 200, 200));
+     _lg_disabled.setColorAt(0, QColor(0, 200, 200));
+     _lg_disabled.setColorAt(0.25, QColor(0, 230, 230));
+     _lg_disabled.setColorAt(0.82, QColor(0, 230, 230));
+     _lg_disabled.setColorAt(1, QColor(0, 200, 200));
 
-     _offcolor = QColor(255, 255, 255);
+     _offcolor = QColor(205, 154, 50);
      _oncolor = QColor(154, 205, 50);
      _tol = 0;
      _borderradius = 12;
@@ -51,7 +52,6 @@ SwitchButton::SwitchButton(QWidget* parent, QString label1, QString label2)
      _labeloff->move(31, 5);
      _labelon->move(15, 5);
      setFixedSize(QSize(90, 24));
-
       _labeloff->setStyleSheet("color: rgb(120, 120, 120); font-weight: bold;");
       _labelon->setStyleSheet("color: rgb(255, 255, 255); font-weight: bold;");
 
@@ -111,11 +111,22 @@ void SwitchButton::paintEvent(QPaintEvent*)
   }
   painter->end();
 }
-
-void SwitchButton::mousePressEvent(QMouseEvent*)
+bool SwitchButton::value() const{
+    return _value;
+}
+void SwitchButton::mousePressEvent(QMouseEvent *event)
 {
   if (!_enabled)
     return;
+  if (!_value){
+    _labelon->show();
+    _labeloff->hide();
+  }
+  else
+  {
+     _labelon->hide();
+     _labeloff->show();
+  }
 
   __btn_move->stop();
   __back_move->stop();
@@ -151,65 +162,15 @@ void SwitchButton::mousePressEvent(QMouseEvent*)
 
   // Assigning new current value
   _value = !_value;
-  emit valueChanged(_value);
+  if(event != nullptr)  emit valueChanged(_value);
 }
 
-void SwitchButton::setEnabled(bool flag)
+void SwitchButton::setInitialState(bool isRight)
 {
-  _enabled = flag;
-  _circle->setEnabled(flag);
-  _background->setEnabled(flag);
-  if (flag)
-    _labelon->show();
-  else
-  {
-    if (value())
-      _labelon->show();
-    else
-      _labelon->hide();
-  }
-  QWidget::setEnabled(flag);
+  if(isRight)
+    mousePressEvent(nullptr);
 }
 
-void SwitchButton::setDuration(int time)
-{
-  _duration = time;
-}
-
-void SwitchButton::setValue(bool flag)
-{
-  if (flag == value())
-    return;
-  else
-  {
-    _value = flag;
-    _update();
-    setEnabled(_enabled);
-  }
-}
-
-bool SwitchButton::value() const
-{
-  return _value;
-}
-
-void SwitchButton::_update()
-{
-  int hback = 20;
-  QSize final_size(width() - 4, hback);
-
-  int y = 2;
-  int xf = width() - 22;
-
-  if (_value)
-  {
-    final_size = QSize(hback, hback);
-    xf = 2;
-  }
-
-  _circle->move(QPoint(xf, y));
-  _background->resize(final_size);
-}
 
 SwitchButton::SwitchBackground::SwitchBackground(QWidget* parent, QColor color, bool rect)
   : QWidget(parent)
@@ -240,6 +201,7 @@ SwitchButton::SwitchBackground::~SwitchBackground()
 }
 void SwitchButton::SwitchBackground::paintEvent(QPaintEvent*)
 {
+
   QPainter* painter = new QPainter;
   painter->begin(this);
   painter->setRenderHint(QPainter::Antialiasing, true);
@@ -258,7 +220,7 @@ void SwitchButton::SwitchBackground::paintEvent(QPaintEvent*)
   }
   else
   {
-    painter->setBrush(QColor(150, 150, 150));
+    painter->setBrush(QColor(192, 50, 150));
     painter->drawRoundedRect(0, 0
       , width(), height()
       , 10, 10);
@@ -268,10 +230,7 @@ void SwitchButton::SwitchBackground::paintEvent(QPaintEvent*)
   }
   painter->end();
 }
-void SwitchButton::SwitchBackground::setEnabled(bool flag)
-{
-  _enabled = flag;
-}
+
 
 SwitchButton::SwitchCircle::SwitchCircle(QWidget* parent, QColor color, bool rect)
   : QWidget(parent)
@@ -281,7 +240,6 @@ SwitchButton::SwitchCircle::SwitchCircle(QWidget* parent, QColor color, bool rec
   , _pencolor(QColor(120, 120, 120))
 {
   setFixedSize(20, 20);
-
   _rg = QRadialGradient(static_cast<int>(width() / 2), static_cast<int>(height() / 2), 12);
   _rg.setColorAt(0, QColor(255, 255, 255));
   _rg.setColorAt(0.6, QColor(255, 255, 255));
@@ -333,8 +291,4 @@ void SwitchButton::SwitchCircle::paintEvent(QPaintEvent*)
   }
 
   painter->end();
-}
-void SwitchButton::SwitchCircle::setEnabled(bool flag)
-{
-  _enabled = flag;
 }

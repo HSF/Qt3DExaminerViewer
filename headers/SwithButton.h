@@ -25,7 +25,7 @@ public:
   //-- QWidget methods
   void mousePressEvent(QMouseEvent *) override;
   void paintEvent(QPaintEvent* event) override;
-  void setEnabled(bool);
+  void setInitialState(bool);
 
   //-- Setters
   void setDuration(int);

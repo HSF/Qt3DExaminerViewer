@@ -5,6 +5,7 @@
 CameraWrapper::CameraWrapper(Qt3DCore::QEntity *rootEntity,  Qt3DRender::QCamera *camera) : m_rootEntity(rootEntity)
 {
     m_camera = camera;
+    resetCameraView(true);
     float x0 = m_camera->position()[0];
     float y0 = m_camera->position()[1];
     float z0 = m_camera->position()[2];
@@ -13,22 +14,29 @@ CameraWrapper::CameraWrapper(Qt3DCore::QEntity *rootEntity,  Qt3DRender::QCamera
     m_longitude = qAtan2(x0,z0);
 }
 
+void CameraWrapper::resetCameraView(bool isReset){
+    m_camera->setProjectionType(Qt3DRender::QCameraLens::PerspectiveProjection);
+    m_camera->setPosition(QVector3D(0, 0, 50));
+    m_camera->setUpVector(QVector3D(0, 1, 0));
+    m_camera->setViewCenter(QVector3D(0, 0, 0));
+}
+
+
 void CameraWrapper::setProjectiveMode(bool isPerspective){
-    if(isPerspective)
+    if(!isPerspective)
         m_camera->setProjectionType(Qt3DRender::QCameraLens::OrthographicProjection);
     else
         m_camera->setProjectionType(Qt3DRender::QCameraLens::PerspectiveProjection);
 
 }
 
-
 void CameraWrapper::addCameraController(Qt3DExtras::QAbstractCameraController *camController){
     m_camController = camController;
     m_camController ->setCamera(m_camera);
 }
 
-void CameraWrapper::enableCameraController(bool isEnble){
-    if(isEnble)
+void CameraWrapper::disableCameraController(bool disEnble){
+    if(disEnble)
         m_camController ->setCamera(nullptr);
     else
         m_camController ->setCamera(m_camera);
