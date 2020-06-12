@@ -11,10 +11,6 @@
 
 #include <Qt3DRender/QObjectPicker>
 
-
-extern QCommandLinkButton *info;
-
-
 GeneralMeshModel::GeneralMeshModel(Qt3DCore::QEntity *rootEntity, Qt3DRender::QGeometryRenderer *mesh)
     : m_rootEntity(rootEntity), m_isSelectMode(true){
 
@@ -36,13 +32,18 @@ GeneralMeshModel::GeneralMeshModel(Qt3DCore::QEntity *rootEntity, Qt3DRender::QG
     m_picker->setEnabled(true);
     m_picker->setHoverEnabled(true);
 
-
     m_meshEntity->addComponent(mesh);
     m_meshEntity->addComponent(meshMaterial);
     m_meshEntity->addComponent(meshTransform);
     m_meshEntity->addComponent(m_picker);
     QObject::connect(m_picker, &Qt3DRender::QObjectPicker::clicked, this, &GeneralMeshModel::unpackSubMesh);
     QObject::connect(m_picker, &Qt3DRender::QObjectPicker::clicked, this, &GeneralMeshModel::changeState);
+    QObject::connect(m_picker, &Qt3DRender::QObjectPicker::clicked, this,[mesh](){ info->setDescription(QString("This is ") + mesh->objectName());});
+    QObject::connect(m_picker, &Qt3DRender::QObjectPicker::exited, this, [](){ info->setDescription("move mouse inside a volume to see tips");});
+    QObject::connect(m_picker, &Qt3DRender::QObjectPicker::entered, this, [](){ info->setDescription(QString("1) Left click to select\n"
+                                                                                                             "2) CMD/Ctrl + left click to unpack children\n"
+                                                                                                             "3) Click \"revert original state\" "
+                                                                                                             "button to restore"));});
 }
 
 GeneralMeshModel::~GeneralMeshModel(){
@@ -53,8 +54,10 @@ void GeneralMeshModel::add_subModel(GeneralMeshModel *subModel){
 }
 
 void GeneralMeshModel::changeState(Qt3DRender::QPickEvent* event){
-     Qt3DExtras::QPhongMaterial *material = (Qt3DExtras::QPhongMaterial*)(m_meshEntity->componentsOfType<Qt3DExtras::QPhongMaterial>()[0]);
-     material->setDiffuse(QColor(255, 0, 0, 127));
+    if(event->button() == Qt3DRender::QPickEvent::LeftButton){
+        Qt3DExtras::QPhongMaterial *material = (Qt3DExtras::QPhongMaterial*)(m_meshEntity->componentsOfType<Qt3DExtras::QPhongMaterial>()[0]);
+        material->setDiffuse(QColor(255, 0, 0, 127));
+    }
 }
 
 void GeneralMeshModel::enablePickAll(bool enable){
@@ -67,11 +70,9 @@ void GeneralMeshModel::enablePickAll(bool enable){
 
 void GeneralMeshModel::enablePick(bool enable){
     if(enable){
-        qInfo() << "can pick?" << endl;
         m_meshEntity->addComponent(m_picker);
     }
     else{
-        qInfo() << "cannot pick?" << endl;
         m_meshEntity->removeComponent(m_picker);
     }
 }
@@ -85,7 +86,6 @@ void GeneralMeshModel::restoreState(bool checked){
     material->setDiffuse(QColor(QRgb(0xbeb32b)));
     showMesh(true);
     if(m_isSelectMode) enablePick(true);
-    qInfo() << "selected? " << m_isSelectMode;
 }
 
 void GeneralMeshModel::unpackSubMesh(Qt3DRender::QPickEvent* event){

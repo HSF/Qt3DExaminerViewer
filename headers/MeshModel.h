@@ -22,14 +22,10 @@ public:
 
 public slots:
     void showMesh(bool visible);
-    void rotateMeshX(int degree);
-    void rotateMeshY(int degree);
     void rotateMeshZ(int degree);
     void scaleMesh(int magnitude);
     void translateMesh(QVector3D translation);
 private slots:
-    void showInfo(bool isContainsMouse);
-    void showCancelInfo(Qt3DRender::QPickEvent* event);
     void changeState(Qt3DRender::QPickEvent* event);
     void enablePick(bool enable);
     void restoreState(bool checked);

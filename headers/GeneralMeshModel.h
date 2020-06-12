@@ -32,17 +32,20 @@ public:
     ~GeneralMeshModel();
     void add_subModel(GeneralMeshModel *subModel);
 
+signals:
+    void mouseEnter(QString tip);
+
 public slots:
     void showMesh(bool visible);
     void translateMesh(QVector3D translation);
     void scaleMesh(int magnitude);
     void unpackSubMesh(Qt3DRender::QPickEvent* event);
     void enablePickAll(bool enable);
+
 private slots:
     void changeState(Qt3DRender::QPickEvent* event);
-    void enablePick(bool enable);
     void restoreState(bool checked);
-
+    void enablePick(bool enable);
 
 private:
     Qt3DCore::QEntity *m_rootEntity;

@@ -73,8 +73,8 @@ void setUpInfoWindow(){
     info->setText(QStringLiteral("Info windows:"));
     info->setDescription(QString::fromLatin1("Click dectector volumes to see some properties."));
     info->setIconSize(QSize(0,0));
-    info->setFixedSize(QSize(200, 100));
-    info->setFont(QFont ("Courier", 14));
+    info->setFixedSize(QSize(180, 200));
+    info->setFont(QFont ("Courier", 13));
     info->show();
 }
 
@@ -191,17 +191,20 @@ int main(int argc, char **argv){
 
 
     Qt3DExtras::QCylinderMesh *meshCyliner = new Qt3DExtras::QCylinderMesh();
+    meshCyliner->setObjectName("World Volume");
     GeneralMeshModel *cylinerModel = new GeneralMeshModel(rootEntity, meshCyliner);
     cylinerModel->translateMesh(QVector3D(-5.0f, 0.0f, 0.0f));
     cylinerModel->scaleMesh(4);
 
     Qt3DExtras::QCuboidMesh *meshBox1 = new Qt3DExtras::QCuboidMesh();
+    meshBox1->setObjectName("Muon");
     GeneralMeshModel *cuboidModel1 = new GeneralMeshModel(rootEntity, meshBox1);
     cuboidModel1->translateMesh(QVector3D(-5.0f, 1.0f, 0.0f));
     cuboidModel1->scaleMesh(2);
     cuboidModel1->showMesh(false);
 
     Qt3DExtras::QCuboidMesh *meshBox2 = new Qt3DExtras::QCuboidMesh();
+    meshBox2->setObjectName("Calorimeter");
     GeneralMeshModel *cuboidModel2 = new GeneralMeshModel(rootEntity, meshBox2);
     cuboidModel2->translateMesh(QVector3D(-5.0f, -1.0f, 0.0f));
     cuboidModel2->scaleMesh(2);
@@ -209,6 +212,7 @@ int main(int argc, char **argv){
 
 
     Qt3DExtras::QCuboidMesh *meshBox3 = new Qt3DExtras::QCuboidMesh();
+    meshBox3->setObjectName("one daughter of Muon");
     GeneralMeshModel *cuboidModel3 = new GeneralMeshModel(rootEntity, meshBox3);
     cuboidModel3->translateMesh(QVector3D(-5.0f, 1.0f, 0.0f));
     cuboidModel3->showMesh(false);
