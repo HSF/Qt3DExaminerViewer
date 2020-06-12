@@ -66,6 +66,8 @@ void setUpSliderController(QLabel *label, QSlider *slider, QString tip, int init
     slider->setRange(0, 100);
     slider->setValue(initalPos);
     slider->setGeometry(10, 40, 210, 30);
+    slider->setTickPosition(QSlider::TicksBelow);
+    slider->setTickInterval(10);
 }
 
 void setUpInfoWindow(){
@@ -78,84 +80,107 @@ void setUpInfoWindow(){
     info->show();
 }
 
-inline void setupControlPanel(QVBoxLayout *vLayout, QWidget *widget, MeshModel *detectorModel, GeneralMeshModel *cylinerModel, CameraWrapper *cameraWrapper){
+inline void setupControlPanel(QVBoxLayout *vLayout, QWidget *mainWindow, MeshModel *detectorModel, GeneralMeshModel *cylinerModel, CameraWrapper *cameraWrapper){
     // Create a info window to display mesh properties
     setUpInfoWindow();
 
     // Control visibility of Volume
-    QCheckBox *meshVisibleBtn = new QCheckBox(widget);
+    QCheckBox *meshVisibleBtn = new QCheckBox(mainWindow);
     meshVisibleBtn->setChecked(true);
     meshVisibleBtn->setText(QStringLiteral("Display Detector Volume"));
 
-    // Control scale of Volume
-    QLabel *labelScale = new QLabel(widget);
-    QSlider *sliderScale = new QSlider(widget);
-    setUpSliderController(labelScale, sliderScale, "Scale/radius slider", 35);
+    // Control radius of Camera to origin
+    QLabel *labelScale = new QLabel(mainWindow);
+    QSlider *sliderScale = new QSlider(mainWindow);
+    setUpSliderController(labelScale, sliderScale, "radius slider", 35);
 
-    // Control rotation X of Volume
-    QLabel *labelX = new QLabel(widget);
-    QSlider *sliderX = new QSlider(widget);
-    setUpSliderController(labelX, sliderX, "latitude/pitch slider (-90~90)", 50);
+    // Contro latitude of Camera
+    QLabel *labelLat = new QLabel(mainWindow);
+    QSlider *sliderLat = new QSlider(mainWindow);
+    setUpSliderController(labelLat, sliderLat, "latitude slider (-90~90)", 50);
 
-    // Control rotation Y of Volume
-    QLabel *labelY = new QLabel(widget);
-    QSlider *sliderY = new QSlider(widget);
-    setUpSliderController(labelY, sliderY, "longitude/yaw slider (0~360)", 0);
+    // Control longitude of Camera
+    QLabel *labelLng = new QLabel(mainWindow);
+    QSlider *sliderLng = new QSlider(mainWindow);
+    setUpSliderController(labelLng, sliderLng, "longitude slider (0~360)", 0);
 
-    // Control rotation Z of Volume
-    QLabel *labelZ = new QLabel(widget);
-    QSlider *sliderZ = new QSlider(widget);
-    setUpSliderController(labelZ, sliderZ, "roll slider (0~360)", 0);
-
-    QPushButton *restoreSelectBtn = new QPushButton(widget);
+    // Cancel selected and unpacked state
+    QPushButton *restoreSelectBtn = new QPushButton(mainWindow);
     restoreSelectBtn->setEnabled(true);
     restoreSelectBtn->setFixedSize(QSize(200, 30));
     restoreSelectBtn->setText(QString("revert original state"));
 
-    QPushButton *restoreViewBtn = new QPushButton(widget);
+    // Cancel moved camera position and direction
+    QPushButton *restoreViewBtn = new QPushButton(mainWindow);
     restoreViewBtn->setEnabled(true);
     restoreViewBtn->setFixedSize(QSize(200, 30));
     restoreViewBtn->setText(QString("revert original view"));
 
-    SwitchButton* projSwitch = new SwitchButton(widget, "Ortho", "Persp");
+    // Switch between Ortho and Perspective
+    SwitchButton* projSwitch = new SwitchButton(mainWindow, "Ortho", "Persp");
     projSwitch->setInitialState(true);
 
-    SwitchButton* selectSwitch = new SwitchButton(widget, "View", "Select");
+    // Switch between navigation and select mode
+    SwitchButton* selectSwitch = new SwitchButton(mainWindow, "View", "Select");
     selectSwitch->setInitialState(true);
+
+    // Control yaw angle of Camera
+    QLabel *labelYaw = new QLabel(mainWindow);
+    QSlider *sliderYaw = new QSlider(mainWindow);
+    setUpSliderController(labelYaw, sliderYaw, "yaw slider (0~360)", 50);
+
+    // Control pitch angle of Camera
+    QLabel *labelPitch = new QLabel(mainWindow);
+    QSlider *sliderPitch = new QSlider(mainWindow);
+    setUpSliderController(labelPitch, sliderPitch, "pitch slider (-90~90)", 50);
+
+    // Control roll angle of Camera
+    QLabel *labelRoll = new QLabel(mainWindow);
+    QSlider *sliderRoll = new QSlider(mainWindow);
+    setUpSliderController(labelRoll, sliderRoll, "roll slider (0~360)", 0);
 
     vLayout->addWidget(info);
     vLayout->addWidget(meshVisibleBtn);
     vLayout->addWidget(labelScale);
     vLayout->addWidget(sliderScale);
-    vLayout->addWidget(labelX);
-    vLayout->addWidget(sliderX);
-    vLayout->addWidget(labelY);
-    vLayout->addWidget(sliderY);
-    vLayout->addWidget(labelZ);
-    vLayout->addWidget(sliderZ);
+    vLayout->addWidget(labelLat);
+    vLayout->addWidget(sliderLat);
+    vLayout->addWidget(labelLng);
+    vLayout->addWidget(sliderLng);
     vLayout->addWidget(restoreSelectBtn);
     vLayout->addWidget(restoreViewBtn);
     vLayout->addWidget(projSwitch);
     vLayout->addWidget(selectSwitch);
+    vLayout->addWidget(labelYaw);
+    vLayout->addWidget(sliderYaw);
+    vLayout->addWidget(labelPitch);
+    vLayout->addWidget(sliderPitch);
+    vLayout->addWidget(labelRoll);
+    vLayout->addWidget(sliderRoll);
 
     // Connect UI with model
     QObject::connect(meshVisibleBtn, &QCheckBox::stateChanged, detectorModel, &MeshModel::showMesh);
     QObject::connect(sliderScale,SIGNAL(valueChanged(int)), cameraWrapper, SLOT(scaleView(int)));
-    QObject::connect(sliderX, SIGNAL(valueChanged(int)), cameraWrapper, SLOT(rotateViewX(int)));
-    QObject::connect(sliderY, SIGNAL(valueChanged(int)), cameraWrapper, SLOT(rotateViewY(int)));
-    QObject::connect(sliderZ, SIGNAL(valueChanged(int)), cameraWrapper, SLOT(rotateViewZ(int)));
+    QObject::connect(sliderLat, SIGNAL(valueChanged(int)), cameraWrapper, SLOT(rotateViewX(int)));
+    QObject::connect(sliderLng, SIGNAL(valueChanged(int)), cameraWrapper, SLOT(rotateViewY(int)));
     QObject::connect(restoreSelectBtn, SIGNAL(clicked(bool)), cylinerModel, SLOT(restoreState(bool)));
     QObject::connect(restoreViewBtn, SIGNAL(clicked(bool)), cameraWrapper, SLOT(resetCameraView(bool)));
     QObject::connect(projSwitch, SIGNAL(valueChanged(bool)),  cameraWrapper, SLOT(setProjectiveMode(bool)));
     QObject::connect(selectSwitch, SIGNAL(valueChanged(bool)),  cameraWrapper, SLOT(disableCameraController(bool)));
     QObject::connect(selectSwitch, SIGNAL(valueChanged(bool)),  cylinerModel, SLOT(enablePickAll(bool)));
+    QObject::connect(sliderRoll, SIGNAL(valueChanged(int)), cameraWrapper, SLOT(rotateViewZ(int)));
 }
 
 int main(int argc, char **argv){
 
     QApplication app(argc, argv);
 
+    // Root entity
+    Qt3DCore::QEntity *rootEntity = new Qt3DCore::QEntity();
+
+    // view and container
     Qt3DExtras::Qt3DWindow *view = new Qt3DExtras::Qt3DWindow();
+    view->setRootEntity(rootEntity);
     view->defaultFrameGraph()->setClearColor(QColor(QRgb(0x4d4d4f))); 
     QWidget *container = QWidget::createWindowContainer(view);
     QSize screenSize = view->screen()->size();
@@ -163,16 +188,13 @@ int main(int argc, char **argv){
     container->setMaximumSize(screenSize);
 
     // Layout
-    QWidget *widget = new QWidget;
-    QHBoxLayout *hLayout = new QHBoxLayout(widget);
+    QWidget *mainWindow = new QWidget;
+    QHBoxLayout *hLayout = new QHBoxLayout(mainWindow);
     QVBoxLayout *vLayout = new QVBoxLayout();
     vLayout->setAlignment(Qt::AlignTop);
     hLayout->addWidget(container, 1);
     hLayout->addLayout(vLayout);
-    widget->setWindowTitle(QStringLiteral("Geo3D Examiner Viewer"));
-
-    // Root entity
-    Qt3DCore::QEntity *rootEntity = new Qt3DCore::QEntity();
+    mainWindow->setWindowTitle(QStringLiteral("Geo3D Examiner Viewer"));
 
     // Camera and Camera controls
     Qt3DRender::QCamera *cameraEntity = view->camera();
@@ -181,15 +203,11 @@ int main(int argc, char **argv){
     cameraWrapper->addCameraController(camController);
     camController->setCamera(nullptr);
 
-    // Light
+    // Light source
     Qt3DCore::QEntity *lightEntity = new Qt3DCore::QEntity(rootEntity);
     setUpLight(lightEntity, cameraEntity->position());
 
-
-    // Set root object of the scene
-    view->setRootEntity(rootEntity);
-
-
+    // geometry model
     Qt3DExtras::QCylinderMesh *meshCyliner = new Qt3DExtras::QCylinderMesh();
     meshCyliner->setObjectName("World Volume");
     GeneralMeshModel *cylinerModel = new GeneralMeshModel(rootEntity, meshCyliner);
@@ -209,7 +227,6 @@ int main(int argc, char **argv){
     cuboidModel2->translateMesh(QVector3D(-5.0f, -1.0f, 0.0f));
     cuboidModel2->scaleMesh(2);
     cuboidModel2->showMesh(false);
-
 
     Qt3DExtras::QCuboidMesh *meshBox3 = new Qt3DExtras::QCuboidMesh();
     meshBox3->setObjectName("one daughter of Muon");
@@ -257,11 +274,11 @@ int main(int argc, char **argv){
        //detectorModel->add_subModel(subModelMiddle);
 
    */
-    setupControlPanel(vLayout, widget, detectorModel, cylinerModel, cameraWrapper);
+    setupControlPanel(vLayout, mainWindow, detectorModel, cylinerModel, cameraWrapper);
 
     // Show window
-    widget->show();
-    widget->resize(1200, 800);
+    mainWindow->show();
+    mainWindow->resize(1200, 800);
 
     return app.exec();
 }
