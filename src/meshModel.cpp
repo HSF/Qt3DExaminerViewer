@@ -34,10 +34,12 @@ MeshModel::MeshModel(Qt3DCore::QEntity *rootEntity, Qt3DRender::QMesh *mesh)
     m_meshEntity->addComponent(mesh);
     m_meshEntity->addComponent(meshMaterial);
     m_meshEntity->addComponent(meshTransform);
-    //m_meshEntity->addComponent(picker);
-    //QObject::connect(picker, &Qt3DRender::QObjectPicker::clicked, this, &MeshModel::changeState);
-    //QObject::connect(picker, &Qt3DRender::QObjectPicker::clicked, this, &MeshModel::showCancelInfo);
-    //QObject::connect(picker, &Qt3DRender::QObjectPicker::containsMouseChanged, this, &MeshModel::showInfo);
+    /*m_meshEntity->addComponent(picker);
+    QObject::connect(picker, &Qt3DRender::QObjectPicker::clicked, this, &MeshModel::changeState);
+    QObject::connect(picker, &Qt3DRender::QObjectPicker::clicked, this,[mesh](){ info->setDescription(QString("This is ") + mesh->objectName() +
+                                                                                                      QString("\nVertices: ") + mesh->property("Vertices").toString() +
+                                                                                                      QString("\nEdges: ") + mesh->property("Edges").toString() +
+                                                                                                      QString("\nFaces: ") + mesh->property("Faces").toString());});*/
 }
 
 MeshModel::~MeshModel(){
@@ -45,21 +47,6 @@ MeshModel::~MeshModel(){
 
 void MeshModel::add_subModel(MeshModel *subModel){
     m_subModels.push_back(subModel);
-}
-
-void MeshModel::showInfo(bool isContainsMouse){
-    if(isContainsMouse){
-        Qt3DRender::QMesh *mesh = (Qt3DRender::QMesh*)(m_meshEntity->componentsOfType<Qt3DRender::QMesh>()[0]);
-        info->setDescription(QString("Vertices: ") + mesh->property("Vertices").toString() +
-                             QString("\nEdges: ") + mesh->property("Edges").toString() +
-                             QString("\nFaces: ") + mesh->property("Faces").toString());
-    }
-    else
-        info->setDescription(QString("Move cursor close to Volumns for more Info"));
-}
-
-void MeshModel::showCancelInfo(Qt3DRender::QPickEvent* event){
-    info->setDescription(QString("click \"retore\" button to restore, close \"select\" switch button to move viewpoint "));
 }
 
 void MeshModel::changeState(Qt3DRender::QPickEvent* event){
@@ -100,24 +87,6 @@ void MeshModel::scaleMesh(int magnitude){
     float magnitudeF = 0.001 + (float)(magnitude) * 0.01 / 100.0;
     Qt3DCore::QTransform *transform = (Qt3DCore::QTransform*)(m_meshEntity->componentsOfType<Qt3DCore::QTransform>()[0]);
     transform->setScale(magnitudeF);
-}
-
-void MeshModel::rotateMeshX(int degree){
-    for(MeshModel *subModel:m_subModels){
-        subModel->rotateMeshX(degree);
-    }
-    float degreeF = degree * 360.0 / 100.0;
-    Qt3DCore::QTransform *transform = (Qt3DCore::QTransform*)(m_meshEntity->componentsOfType<Qt3DCore::QTransform>()[0]);
-    transform->setRotationX(degreeF);
-}
-
-void MeshModel::rotateMeshY(int degree){
-    for(MeshModel *subModel:m_subModels){
-        subModel->rotateMeshY(degree);
-    }
-    float degreeF = degree * 360.0 / 100.0;
-    Qt3DCore::QTransform *transform = (Qt3DCore::QTransform*)(m_meshEntity->componentsOfType<Qt3DCore::QTransform>()[0]);
-    transform->setRotationY(degreeF);
 }
 
 void MeshModel::rotateMeshZ(int degree){
