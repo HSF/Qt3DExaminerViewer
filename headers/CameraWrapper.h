@@ -7,8 +7,9 @@
 
 class CameraWrapper : public QObject{
     Q_OBJECT
+public:
+    const float init_distanceToOrigin = 50;
 private:
-    const float m_init_distanceToOrigin = 50;
     float m_distanceToOrigin;
     float m_longitude, m_latitude;
     float m_roll, m_yaw, m_pitch;
