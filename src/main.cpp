@@ -16,6 +16,7 @@
 #include <QtWidgets/QLabel>
 #include <QtWidgets/QCommandLinkButton>
 #include <QtWidgets/QSpinBox>
+#include <QtWidgets/QGroupBox>
 
 #include <Qt3DExtras/qtorusmesh.h>
 #include <Qt3DRender/qmesh.h>
@@ -100,12 +101,12 @@ inline void setupControlPanel(QVBoxLayout *vLayout, QWidget *mainWindow, MeshMod
     spinScale->setMaximumWidth(50);
     hLayoutRad->addWidget(labelScale);
     hLayoutRad->addWidget(spinScale);
-    QLabel *labelScaleMarker = new QLabel(mainWindow);
-    labelScaleMarker->setText("  0  \t\t  50  \t\t  100");
-    QFont font = labelScaleMarker->font();
+    QLabel *labelScaleTicks = new QLabel(mainWindow);
+    labelScaleTicks->setText("  0  \t\t  50  \t\t  100");
+    QFont font = labelScaleTicks->font();
     font.setPointSize(10);
-    labelScaleMarker->setFont(font);
-    labelScaleMarker->setMaximumHeight(10);
+    labelScaleTicks->setFont(font);
+    labelScaleTicks->setMaximumHeight(10);
 
     // Control longitude of Camera
     QLabel *labelLng = new QLabel(mainWindow);
@@ -117,10 +118,10 @@ inline void setupControlPanel(QVBoxLayout *vLayout, QWidget *mainWindow, MeshMod
     spinLng->setMaximumWidth(50);
     hLayoutLng->addWidget(labelLng);
     hLayoutLng->addWidget(spinLng);
-    QLabel *labelLngMarker = new QLabel(mainWindow);
-    labelLngMarker->setText("  0  \t\t  180  \t\t  360");
-    labelLngMarker->setFont(font);
-    labelLngMarker->setMaximumHeight(10);
+    QLabel *labelLngTicks = new QLabel(mainWindow);
+    labelLngTicks->setText("  0  \t\t  180  \t\t  360");
+    labelLngTicks->setFont(font);
+    labelLngTicks->setMaximumHeight(10);
 
     // Contro latitude of Camera
     QHBoxLayout *hLayoutLat = new QHBoxLayout(mainWindow);
@@ -132,10 +133,10 @@ inline void setupControlPanel(QVBoxLayout *vLayout, QWidget *mainWindow, MeshMod
     spinLat->setMaximumWidth(50);
     hLayoutLat->addWidget(labelLat);
     hLayoutLat->addWidget(spinLat);
-    QLabel *labelLatMarker = new QLabel(mainWindow);
-    labelLatMarker->setText(" -90  \t\t   0  \t\t    90");
-    labelLatMarker->setFont(font);
-    labelLatMarker->setMaximumHeight(10);
+    QLabel *labelLatTicks = new QLabel(mainWindow);
+    labelLatTicks->setText(" -90  \t\t   0  \t\t    90");
+    labelLatTicks->setFont(font);
+    labelLatTicks->setMaximumHeight(10);
 
     // Cancel selected and unpacked state
     QPushButton *restoreSelectBtn = new QPushButton(mainWindow);
@@ -167,10 +168,10 @@ inline void setupControlPanel(QVBoxLayout *vLayout, QWidget *mainWindow, MeshMod
     spinYaw->setMaximumWidth(50);
     hLayoutYaw->addWidget(labelYaw);
     hLayoutYaw->addWidget(spinYaw);
-    QLabel *labelYawMarker = new QLabel(mainWindow);
-    labelYawMarker->setText("  0  \t\t  180  \t\t  360");
-    labelYawMarker->setFont(font);
-    labelYawMarker->setMaximumHeight(8);
+    QLabel *labelYawTicks = new QLabel(mainWindow);
+    labelYawTicks->setText("  0  \t\t  180  \t\t  360");
+    labelYawTicks->setFont(font);
+    labelYawTicks->setMaximumHeight(8);
 
     // Control pitch angle of Camera
     QLabel *labelPitch = new QLabel(mainWindow);
@@ -182,10 +183,10 @@ inline void setupControlPanel(QVBoxLayout *vLayout, QWidget *mainWindow, MeshMod
     spinPitch->setMaximumWidth(50);
     hLayoutPitch->addWidget(labelPitch);
     hLayoutPitch->addWidget(spinPitch);
-    QLabel *labelPitchMarker = new QLabel(mainWindow);
-    labelPitchMarker->setText(" -90  \t\t   0  \t\t    90");
-    labelPitchMarker->setFont(font);
-    labelPitchMarker->setMaximumHeight(8);
+    QLabel *labelPitchTicks = new QLabel(mainWindow);
+    labelPitchTicks->setText(" -90  \t\t   0  \t\t    90");
+    labelPitchTicks->setFont(font);
+    labelPitchTicks->setMaximumHeight(8);
 
 
     // Control roll angle of Camera
@@ -198,49 +199,62 @@ inline void setupControlPanel(QVBoxLayout *vLayout, QWidget *mainWindow, MeshMod
     spinRoll->setMaximumWidth(50);
     hLayoutRoll->addWidget(labelRoll);
     hLayoutRoll->addWidget(spinRoll);
-    QLabel *labelRollMarker = new QLabel(mainWindow);
-    labelRollMarker->setText("  0  \t\t  180  \t\t  360");
-    labelRollMarker->setFont(font);
-    labelRollMarker->setMaximumHeight(8);
+    QLabel *labelRollTicks = new QLabel(mainWindow);
+    labelRollTicks->setText("  0  \t\t  180  \t\t  360");
+    labelRollTicks->setFont(font);
+    labelRollTicks->setMaximumHeight(8);
 
+    QVBoxLayout *positionControlLayout = new QVBoxLayout(mainWindow);
 
     vLayout->addWidget(info);
-    vLayout->addWidget(meshVisibleBtn);
 
-    vLayout->addLayout(hLayoutRad);
+    positionControlLayout->addLayout(hLayoutRad);
     //vLayout->addWidget(labelScale);
-    vLayout->addWidget(sliderScale);
-    vLayout->addWidget(labelScaleMarker);
+    positionControlLayout->addWidget(sliderScale);
+    positionControlLayout->addWidget(labelScaleTicks);
 
-    vLayout->addLayout(hLayoutLng);
+    positionControlLayout->addLayout(hLayoutLng);
     //vLayout->addWidget(labelLng);
-    vLayout->addWidget(sliderLng);
-    vLayout->addWidget(labelLngMarker);
+    positionControlLayout->addWidget(sliderLng);
+    positionControlLayout->addWidget(labelLngTicks);
 
-    vLayout->addLayout(hLayoutLat);
+    positionControlLayout->addLayout(hLayoutLat);
     //vLayout->addWidget(labelLat);
-    vLayout->addWidget(sliderLat);
-    vLayout->addWidget(labelLatMarker);
+    positionControlLayout->addWidget(sliderLat);
+    positionControlLayout->addWidget(labelLatTicks);
 
+    QGroupBox *positionControl = new QGroupBox("Camera Position");
+    positionControl->setLayout(positionControlLayout);
+    positionControl->setFixedSize(230, 260);
+    vLayout->addWidget(positionControl);
+
+    vLayout->addWidget(meshVisibleBtn);
     vLayout->addWidget(restoreSelectBtn);
     vLayout->addWidget(restoreViewBtn);
     vLayout->addWidget(projSwitch);
     vLayout->addWidget(selectSwitch);
 
-    vLayout->addLayout(hLayoutYaw);
+    QVBoxLayout *directionControlLayout = new QVBoxLayout(mainWindow);
+
+    directionControlLayout->addLayout(hLayoutYaw);
     //vLayout->addWidget(labelYaw);
-    vLayout->addWidget(sliderYaw);
-    vLayout->addWidget(labelYawMarker);
+    directionControlLayout->addWidget(sliderYaw);
+    directionControlLayout->addWidget(labelYawTicks);
 
-    vLayout->addLayout(hLayoutPitch);
+    directionControlLayout->addLayout(hLayoutPitch);
    // vLayout->addWidget(labelPitch);
-    vLayout->addWidget(sliderPitch);
-    vLayout->addWidget(labelPitchMarker);
+    directionControlLayout->addWidget(sliderPitch);
+    directionControlLayout->addWidget(labelPitchTicks);
 
-    vLayout->addLayout(hLayoutRoll);
+    directionControlLayout->addLayout(hLayoutRoll);
     //vLayout->addWidget(labelRoll);
-    vLayout->addWidget(sliderRoll);
-    vLayout->addWidget(labelRollMarker);
+    directionControlLayout->addWidget(sliderRoll);
+    directionControlLayout->addWidget(labelRollTicks);
+    QGroupBox *directionControl = new QGroupBox("Camera Direction");
+    directionControl->setLayout(directionControlLayout);
+    directionControl->setFixedSize(230, 260);
+    vLayout->addWidget(directionControl);
+
 
     // Connect UI with model
     QObject::connect(meshVisibleBtn, &QCheckBox::stateChanged, detectorModel, &MeshModel::showMesh);
