@@ -164,7 +164,13 @@ inline void setupControlPanel(QVBoxLayout *vLayout, QWidget *mainWindow, MeshMod
     QObject::connect(sliderLat, SIGNAL(valueChanged(int)), cameraWrapper, SLOT(translatePosLat(int)));
     QObject::connect(sliderLng, SIGNAL(valueChanged(int)), cameraWrapper, SLOT(translatePosLng(int)));
     QObject::connect(restoreSelectBtn, SIGNAL(clicked(bool)), cylinerModel, SLOT(restoreState(bool)));
-    QObject::connect(restoreViewBtn, SIGNAL(clicked(bool)), cameraWrapper, SLOT(resetCameraView(bool)));
+    QObject::connect(restoreViewBtn, &QPushButton::clicked, cameraWrapper, &CameraWrapper::resetCameraView);
+    QObject::connect(restoreViewBtn, &QPushButton::clicked, cameraWrapper, [sliderRoll, sliderLat, sliderLng, sliderScale](){
+        sliderRoll->setValue(0);
+        sliderLat->setValue(50);
+        sliderLng->setValue(0);
+        sliderScale->setValue(50);
+    });
     QObject::connect(projSwitch, SIGNAL(valueChanged(bool)),  cameraWrapper, SLOT(setProjectiveMode(bool)));
     QObject::connect(selectSwitch, SIGNAL(valueChanged(bool)),  cameraWrapper, SLOT(disableCameraController(bool)));
     QObject::connect(selectSwitch, SIGNAL(valueChanged(bool)),  cylinerModel, SLOT(enablePickAll(bool)));
