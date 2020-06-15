@@ -65,7 +65,8 @@ void setUpSliderController(QLabel *label, QSlider *slider, QString tip, int init
 
     //Setup a slider
     slider->setOrientation(Qt::Horizontal);
-    slider->setRange(0, 100);
+    slider->setRange(0, 359);
+    slider->setSingleStep(1);
     slider->setValue(initalPos);
     slider->setGeometry(10, 40, 210, 20);
     slider->setMaximumHeight(20);
@@ -95,14 +96,16 @@ inline void setupControlPanel(QVBoxLayout *vLayout, QWidget *mainWindow, MeshMod
     QHBoxLayout *hLayoutRad = new QHBoxLayout(mainWindow);
     QLabel *labelScale = new QLabel(mainWindow);
     QSlider *sliderScale = new QSlider(mainWindow);
-    setUpSliderController(labelScale, sliderScale, "radius (1~100m)", 50);
+    setUpSliderController(labelScale, sliderScale, "radius (1~100m)", int(cameraWrapper->init_distanceToOrigin));
+    sliderScale->setRange(1, 100);
     QSpinBox *spinScale = new QSpinBox(mainWindow);
-    spinScale->setRange(0, 100);
+    spinScale->setRange(1, 100);
+    spinScale->setValue(int(cameraWrapper->init_distanceToOrigin));
     spinScale->setMaximumWidth(50);
     hLayoutRad->addWidget(labelScale);
     hLayoutRad->addWidget(spinScale);
     QLabel *labelScaleTicks = new QLabel(mainWindow);
-    labelScaleTicks->setText("  0  \t\t  50  \t\t  100");
+    labelScaleTicks->setText("  1  \t\t  50  \t\t  100");
     QFont font = labelScaleTicks->font();
     font.setPointSize(10);
     labelScaleTicks->setFont(font);
@@ -111,15 +114,15 @@ inline void setupControlPanel(QVBoxLayout *vLayout, QWidget *mainWindow, MeshMod
     // Control longitude of Camera
     QLabel *labelLng = new QLabel(mainWindow);
     QSlider *sliderLng = new QSlider(mainWindow);
-    setUpSliderController(labelLng, sliderLng, "longitude (0~360°)", 0);
+    setUpSliderController(labelLng, sliderLng, "longitude (0~359°)", 0);
     QHBoxLayout *hLayoutLng = new QHBoxLayout(mainWindow);
     QSpinBox *spinLng = new QSpinBox(mainWindow);
-    spinLng->setRange(0, 100);
+    spinLng->setRange(0, 359);
     spinLng->setMaximumWidth(50);
     hLayoutLng->addWidget(labelLng);
     hLayoutLng->addWidget(spinLng);
     QLabel *labelLngTicks = new QLabel(mainWindow);
-    labelLngTicks->setText("  0  \t\t  180  \t\t  360");
+    labelLngTicks->setText("  0  \t\t  180  \t\t  359");
     labelLngTicks->setFont(font);
     labelLngTicks->setMaximumHeight(10);
 
@@ -127,9 +130,11 @@ inline void setupControlPanel(QVBoxLayout *vLayout, QWidget *mainWindow, MeshMod
     QHBoxLayout *hLayoutLat = new QHBoxLayout(mainWindow);
     QLabel *labelLat = new QLabel(mainWindow);
     QSlider *sliderLat = new QSlider(mainWindow);
-    setUpSliderController(labelLat, sliderLat, "latitude (-90~90°)", 50);
+    setUpSliderController(labelLat, sliderLat, "latitude (-90~90°)", 0);
+    sliderLat->setRange(-90, 90);
     QSpinBox *spinLat = new QSpinBox(mainWindow);
-    spinLat->setRange(0, 100);
+    spinLat->setRange(-90, 90);
+    spinLat->setSingleStep(1);
     spinLat->setMaximumWidth(50);
     hLayoutLat->addWidget(labelLat);
     hLayoutLat->addWidget(spinLat);
@@ -161,25 +166,27 @@ inline void setupControlPanel(QVBoxLayout *vLayout, QWidget *mainWindow, MeshMod
     // Control yaw angle of Camera
     QLabel *labelYaw = new QLabel(mainWindow);
     QSlider *sliderYaw = new QSlider(mainWindow);
-    setUpSliderController(labelYaw, sliderYaw, "yaw (0~360°)", 50);
+    setUpSliderController(labelYaw, sliderYaw, "yaw (0~359°)", 180);
     QHBoxLayout *hLayoutYaw = new QHBoxLayout(mainWindow);
     QSpinBox *spinYaw = new QSpinBox(mainWindow);
-    spinYaw->setRange(0, 100);
+    spinYaw->setRange(0, 359);
+    spinYaw->setValue(180);
     spinYaw->setMaximumWidth(50);
     hLayoutYaw->addWidget(labelYaw);
     hLayoutYaw->addWidget(spinYaw);
     QLabel *labelYawTicks = new QLabel(mainWindow);
-    labelYawTicks->setText("  0  \t\t  180  \t\t  360");
+    labelYawTicks->setText("  0  \t\t  180  \t\t  359");
     labelYawTicks->setFont(font);
     labelYawTicks->setMaximumHeight(8);
 
     // Control pitch angle of Camera
     QLabel *labelPitch = new QLabel(mainWindow);
     QSlider *sliderPitch = new QSlider(mainWindow);
-    setUpSliderController(labelPitch, sliderPitch, "pitch (-90~90°)", 50);
+    setUpSliderController(labelPitch, sliderPitch, "pitch (-90~90°)", 0);
+    sliderPitch->setRange(-90, 90);
     QHBoxLayout *hLayoutPitch = new QHBoxLayout(mainWindow);
     QSpinBox *spinPitch = new QSpinBox(mainWindow);
-    spinPitch->setRange(0, 100);
+    spinPitch->setRange(-90, 90);
     spinPitch->setMaximumWidth(50);
     hLayoutPitch->addWidget(labelPitch);
     hLayoutPitch->addWidget(spinPitch);
@@ -192,21 +199,22 @@ inline void setupControlPanel(QVBoxLayout *vLayout, QWidget *mainWindow, MeshMod
     // Control roll angle of Camera
     QLabel *labelRoll = new QLabel(mainWindow);
     QSlider *sliderRoll = new QSlider(mainWindow);
-    setUpSliderController(labelRoll, sliderRoll, "roll (0~360°)", 0);
+    setUpSliderController(labelRoll, sliderRoll, "roll (0~359°)", 0);
     QHBoxLayout *hLayoutRoll = new QHBoxLayout(mainWindow);
     QSpinBox *spinRoll = new QSpinBox(mainWindow);
-    spinRoll->setRange(0, 100);
+    spinRoll->setRange(0, 359);
     spinRoll->setMaximumWidth(50);
     hLayoutRoll->addWidget(labelRoll);
     hLayoutRoll->addWidget(spinRoll);
     QLabel *labelRollTicks = new QLabel(mainWindow);
-    labelRollTicks->setText("  0  \t\t  180  \t\t  360");
+    labelRollTicks->setText("  0  \t\t  180  \t\t  359");
     labelRollTicks->setFont(font);
     labelRollTicks->setMaximumHeight(8);
 
     QVBoxLayout *positionControlLayout = new QVBoxLayout(mainWindow);
 
     vLayout->addWidget(info);
+    vLayout->addWidget(meshVisibleBtn);
 
     positionControlLayout->addLayout(hLayoutRad);
     //vLayout->addWidget(labelScale);
@@ -228,7 +236,6 @@ inline void setupControlPanel(QVBoxLayout *vLayout, QWidget *mainWindow, MeshMod
     positionControl->setFixedSize(230, 260);
     vLayout->addWidget(positionControl);
 
-    vLayout->addWidget(meshVisibleBtn);
     vLayout->addWidget(restoreSelectBtn);
     vLayout->addWidget(restoreViewBtn);
     vLayout->addWidget(projSwitch);
@@ -257,15 +264,12 @@ inline void setupControlPanel(QVBoxLayout *vLayout, QWidget *mainWindow, MeshMod
 
 
     // Connect UI with model
-    QObject::connect(meshVisibleBtn, &QCheckBox::stateChanged, detectorModel, &MeshModel::showMesh);
-    QObject::connect(sliderScale,SIGNAL(valueChanged(int)), cameraWrapper, SLOT(translatePosRad(int)));
-    QObject::connect(sliderLat, SIGNAL(valueChanged(int)), cameraWrapper, SLOT(translatePosLat(int)));
-    QObject::connect(sliderLng, SIGNAL(valueChanged(int)), cameraWrapper, SLOT(translatePosLng(int)));
+    QObject::connect(meshVisibleBtn, &QCheckBox::stateChanged, detectorModel, &MeshModel::showMesh);  
     QObject::connect(restoreSelectBtn, SIGNAL(clicked(bool)), cylinerModel, SLOT(restoreState(bool)));
     QObject::connect(restoreViewBtn, &QPushButton::clicked, cameraWrapper, &CameraWrapper::resetCameraView);
     QObject::connect(restoreViewBtn, &QPushButton::clicked, cameraWrapper, [sliderRoll, sliderLat, sliderLng, sliderScale](){
         sliderRoll->setValue(0);
-        sliderLat->setValue(50);
+        sliderLat->setValue(0);
         sliderLng->setValue(0);
         sliderScale->setValue(50);
     });
@@ -273,12 +277,31 @@ inline void setupControlPanel(QVBoxLayout *vLayout, QWidget *mainWindow, MeshMod
     QObject::connect(selectSwitch, SIGNAL(valueChanged(bool)),  cameraWrapper, SLOT(disableCameraController(bool)));
     QObject::connect(selectSwitch, SIGNAL(valueChanged(bool)),  cylinerModel, SLOT(enablePickAll(bool)));
 
-    QObject::connect(sliderLat, &QSlider::valueChanged, sliderPitch, [sliderPitch, sliderLat](){sliderPitch->setValue(100-sliderLat->value());});
-    QObject::connect(sliderLng, &QSlider::valueChanged, sliderYaw, [sliderYaw, sliderLng](){sliderYaw->setValue((50 + sliderLng->value())%100 );});
+    QObject::connect(sliderScale,SIGNAL(valueChanged(int)), cameraWrapper, SLOT(translatePosRad(int)));
+    QObject::connect(sliderScale, SIGNAL(valueChanged(int)), spinScale, SLOT(setValue(int)));
+    QObject::connect(spinScale, SIGNAL(valueChanged(int)), sliderScale, SLOT(setValue(int)));
+
+    QObject::connect(sliderLat, SIGNAL(valueChanged(int)), cameraWrapper, SLOT(translatePosLat(int)));
+    QObject::connect(sliderLat, SIGNAL(valueChanged(int)), spinLat, SLOT(setValue(int)));
+    QObject::connect(spinLat, SIGNAL(valueChanged(int)), sliderLat, SLOT(setValue(int)));
+    QObject::connect(sliderLat, &QSlider::valueChanged, sliderPitch, [sliderPitch, sliderLat](){sliderPitch->setValue(-sliderLat->value());});
+
+    QObject::connect(sliderLng, SIGNAL(valueChanged(int)), cameraWrapper, SLOT(translatePosLng(int)));
+    QObject::connect(sliderLng, SIGNAL(valueChanged(int)), spinLng, SLOT(setValue(int)));
+    QObject::connect(spinLng, SIGNAL(valueChanged(int)), sliderLng, SLOT(setValue(int)));
+    QObject::connect(sliderLng, &QSlider::valueChanged, sliderYaw, [sliderYaw, sliderLng](){sliderYaw->setValue((180 + sliderLng->value())%360 );});
 
     QObject::connect(sliderYaw, SIGNAL(valueChanged(int)), cameraWrapper, SLOT(rotateViewYaw(int)));
+    QObject::connect(sliderYaw, SIGNAL(valueChanged(int)), spinYaw, SLOT(setValue(int)));
+    QObject::connect(spinYaw, SIGNAL(valueChanged(int)), sliderYaw, SLOT(setValue(int)));
+
     QObject::connect(sliderPitch, SIGNAL(valueChanged(int)), cameraWrapper, SLOT(rotateViewPitch(int)));
+    QObject::connect(sliderPitch, SIGNAL(valueChanged(int)), spinPitch, SLOT(setValue(int)));
+    QObject::connect(spinPitch, SIGNAL(valueChanged(int)), sliderPitch, SLOT(setValue(int)));
+
     QObject::connect(sliderRoll, SIGNAL(valueChanged(int)), cameraWrapper, SLOT(rotateViewRoll(int)));
+    QObject::connect(sliderRoll, SIGNAL(valueChanged(int)), spinRoll, SLOT(setValue(int)));
+    QObject::connect(spinRoll, SIGNAL(valueChanged(int)), sliderRoll, SLOT(setValue(int)));
 }
 
 int main(int argc, char **argv){

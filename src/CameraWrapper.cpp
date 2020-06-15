@@ -6,19 +6,19 @@ CameraWrapper::CameraWrapper(Qt3DCore::QEntity *rootEntity,  Qt3DRender::QCamera
 {
     m_camera = camera;
     resetCameraView();
-    m_distanceToOrigin = m_init_distanceToOrigin;
+}
+
+void CameraWrapper::resetCameraView(){
+    m_camera->setProjectionType(Qt3DRender::QCameraLens::PerspectiveProjection);
+    m_camera->setPosition(QVector3D(0, 0, init_distanceToOrigin));
+    m_camera->setUpVector(QVector3D(0, 1, 0));
+    m_camera->setViewCenter(QVector3D(0, 0, 0));
+    m_distanceToOrigin = init_distanceToOrigin;
     m_latitude = 0;
     m_longitude = 0;
     m_pitch = 0;
     m_roll = 0;
     m_yaw = M_PI;
-}
-
-void CameraWrapper::resetCameraView(){
-    m_camera->setProjectionType(Qt3DRender::QCameraLens::PerspectiveProjection);
-    m_camera->setPosition(QVector3D(0, 0, m_init_distanceToOrigin));
-    m_camera->setUpVector(QVector3D(0, 1, 0));
-    m_camera->setViewCenter(QVector3D(0, 0, 0));
 }
 
 
@@ -44,35 +44,34 @@ void CameraWrapper::disableCameraController(bool disEnble){
 
 void CameraWrapper::translatePosRad(int radius){
     // prevent divided by zero later
-    radius += 1;
     QVector3D position = m_camera -> position();
     m_camera->setPosition(position * radius / m_distanceToOrigin);
     m_distanceToOrigin = (float)(radius);
 }
 
 void CameraWrapper::translatePosLat(int latitude){
-    m_latitude = (latitude - 50) * M_PI / 2 / 50.0;
+    m_latitude = qDegreesToRadians((float)latitude);;
     setPosition();
 }
 
 void CameraWrapper::translatePosLng(int longitude){
-    m_longitude = longitude * 2 * M_PI / 100.0;
+    m_longitude = qDegreesToRadians((float)longitude);
     setPosition();
 }
 
 
 void CameraWrapper::rotateViewRoll(int roll){
-    m_roll = roll * 2 * M_PI / 100.0;
+    m_roll = qDegreesToRadians((float)roll);
     setDirection();
 }
 
 void CameraWrapper::rotateViewYaw(int yaw){
-    m_yaw = yaw * 2 * M_PI / 100.0;
+    m_yaw = qDegreesToRadians((float)yaw);
     setDirection();
 }
 
 void CameraWrapper::rotateViewPitch(int pitch){
-    m_pitch = (pitch - 50) * M_PI / 2 / 50.0;
+    m_pitch = qDegreesToRadians((float)pitch);
     setDirection();
 }
 
@@ -81,28 +80,32 @@ void CameraWrapper::setPosition(){
     float x = m_distanceToOrigin * qCos(m_latitude) * qSin(m_longitude);
     float z = m_distanceToOrigin * qCos(m_latitude) * qCos(m_longitude);
     m_camera -> setPosition(QVector3D(x, y, z));
-    m_camera -> setViewCenter(QVector3D(0, 0, 0));
+   /* m_camera -> setViewCenter(QVector3D(0, 0, 0));
     float upVectorY, upVectorX, upVectorZ;
     upVectorY = qCos(m_latitude);
     upVectorX = - qSin(m_latitude) * qSin(m_longitude);
     upVectorZ = - qSin(m_latitude) * qCos(m_longitude);
-    m_camera -> setUpVector(QVector3D(upVectorX, upVectorY, upVectorZ));
+    m_camera -> setUpVector(QVector3D(upVectorX, upVectorY, upVectorZ));*/
 }
 void CameraWrapper::setDirection(){
     float y = qSin(m_pitch);
     float x = qCos(m_pitch) * qSin(m_yaw);
     float z = qCos(m_pitch) * qCos(m_yaw);
     QVector3D viewDirection = QVector3D(x, y, z);
-    QVector3D viewCenter = m_camera->position() + m_init_distanceToOrigin * viewDirection;
+    QVector3D viewCenter = m_camera->position() + init_distanceToOrigin * viewDirection;
     m_camera->setViewCenter(viewCenter);
 
     x = qCos(m_roll);
     y = qSin(m_roll);
     QVector3D extraAxisY;
     QVector3D extraAxisX;
-    if(qAbs(qAbs(m_pitch) - M_PI/2) < 1e-2) {
+    if(qAbs(m_pitch + M_PI/2) < 1e-2) {
         extraAxisX = qCos(m_yaw) * QVector3D(0, 0, 1) + qSin(m_yaw) * QVector3D(1, 0, 0);
         extraAxisY = qSin(m_yaw) * QVector3D(0, 0, 1) - qCos(m_yaw) * QVector3D(1, 0, 0);
+    }
+    else if(qAbs(m_pitch - M_PI/2) < 1e-2) {
+        extraAxisX = -qCos(m_yaw) * QVector3D(0, 0, 1) - qSin(m_yaw) * QVector3D(1, 0, 0);
+        extraAxisY = -qSin(m_yaw) * QVector3D(0, 0, 1) + qCos(m_yaw) * QVector3D(1, 0, 0);
     }
     else {
         extraAxisY = QVector3D::crossProduct(viewDirection, QVector3D(0,1,0));
