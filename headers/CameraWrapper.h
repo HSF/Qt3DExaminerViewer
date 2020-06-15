@@ -8,6 +8,7 @@
 class CameraWrapper : public QObject{
     Q_OBJECT
 private:
+    const float m_init_distanceToOrigin = 50;
     float m_distanceToOrigin;
     float m_longitude, m_latitude;
     float m_roll, m_yaw, m_pitch;
@@ -25,10 +26,14 @@ public slots:
     void resetCameraView(bool isReset);
     void setProjectiveMode(bool isPerspective);
     void disableCameraController(bool disEnble);
-    void scaleView(int magnitude);
-    void rotateViewX(int degree);
-    void rotateViewY(int degree);
-    void rotateViewZ(int degree);
+
+    void translatePosRad(int radius);
+    void translatePosLat(int latitude);
+    void translatePosLng(int longitude);
+
+    void rotateViewRoll(int roll);
+    void rotateViewYaw(int yaw);
+    void rotateViewPitch(int pitch);
 };
 
 
