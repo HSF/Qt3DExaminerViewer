@@ -1,13 +1,11 @@
-#include <QApplication>
-
 #include "headers/MeshModel.h"
 #include "headers/SwithButton.h"
 #include "headers/CameraWrapper.h"
 #include "headers/GeneralMeshModel.h"
 
+#include <QApplication>
 #include <QGuiApplication>
 #include <QtGui/QScreen>
-
 #include <QtWidgets/QApplication>
 #include <QtWidgets/QWidget>
 #include <QtWidgets/QHBoxLayout>
@@ -17,7 +15,6 @@
 #include <QtWidgets/QCommandLinkButton>
 #include <QtWidgets/QSpinBox>
 #include <QtWidgets/QGroupBox>
-
 #include <Qt3DExtras/qtorusmesh.h>
 #include <Qt3DRender/qmesh.h>
 #include <Qt3DRender/qtechnique.h>
@@ -27,16 +24,13 @@
 #include <Qt3DRender/qrenderpass.h>
 #include <Qt3DRender/qsceneloader.h>
 #include <Qt3DRender/qpointlight.h>
-
 #include <Qt3DCore/qtransform.h>
 #include <Qt3DCore/qaspectengine.h>
 #include <Qt3DCore/qentity.h>
-
 #include <Qt3DRender/qrenderaspect.h>
 #include <Qt3DRender/qcameralens.h>
 #include <Qt3DRender/qcamera.h>
 #include <Qt3DRender/QPickingSettings>
-
 #include <Qt3DExtras/qforwardrenderer.h>
 #include <Qt3DExtras/qt3dwindow.h>
 #include <Qt3DExtras/qfirstpersoncameracontroller.h>
@@ -238,8 +232,11 @@ inline void setupControlPanel(QVBoxLayout *vLayout, QWidget *mainWindow, MeshMod
 
     vLayout->addWidget(restoreSelectBtn);
     vLayout->addWidget(restoreViewBtn);
-    vLayout->addWidget(projSwitch);
-    vLayout->addWidget(selectSwitch);
+
+    QHBoxLayout *hLayoutSwitch = new QHBoxLayout(mainWindow);
+    hLayoutSwitch->addWidget(projSwitch);
+    hLayoutSwitch->addWidget(selectSwitch);
+    vLayout->addLayout(hLayoutSwitch);
 
     QVBoxLayout *directionControlLayout = new QVBoxLayout(mainWindow);
 
@@ -261,7 +258,6 @@ inline void setupControlPanel(QVBoxLayout *vLayout, QWidget *mainWindow, MeshMod
     directionControl->setLayout(directionControlLayout);
     directionControl->setFixedSize(230, 260);
     vLayout->addWidget(directionControl);
-
 
     // Connect UI with model
     QObject::connect(meshVisibleBtn, &QCheckBox::stateChanged, detectorModel, &MeshModel::showMesh);  
@@ -340,29 +336,33 @@ int main(int argc, char **argv){
     Qt3DCore::QEntity *lightEntity = new Qt3DCore::QEntity(rootEntity);
     setUpLight(lightEntity, cameraEntity->position());
 
+    // volume picking setting
+    Qt3DRender::QPickingSettings *settings = new Qt3DRender::QPickingSettings();
+    settings->setPickMethod(Qt3DRender::QPickingSettings::PickMethod::TrianglePicking);
+
     // geometry model
     Qt3DExtras::QCylinderMesh *meshCyliner = new Qt3DExtras::QCylinderMesh();
-    meshCyliner->setObjectName("World Volume");
+    meshCyliner->setObjectName(QString("World Volume"));
     GeneralMeshModel *cylinerModel = new GeneralMeshModel(rootEntity, meshCyliner);
     cylinerModel->translateMesh(QVector3D(-5.0f, 0.0f, 0.0f));
     cylinerModel->scaleMesh(4);
 
     Qt3DExtras::QCuboidMesh *meshBox1 = new Qt3DExtras::QCuboidMesh();
-    meshBox1->setObjectName("Muon");
+    meshBox1->setObjectName(QString("Muon"));
     GeneralMeshModel *cuboidModel1 = new GeneralMeshModel(rootEntity, meshBox1);
     cuboidModel1->translateMesh(QVector3D(-5.0f, 1.0f, 0.0f));
     cuboidModel1->scaleMesh(2);
     cuboidModel1->showMesh(false);
 
     Qt3DExtras::QCuboidMesh *meshBox2 = new Qt3DExtras::QCuboidMesh();
-    meshBox2->setObjectName("Calorimeter");
+    meshBox2->setObjectName(QString("Calorimeter"));
     GeneralMeshModel *cuboidModel2 = new GeneralMeshModel(rootEntity, meshBox2);
     cuboidModel2->translateMesh(QVector3D(-5.0f, -1.0f, 0.0f));
     cuboidModel2->scaleMesh(2);
     cuboidModel2->showMesh(false);
 
     Qt3DExtras::QCuboidMesh *meshBox3 = new Qt3DExtras::QCuboidMesh();
-    meshBox3->setObjectName("one daughter of Muon");
+    meshBox3->setObjectName(QString("one daughter of Muon"));
     GeneralMeshModel *cuboidModel3 = new GeneralMeshModel(rootEntity, meshBox3);
     cuboidModel3->translateMesh(QVector3D(-5.0f, 1.0f, 0.0f));
     cuboidModel3->showMesh(false);

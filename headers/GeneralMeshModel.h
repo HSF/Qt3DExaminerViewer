@@ -3,24 +3,16 @@
 #include <QWidget>
 #include <Qt3DRender/qpickevent.h>
 #include <QString>
-
 #include <QtCore/QDebug>
 #include <QtCore/QString>
-
-
 #include <QtWidgets/QLabel>
-
 #include <Qt3DCore/qentity.h>
 #include <Qt3DCore/qtransform.h>
 #include <QtCore/QObject>
-
 #include <Qt3DRender/qmesh.h>
 #include <Qt3DRender/qpickevent.h>
-
 #include <Qt3DExtras/QPhongMaterial>
-
 #include <QtWidgets/QCommandLinkButton>
-
 #include <Qt3DRender/QObjectPicker>
 
 extern QCommandLinkButton *info;

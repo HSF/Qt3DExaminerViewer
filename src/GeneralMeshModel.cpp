@@ -1,14 +1,9 @@
 #include "headers/GeneralMeshModel.h"
-
 #include <QGuiApplication>
-
 #include <QString>
-
 #include <QtCore/QDebug>
 #include <QtCore/QString>
-
 #include <QtWidgets/QCommandLinkButton>
-
 #include <Qt3DRender/QObjectPicker>
 
 GeneralMeshModel::GeneralMeshModel(Qt3DCore::QEntity *rootEntity, Qt3DRender::QGeometryRenderer *mesh)
@@ -39,7 +34,7 @@ GeneralMeshModel::GeneralMeshModel(Qt3DCore::QEntity *rootEntity, Qt3DRender::QG
     QObject::connect(m_picker, &Qt3DRender::QObjectPicker::clicked, this, &GeneralMeshModel::unpackSubMesh);
     QObject::connect(m_picker, &Qt3DRender::QObjectPicker::clicked, this, &GeneralMeshModel::changeState);
     QObject::connect(m_picker, &Qt3DRender::QObjectPicker::clicked, this,[mesh](){ info->setDescription(QString("This is ") + mesh->objectName());});
-    QObject::connect(m_picker, &Qt3DRender::QObjectPicker::exited, this, [](){ info->setDescription("move mouse inside a volume to see tips");});
+    QObject::connect(m_picker, &Qt3DRender::QObjectPicker::exited, this, [](){ info->setDescription(QString("move mouse inside a volume to see tips"));});
     QObject::connect(m_picker, &Qt3DRender::QObjectPicker::entered, this, [](){ info->setDescription(QString("1) Left click to select\n"
                                                                                                              "2) CMD/Ctrl + left click to unpack children\n"
                                                                                                              "3) Click \"revert original state\" "
@@ -90,6 +85,10 @@ void GeneralMeshModel::restoreState(bool checked){
 
 void GeneralMeshModel::unpackSubMesh(Qt3DRender::QPickEvent* event){
     if(event->modifiers() == Qt::ControlModifier && event->button() == Qt3DRender::QPickEvent::LeftButton){
+        if(m_subModels.size() == 0){
+            //info->setDescription(QString("This volume has no children"));
+            return;
+        }
         showMesh(false);
         enablePick(false);
         for(GeneralMeshModel *subModel:m_subModels){

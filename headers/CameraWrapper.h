@@ -1,6 +1,5 @@
 #ifndef CAMERAWRAPPER_H
 #define CAMERAWRAPPER_H
-
 #include <QWidget>
 #include <QCamera>
 #include <Qt3DExtras/QAbstractCameraController.h>
