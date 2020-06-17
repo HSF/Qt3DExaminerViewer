@@ -1,15 +1,11 @@
 #ifndef SCENEMODIFIER_H
 #define SCENEMODIFIER_H
-
 #include <QtWidgets/QLabel>
-
 #include <Qt3DCore/qentity.h>
 #include <Qt3DCore/qtransform.h>
 #include <QtCore/QObject>
-
 #include <Qt3DRender/qmesh.h>
 #include <Qt3DRender/qpickevent.h>
-
 #include <Qt3DExtras/QPhongMaterial>
 
 class MeshModel : public QObject{

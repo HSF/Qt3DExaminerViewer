@@ -1,14 +1,9 @@
 #include "headers/MeshModel.h"
-
 #include <QString>
-
 #include <QtCore/QDebug>
 #include <QtCore/QString>
-
 #include <QtWidgets/QCommandLinkButton>
-
 #include <Qt3DRender/QObjectPicker>
-
 
 extern QCommandLinkButton *info;
 
