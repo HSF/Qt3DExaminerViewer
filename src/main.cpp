@@ -143,11 +143,23 @@ inline void setupControlPanel(QVBoxLayout *vLayout, QWidget *mainWindow, MeshMod
     restoreSelectBtn->setFixedSize(QSize(200, 30));
     restoreSelectBtn->setText(QString("revert original state"));
 
-    // Cancel moved camera position and direction
-    QPushButton *restoreViewBtn = new QPushButton(mainWindow);
-    restoreViewBtn->setEnabled(true);
-    restoreViewBtn->setFixedSize(QSize(200, 30));
-    restoreViewBtn->setText(QString("revert original view"));
+    // Predefined view
+    QHBoxLayout *hLayoutPredefinedView = new QHBoxLayout(mainWindow);
+    QPushButton *frontViewBtn = new QPushButton(mainWindow);
+    frontViewBtn->setEnabled(true);
+    frontViewBtn->setFixedSize(QSize(60, 30));
+    frontViewBtn->setText(QString("front"));
+    QPushButton *leftViewBtn = new QPushButton(mainWindow);
+    leftViewBtn->setEnabled(true);
+    leftViewBtn->setFixedSize(QSize(60, 30));
+    leftViewBtn->setText(QString("left"));
+    QPushButton *topViewBtn = new QPushButton(mainWindow);
+    topViewBtn->setEnabled(true);
+    topViewBtn->setFixedSize(QSize(60, 30));
+    topViewBtn->setText(QString("top"));
+    hLayoutPredefinedView -> addWidget(frontViewBtn);
+    hLayoutPredefinedView -> addWidget(leftViewBtn);
+    hLayoutPredefinedView -> addWidget(topViewBtn);
 
     // Switch between Ortho and Perspective
     SwitchButton* projSwitch = new SwitchButton(mainWindow, "Ortho", "Persp");
@@ -188,7 +200,6 @@ inline void setupControlPanel(QVBoxLayout *vLayout, QWidget *mainWindow, MeshMod
     labelPitchTicks->setText(" -90  \t\t   0  \t\t    90");
     labelPitchTicks->setFont(font);
     labelPitchTicks->setMaximumHeight(8);
-
 
     // Control roll angle of Camera
     QLabel *labelRoll = new QLabel(mainWindow);
@@ -231,7 +242,7 @@ inline void setupControlPanel(QVBoxLayout *vLayout, QWidget *mainWindow, MeshMod
     vLayout->addWidget(positionControl);
 
     vLayout->addWidget(restoreSelectBtn);
-    vLayout->addWidget(restoreViewBtn);
+    vLayout->addLayout(hLayoutPredefinedView);
 
     QHBoxLayout *hLayoutSwitch = new QHBoxLayout(mainWindow);
     hLayoutSwitch->addWidget(projSwitch);
@@ -262,13 +273,35 @@ inline void setupControlPanel(QVBoxLayout *vLayout, QWidget *mainWindow, MeshMod
     // Connect UI with model
     QObject::connect(meshVisibleBtn, &QCheckBox::stateChanged, detectorModel, &MeshModel::showMesh);  
     QObject::connect(restoreSelectBtn, SIGNAL(clicked(bool)), cylinerModel, SLOT(restoreState(bool)));
-    QObject::connect(restoreViewBtn, &QPushButton::clicked, cameraWrapper, &CameraWrapper::resetCameraView);
-    QObject::connect(restoreViewBtn, &QPushButton::clicked, cameraWrapper, [sliderRoll, sliderLat, sliderLng, sliderScale](){
+    //QObject::connect(frontViewBtn, &QPushButton::clicked, cameraWrapper, &CameraWrapper::resetCameraView);
+    QObject::connect(frontViewBtn, &QPushButton::clicked, cameraWrapper, [cameraWrapper, sliderYaw, sliderPitch, sliderRoll, sliderLat, sliderLng, sliderScale](){
+        cameraWrapper->setCustomView(cameraWrapper->init_distanceToOrigin, 0, 0, 0, 180, 0);
+        sliderYaw->setValue(180);
+        sliderPitch->setValue(0);
         sliderRoll->setValue(0);
         sliderLat->setValue(0);
         sliderLng->setValue(0);
         sliderScale->setValue(50);
     });
+    QObject::connect(leftViewBtn, &QPushButton::clicked, cameraWrapper, [cameraWrapper, sliderYaw, sliderPitch, sliderRoll, sliderLat, sliderLng, sliderScale](){
+        cameraWrapper->setCustomView(cameraWrapper->init_distanceToOrigin, 0, 270, 0, 90, 0);
+        sliderYaw->setValue(90);
+        sliderPitch->setValue(0);
+        sliderRoll->setValue(0);
+        sliderLat->setValue(0);
+        sliderLng->setValue(270);
+        sliderScale->setValue(50);
+    });
+    QObject::connect(topViewBtn, &QPushButton::clicked, cameraWrapper, [cameraWrapper, sliderYaw, sliderPitch, sliderRoll, sliderLat, sliderLng, sliderScale](){
+        cameraWrapper->setCustomView(cameraWrapper->init_distanceToOrigin, 90, 0, -90, 180, 0);
+        sliderYaw->setValue(180);
+        sliderPitch->setValue(-90);
+        sliderRoll->setValue(0);
+        sliderLat->setValue(90);
+        sliderLng->setValue(0);
+        sliderScale->setValue(50);
+    });
+
     QObject::connect(projSwitch, SIGNAL(valueChanged(bool)),  cameraWrapper, SLOT(setProjectiveMode(bool)));
     QObject::connect(selectSwitch, SIGNAL(valueChanged(bool)),  cameraWrapper, SLOT(disableCameraController(bool)));
     QObject::connect(selectSwitch, SIGNAL(valueChanged(bool)),  cylinerModel, SLOT(enablePickAll(bool)));
