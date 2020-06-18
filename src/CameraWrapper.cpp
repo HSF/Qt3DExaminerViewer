@@ -21,6 +21,16 @@ void CameraWrapper::resetCameraView(){
     m_yaw = M_PI;
 }
 
+void CameraWrapper::setCustomView(int dis, int lat, int lng, int pitch, int yaw, int roll){
+    m_distanceToOrigin = dis;
+    m_latitude = qDegreesToRadians((float)lat);
+    m_longitude = qDegreesToRadians((float)lng);
+    m_roll = qDegreesToRadians((float)roll);
+    m_yaw = qDegreesToRadians((float)yaw);
+    m_pitch = qDegreesToRadians((float)pitch);
+    setPosition();
+    setDirection();
+}
 
 void CameraWrapper::setProjectiveMode(bool isPerspective){
     if(!isPerspective)
@@ -46,7 +56,7 @@ void CameraWrapper::translatePosRad(int radius){
     // prevent divided by zero later
     QVector3D position = m_camera -> position();
     m_camera->setPosition(position * radius / m_distanceToOrigin);
-    m_distanceToOrigin = (float)(radius);
+    m_distanceToOrigin = radius;
 }
 
 void CameraWrapper::translatePosLat(int latitude){
@@ -113,4 +123,7 @@ void CameraWrapper::setDirection(){
     }
     QVector3D newUpVector = x * extraAxisX + y * extraAxisY;
     m_camera -> setUpVector(newUpVector);
+    qInfo() << "position: " << m_camera -> position();
+    qInfo() << "upvector: " << m_camera -> upVector();
+    qInfo() << "viewCenter: " << m_camera -> viewCenter();
 }

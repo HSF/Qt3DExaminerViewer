@@ -7,9 +7,9 @@
 class CameraWrapper : public QObject{
     Q_OBJECT
 public:
-    const float init_distanceToOrigin = 50;
+    const int init_distanceToOrigin = 50;
 private:
-    float m_distanceToOrigin;
+    int m_distanceToOrigin;
     float m_longitude, m_latitude;
     float m_roll, m_yaw, m_pitch;
     Qt3DCore::QEntity *m_rootEntity;
@@ -19,7 +19,7 @@ private:
 public:
     explicit CameraWrapper(Qt3DCore::QEntity *parent = nullptr, Qt3DRender::QCamera *camera=nullptr);
     void addCameraController(Qt3DExtras::QAbstractCameraController *camController);
-
+    void setCustomView(int dis, int lat, int lng, int roll, int yaw, int pitch);
 signals:
 
 public slots:
