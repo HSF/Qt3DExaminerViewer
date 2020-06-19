@@ -49,6 +49,8 @@ void GeneralMeshModel::add_subModel(GeneralMeshModel *subModel){
 }
 
 void GeneralMeshModel::changeState(Qt3DRender::QPickEvent* event){
+    qInfo() << "clicked position: " << event->position();
+
     if(event->button() == Qt3DRender::QPickEvent::LeftButton){
         Qt3DExtras::QPhongMaterial *material = (Qt3DExtras::QPhongMaterial*)(m_meshEntity->componentsOfType<Qt3DExtras::QPhongMaterial>()[0]);
         material->setDiffuse(QColor(255, 0, 0, 127));

@@ -37,6 +37,7 @@
 #include <Qt3DExtras/qorbitcameracontroller.h>
 #include <Qt3DExtras/QCylinderMesh>
 #include <Qt3DExtras/QCuboidMesh>
+#include <Qt3DRender/QPointLight>
 
 QCommandLinkButton *info;
 
@@ -413,7 +414,13 @@ int main(int argc, char **argv){
     mesh->setProperty("Faces", QVariant(29208));
     MeshModel *detectorModel = new MeshModel(rootEntity, mesh);
 
-    /*   Qt3DRender::QMesh *meshLeft = new Qt3DRender::QMesh();
+    QObject::connect(cameraEntity, &Qt3DRender::QCamera::positionChanged, lightEntity, [lightEntity,cameraEntity](){
+        Qt3DCore::QTransform* a = (Qt3DCore::QTransform*)lightEntity->componentsOfType<Qt3DCore::QTransform>()[0];
+        a->setTranslation(cameraEntity->position());
+    });
+
+    /*
+     * Qt3DRender::QMesh *meshLeft = new Qt3DRender::QMesh();
        meshLeft->setSource(QUrl("qrc:/mesh/left_part.obj"));
        meshLeft->setProperty("Vertices", QVariant(3));
        meshLeft->setProperty("Edges", QVariant(5));
@@ -438,7 +445,6 @@ int main(int argc, char **argv){
        detectorModel->add_subModel(subModelLeft);
        detectorModel->add_subModel(subModelRight);
        //detectorModel->add_subModel(subModelMiddle);
-
    */
     setupControlPanel(vLayout, mainWindow, detectorModel, cylinerModel, cameraWrapper);
 
