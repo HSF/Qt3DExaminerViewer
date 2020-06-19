@@ -75,10 +75,12 @@ void setUpInfoWindow(){
     info->setDescription(QString::fromLatin1("Click dectector volumes to see some properties."));
     info->setIconSize(QSize(0,0));
     info->setFixedSize(QSize(180, 140));
+    info->setMaximumSize(QSize(180, 140));
+    info->setMinimumSize(QSize(100,100));
     info->setFont(QFont ("Courier", 13));
 }
 
-inline void setupControlPanel(QVBoxLayout *vLayout, QWidget *mainWindow, MeshModel *detectorModel, GeneralMeshModel *cylinerModel, CameraWrapper *cameraWrapper){
+inline void setupControlPanel(QVBoxLayout *vLayout, QWidget *mainWindow, GeneralMeshModel *cylinerModel, CameraWrapper *cameraWrapper){
     // Create a info window to display mesh properties
     setUpInfoWindow();
 
@@ -148,15 +150,18 @@ inline void setupControlPanel(QVBoxLayout *vLayout, QWidget *mainWindow, MeshMod
     QHBoxLayout *hLayoutPredefinedView = new QHBoxLayout(mainWindow);
     QPushButton *frontViewBtn = new QPushButton(mainWindow);
     frontViewBtn->setEnabled(true);
-    frontViewBtn->setFixedSize(QSize(60, 30));
+    frontViewBtn->setMaximumSize(QSize(60, 30));
+    frontViewBtn->setMinimumSize(QSize(30,15));
     frontViewBtn->setText(QString("front"));
     QPushButton *leftViewBtn = new QPushButton(mainWindow);
     leftViewBtn->setEnabled(true);
-    leftViewBtn->setFixedSize(QSize(60, 30));
+    leftViewBtn->setMaximumSize(QSize(60, 30));
+    leftViewBtn->setMinimumSize(QSize(30,15));
     leftViewBtn->setText(QString("left"));
     QPushButton *topViewBtn = new QPushButton(mainWindow);
     topViewBtn->setEnabled(true);
-    topViewBtn->setFixedSize(QSize(60, 30));
+    topViewBtn->setMaximumSize(QSize(60, 30));
+    topViewBtn->setMinimumSize(QSize(30,15));
     topViewBtn->setText(QString("top"));
     hLayoutPredefinedView -> addWidget(frontViewBtn);
     hLayoutPredefinedView -> addWidget(leftViewBtn);
@@ -239,7 +244,10 @@ inline void setupControlPanel(QVBoxLayout *vLayout, QWidget *mainWindow, MeshMod
 
     QGroupBox *positionControl = new QGroupBox("Camera Position");
     positionControl->setLayout(positionControlLayout);
-    positionControl->setFixedSize(230, 260);
+    //positionControl->setFixedSize(230, 260);
+    positionControl->setMinimumSize(QSize(100, 200));
+    positionControl->setMaximumSize(QSize(230, 260));
+
     vLayout->addWidget(positionControl);
 
     vLayout->addWidget(restoreSelectBtn);
@@ -268,11 +276,13 @@ inline void setupControlPanel(QVBoxLayout *vLayout, QWidget *mainWindow, MeshMod
     directionControlLayout->addWidget(labelRollTicks);
     QGroupBox *directionControl = new QGroupBox("Camera Direction");
     directionControl->setLayout(directionControlLayout);
-    directionControl->setFixedSize(230, 260);
+    //directionControl->setFixedSize(230, 260);
+    directionControl->setMinimumSize(QSize(100, 200));
+    directionControl->setMaximumSize(QSize(230, 260));
     vLayout->addWidget(directionControl);
 
     // Connect UI with model
-    QObject::connect(meshVisibleBtn, &QCheckBox::stateChanged, detectorModel, &MeshModel::showMesh);  
+    //QObject::connect(meshVisibleBtn, &QCheckBox::stateChanged, detectorModel, &MeshModel::showMesh);
     QObject::connect(restoreSelectBtn, SIGNAL(clicked(bool)), cylinerModel, SLOT(restoreState(bool)));
     //QObject::connect(frontViewBtn, &QPushButton::clicked, cameraWrapper, &CameraWrapper::resetCameraView);
     QObject::connect(frontViewBtn, &QPushButton::clicked, cameraWrapper, [cameraWrapper, sliderYaw, sliderPitch, sliderRoll, sliderLat, sliderLng, sliderScale](){
@@ -369,6 +379,10 @@ int main(int argc, char **argv){
     // Light source
     Qt3DCore::QEntity *lightEntity = new Qt3DCore::QEntity(rootEntity);
     setUpLight(lightEntity, cameraEntity->position());
+    QObject::connect(cameraEntity, &Qt3DRender::QCamera::positionChanged, lightEntity, [lightEntity,cameraEntity](){
+        Qt3DCore::QTransform* transform = (Qt3DCore::QTransform*)lightEntity->componentsOfType<Qt3DCore::QTransform>()[0];
+        transform -> setTranslation(cameraEntity->position());
+    });
 
     // volume picking setting
     Qt3DRender::QPickingSettings *settings = new Qt3DRender::QPickingSettings();
@@ -378,27 +392,27 @@ int main(int argc, char **argv){
     Qt3DExtras::QCylinderMesh *meshCyliner = new Qt3DExtras::QCylinderMesh();
     meshCyliner->setObjectName(QString("World Volume"));
     GeneralMeshModel *cylinerModel = new GeneralMeshModel(rootEntity, meshCyliner);
-    cylinerModel->translateMesh(QVector3D(-5.0f, 0.0f, 0.0f));
+    cylinerModel->translateMesh(QVector3D(0.0f, 0.0f, 0.0f));
     cylinerModel->scaleMesh(4);
 
     Qt3DExtras::QCuboidMesh *meshBox1 = new Qt3DExtras::QCuboidMesh();
     meshBox1->setObjectName(QString("Muon"));
     GeneralMeshModel *cuboidModel1 = new GeneralMeshModel(rootEntity, meshBox1);
-    cuboidModel1->translateMesh(QVector3D(-5.0f, 1.0f, 0.0f));
+    cuboidModel1->translateMesh(QVector3D(0.0f, 1.0f, 0.0f));
     cuboidModel1->scaleMesh(2);
     cuboidModel1->showMesh(false);
 
     Qt3DExtras::QCuboidMesh *meshBox2 = new Qt3DExtras::QCuboidMesh();
     meshBox2->setObjectName(QString("Calorimeter"));
     GeneralMeshModel *cuboidModel2 = new GeneralMeshModel(rootEntity, meshBox2);
-    cuboidModel2->translateMesh(QVector3D(-5.0f, -1.0f, 0.0f));
+    cuboidModel2->translateMesh(QVector3D(0.0f, -1.0f, 0.0f));
     cuboidModel2->scaleMesh(2);
     cuboidModel2->showMesh(false);
 
     Qt3DExtras::QCuboidMesh *meshBox3 = new Qt3DExtras::QCuboidMesh();
     meshBox3->setObjectName(QString("one daughter of Muon"));
     GeneralMeshModel *cuboidModel3 = new GeneralMeshModel(rootEntity, meshBox3);
-    cuboidModel3->translateMesh(QVector3D(-5.0f, 1.0f, 0.0f));
+    cuboidModel3->translateMesh(QVector3D(0.0f, 1.0f, 0.0f));
     cuboidModel3->showMesh(false);
 
     cylinerModel->add_subModel(cuboidModel1);
@@ -407,19 +421,13 @@ int main(int argc, char **argv){
 
     // Create detector mesh model
     // Mesh shape and properties
-    Qt3DRender::QMesh *mesh = new Qt3DRender::QMesh();
+   /* Qt3DRender::QMesh *mesh = new Qt3DRender::QMesh();
     mesh->setSource(QUrl("qrc:/mesh/TrackML-PixelDetector.obj"));
     mesh->setProperty("Vertices", QVariant(37216));
     mesh->setProperty("Edges", QVariant(58416));
     mesh->setProperty("Faces", QVariant(29208));
     MeshModel *detectorModel = new MeshModel(rootEntity, mesh);
 
-    QObject::connect(cameraEntity, &Qt3DRender::QCamera::positionChanged, lightEntity, [lightEntity,cameraEntity](){
-        Qt3DCore::QTransform* a = (Qt3DCore::QTransform*)lightEntity->componentsOfType<Qt3DCore::QTransform>()[0];
-        a->setTranslation(cameraEntity->position());
-    });
-
-    /*
      * Qt3DRender::QMesh *meshLeft = new Qt3DRender::QMesh();
        meshLeft->setSource(QUrl("qrc:/mesh/left_part.obj"));
        meshLeft->setProperty("Vertices", QVariant(3));
@@ -446,7 +454,7 @@ int main(int argc, char **argv){
        detectorModel->add_subModel(subModelRight);
        //detectorModel->add_subModel(subModelMiddle);
    */
-    setupControlPanel(vLayout, mainWindow, detectorModel, cylinerModel, cameraWrapper);
+    setupControlPanel(vLayout, mainWindow, cylinerModel, cameraWrapper);
 
     // Show window
     mainWindow->show();
