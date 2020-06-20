@@ -3,6 +3,7 @@
 #include "headers/CameraWrapper.h"
 #include "headers/GeneralMeshModel.h"
 
+#include <QtMath>
 #include <QApplication>
 #include <QGuiApplication>
 #include <QtGui/QScreen>
@@ -37,7 +38,9 @@
 #include <Qt3DExtras/qorbitcameracontroller.h>
 #include <Qt3DExtras/QCylinderMesh>
 #include <Qt3DExtras/QCuboidMesh>
+#include <Qt3DExtras/QSphereMesh>
 #include <Qt3DRender/QPointLight>
+#include <Qt3DCore/QTransform>
 
 QCommandLinkButton *info;
 
@@ -393,32 +396,39 @@ int main(int argc, char **argv){
     meshCyliner->setObjectName(QString("World Volume"));
     GeneralMeshModel *cylinerModel = new GeneralMeshModel(rootEntity, meshCyliner);
     cylinerModel->translateMesh(QVector3D(0.0f, 0.0f, 0.0f));
-    cylinerModel->scaleMesh(4);
+    cylinerModel->rotateMesh(Qt3DCore::QTransform::fromEulerAngles(90.0,0,0));
+    cylinerModel->scaleMesh(QVector3D(2,4,2));
 
     Qt3DExtras::QCuboidMesh *meshBox1 = new Qt3DExtras::QCuboidMesh();
-    meshBox1->setObjectName(QString("Muon"));
+    meshBox1->setObjectName(QString("Muon \n at position (0,0,1)"));
     GeneralMeshModel *cuboidModel1 = new GeneralMeshModel(rootEntity, meshBox1);
-    cuboidModel1->translateMesh(QVector3D(0.0f, 1.0f, 0.0f));
-    cuboidModel1->scaleMesh(2);
+    cuboidModel1->translateMesh(QVector3D(0.0f, 0.0f, 1.0f));
+    cuboidModel1->scaleMesh(QVector3D(2,2,2));
     cuboidModel1->showMesh(false);
 
     Qt3DExtras::QCuboidMesh *meshBox2 = new Qt3DExtras::QCuboidMesh();
-    meshBox2->setObjectName(QString("Calorimeter"));
+    meshBox2->setObjectName(QString("Calorimeter \n at position (0,0,-1)"));
     GeneralMeshModel *cuboidModel2 = new GeneralMeshModel(rootEntity, meshBox2);
-    cuboidModel2->translateMesh(QVector3D(0.0f, -1.0f, 0.0f));
-    cuboidModel2->scaleMesh(2);
+    cuboidModel2->translateMesh(QVector3D(0.0f, 0.0f, -1.0f));
+    cuboidModel2->scaleMesh(QVector3D(2,2,2));
     cuboidModel2->showMesh(false);
 
     Qt3DExtras::QCuboidMesh *meshBox3 = new Qt3DExtras::QCuboidMesh();
-    meshBox3->setObjectName(QString("one daughter of Muon"));
+    meshBox3->setObjectName(QString("one daughter of Muon \n at position (0,0,1)"));
     GeneralMeshModel *cuboidModel3 = new GeneralMeshModel(rootEntity, meshBox3);
-    cuboidModel3->translateMesh(QVector3D(0.0f, 1.0f, 0.0f));
+    cuboidModel3->translateMesh(QVector3D(0.0f, 0.0f, 1.0f));
     cuboidModel3->showMesh(false);
+
+    Qt3DExtras::QSphereMesh *meshSphere = new Qt3DExtras::QSphereMesh();
+    meshSphere->setObjectName(QString("one daughter of Calorimeter \n at position (0,0,-1)"));
+    GeneralMeshModel *sphereModel = new GeneralMeshModel(rootEntity, meshSphere);
+    sphereModel->translateMesh(QVector3D(0.0f, 0.0f, -1.0f));
+    sphereModel->showMesh(false);
 
     cylinerModel->add_subModel(cuboidModel1);
     cylinerModel->add_subModel(cuboidModel2);
     cuboidModel1->add_subModel(cuboidModel3);
-
+    cuboidModel2->add_subModel(sphereModel);
     // Create detector mesh model
     // Mesh shape and properties
    /* Qt3DRender::QMesh *mesh = new Qt3DRender::QMesh();

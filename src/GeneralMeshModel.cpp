@@ -112,13 +112,20 @@ void GeneralMeshModel::translateMesh(QVector3D translation){
     transform->setTranslation(translation);
 }
 
-void GeneralMeshModel::scaleMesh(int magnitude){
+void GeneralMeshModel::rotateMesh(QQuaternion rotation){
+    for(GeneralMeshModel *subModel:m_subModels){
+        subModel->rotateMesh(rotation);
+    }
+    Qt3DCore::QTransform *transform = (Qt3DCore::QTransform*)(m_meshEntity->componentsOfType<Qt3DCore::QTransform>()[0]);
+    transform->setRotation(rotation);
+}
+
+void GeneralMeshModel::scaleMesh(QVector3D magnitude){
     for(GeneralMeshModel *subModel:m_subModels){
         subModel->scaleMesh(magnitude);
     }
-    float magnitudeF = (float)(magnitude);
     Qt3DCore::QTransform *transform = (Qt3DCore::QTransform*)(m_meshEntity->componentsOfType<Qt3DCore::QTransform>()[0]);
-    transform->setScale(magnitudeF);
+    transform->setScale3D(magnitude);
 }
 
 

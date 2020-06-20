@@ -30,7 +30,8 @@ signals:
 public slots:
     void showMesh(bool visible);
     void translateMesh(QVector3D translation);
-    void scaleMesh(int magnitude);
+    void rotateMesh(QQuaternion rotation);
+    void scaleMesh(QVector3D magnitude);
     void unpackSubMesh(Qt3DRender::QPickEvent* event);
     void enablePickAll(bool enable);
 
