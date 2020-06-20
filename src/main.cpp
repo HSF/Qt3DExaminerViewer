@@ -16,22 +16,15 @@
 #include <QtWidgets/QCommandLinkButton>
 #include <QtWidgets/QSpinBox>
 #include <QtWidgets/QGroupBox>
-#include <Qt3DExtras/qtorusmesh.h>
-#include <Qt3DRender/qmesh.h>
-#include <Qt3DRender/qtechnique.h>
-#include <Qt3DRender/qmaterial.h>
-#include <Qt3DRender/qeffect.h>
-#include <Qt3DRender/qtexture.h>
-#include <Qt3DRender/qrenderpass.h>
-#include <Qt3DRender/qsceneloader.h>
-#include <Qt3DRender/qpointlight.h>
 #include <Qt3DCore/qtransform.h>
 #include <Qt3DCore/qaspectengine.h>
 #include <Qt3DCore/qentity.h>
+#include <Qt3DCore/QTransform>
 #include <Qt3DRender/qrenderaspect.h>
 #include <Qt3DRender/qcameralens.h>
 #include <Qt3DRender/qcamera.h>
 #include <Qt3DRender/QPickingSettings>
+#include <Qt3DRender/QPointLight>
 #include <Qt3DExtras/qforwardrenderer.h>
 #include <Qt3DExtras/qt3dwindow.h>
 #include <Qt3DExtras/qfirstpersoncameracontroller.h>
@@ -39,8 +32,7 @@
 #include <Qt3DExtras/QCylinderMesh>
 #include <Qt3DExtras/QCuboidMesh>
 #include <Qt3DExtras/QSphereMesh>
-#include <Qt3DRender/QPointLight>
-#include <Qt3DCore/QTransform>
+#include <Qt3DExtras/QExtrudedTextMesh>
 
 QCommandLinkButton *info;
 
@@ -424,6 +416,22 @@ int main(int argc, char **argv){
     GeneralMeshModel *sphereModel = new GeneralMeshModel(rootEntity, meshSphere);
     sphereModel->translateMesh(QVector3D(0.0f, 0.0f, -1.0f));
     sphereModel->showMesh(false);
+
+    Qt3DExtras::QExtrudedTextMesh *textMesh1 = new Qt3DExtras::QExtrudedTextMesh();
+    textMesh1->setObjectName("A");
+    textMesh1->setText("A");
+    GeneralMeshModel *textModel1 = new GeneralMeshModel(rootEntity, textMesh1);
+    textModel1->translateMesh(QVector3D(0.0f, -4.0f, 5.0f));
+    textModel1->scaleMesh(QVector3D(1.0f, 1.0f, 0.2f));
+    textModel1->enablePickAll(false);
+
+    Qt3DExtras::QExtrudedTextMesh *textMesh2 = new Qt3DExtras::QExtrudedTextMesh();
+    textMesh2->setObjectName("C");
+    textMesh2->setText("C");
+    GeneralMeshModel *textModel2 = new GeneralMeshModel(rootEntity, textMesh2);
+    textModel2->translateMesh(QVector3D(0.0f, -4.0f, -5.0f));
+    textModel2->scaleMesh(QVector3D(1.0f, 1.0f, 0.2f));
+    textModel2->enablePickAll(false);
 
     cylinerModel->add_subModel(cuboidModel1);
     cylinerModel->add_subModel(cuboidModel2);
