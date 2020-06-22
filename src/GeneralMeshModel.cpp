@@ -34,11 +34,7 @@ GeneralMeshModel::GeneralMeshModel(Qt3DCore::QEntity *rootEntity, Qt3DRender::QG
     QObject::connect(m_picker, &Qt3DRender::QObjectPicker::clicked, this, &GeneralMeshModel::unpackSubMesh);
     QObject::connect(m_picker, &Qt3DRender::QObjectPicker::clicked, this, &GeneralMeshModel::changeState);
     QObject::connect(m_picker, &Qt3DRender::QObjectPicker::clicked, this, &GeneralMeshModel::onMoveCamera);
-    QObject::connect(m_picker, &Qt3DRender::QObjectPicker::exited, this, [](){ info->setDescription(QString("1) Left click to select\n"
-                                                                                                             "2) CMD/Ctrl + left click to unpack children\n"
-                                                                                                             "3) Shift + left click to focus on clicked point\n"
-                                                                                                             "4) Click \"revert original state\" "
-                                                                                                             "button to revert all changes"));});
+    QObject::connect(m_picker, &Qt3DRender::QObjectPicker::exited, this, [](){ info->setDescription(TIPS);});
 }
 
 GeneralMeshModel::~GeneralMeshModel(){
@@ -50,7 +46,7 @@ void GeneralMeshModel::add_subModel(GeneralMeshModel *subModel){
 
 void GeneralMeshModel::onMoveCamera(Qt3DRender::QPickEvent *event){
      if(event->button() == Qt3DRender::QPickEvent::LeftButton && event->modifiers() == Qt::ShiftModifier){
-         camera->translateView(event->worldIntersection(), m_mesh->property("maxLength").toInt());
+         camera->translateView(event->worldIntersection(), 0);
      }
      else if(event->button() == Qt3DRender::QPickEvent::RightButton && event->modifiers() == Qt::ShiftModifier){
          camera->translateView(m_meshTransform->translation(), m_mesh->property("maxLength").toInt());

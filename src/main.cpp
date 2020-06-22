@@ -1,6 +1,7 @@
 #include "headers/SwithButton.h"
 #include "headers/CameraWrapper.h"
 #include "headers/GeneralMeshModel.h"
+#include "headers/Mainwindow.h"
 
 #include <QtMath>
 #include <QApplication>
@@ -67,15 +68,11 @@ void setUpSliderController(QLabel *label, QSlider *slider, QString tip, int init
 void setUpInfoWindow(){
     info = new QCommandLinkButton();
     info->setText(QStringLiteral("Info windows:"));
-    info->setDescription(QString("1) Left click to select\n"
-                                 "2) CMD/Ctrl + left click to unpack children\n"
-                                 "3) Shift + left click to focus on clicked point\n"
-                                 "4) Click \"restore original state\" "
-                                 "button to revert all changes"));
+    info->setDescription(TIPS);
     info->setIconSize(QSize(0,0));
-    info->setMaximumSize(QSize(200, 160));
-    info->setMinimumSize(QSize(120,120));
-    info->setFont(QFont ("Courier", 13));
+    info->setMaximumSize(QSize(200, 180));
+    info->setMinimumSize(QSize(140, 160));
+    info->setFont(QFont ("Courier", 12));
 }
 
 inline void setupControlPanel(QVBoxLayout *vLayout, QWidget *mainWindow, GeneralMeshModel *cylinerModel, CameraWrapper *cameraWrapper){
@@ -146,22 +143,18 @@ inline void setupControlPanel(QVBoxLayout *vLayout, QWidget *mainWindow, General
     QPushButton *restoreViewBtn = new QPushButton(mainWindow);
     restoreViewBtn->setEnabled(true);
     restoreViewBtn->setMaximumSize(QSize(70, 30));
-    restoreViewBtn->setMinimumSize(QSize(30,20));
     restoreViewBtn->setText(QString("orginal"));
     QPushButton *frontViewBtn = new QPushButton(mainWindow);
     frontViewBtn->setEnabled(true);
     frontViewBtn->setMaximumSize(QSize(60, 30));
-    frontViewBtn->setMinimumSize(QSize(30,20));
     frontViewBtn->setText(QString("front"));
     QPushButton *leftViewBtn = new QPushButton(mainWindow);
     leftViewBtn->setEnabled(true);
-    leftViewBtn->setMaximumSize(QSize(60, 30));
-    leftViewBtn->setMinimumSize(QSize(30,20));
+    leftViewBtn->setMaximumSize(QSize(50, 30));
     leftViewBtn->setText(QString("left"));
     QPushButton *topViewBtn = new QPushButton(mainWindow);
     topViewBtn->setEnabled(true);
-    topViewBtn->setMaximumSize(QSize(60, 30));
-    topViewBtn->setMinimumSize(QSize(30,20));
+    topViewBtn->setMaximumSize(QSize(50, 30));
     topViewBtn->setText(QString("top"));
     hLayoutPredefinedView -> addWidget(restoreViewBtn);
     hLayoutPredefinedView -> addWidget(frontViewBtn);
@@ -229,16 +222,13 @@ inline void setupControlPanel(QVBoxLayout *vLayout, QWidget *mainWindow, General
     vLayout->addWidget(meshVisibleBtn);
 
     positionControlLayout->addLayout(hLayoutRad);
-    //vLayout->addWidget(labelScale);
     positionControlLayout->addWidget(sliderScale);
 
     positionControlLayout->addLayout(hLayoutLng);
-    //vLayout->addWidget(labelLng);
     positionControlLayout->addWidget(sliderLng);
     positionControlLayout->addWidget(labelLngTicks);
 
     positionControlLayout->addLayout(hLayoutLat);
-    //vLayout->addWidget(labelLat);
     positionControlLayout->addWidget(sliderLat);
     positionControlLayout->addWidget(labelLatTicks);
 
@@ -261,17 +251,14 @@ inline void setupControlPanel(QVBoxLayout *vLayout, QWidget *mainWindow, General
     QVBoxLayout *directionControlLayout = new QVBoxLayout(mainWindow);
 
     directionControlLayout->addLayout(hLayoutYaw);
-    //vLayout->addWidget(labelYaw);
     directionControlLayout->addWidget(sliderYaw);
     directionControlLayout->addWidget(labelYawTicks);
 
     directionControlLayout->addLayout(hLayoutPitch);
-   // vLayout->addWidget(labelPitch);
     directionControlLayout->addWidget(sliderPitch);
     directionControlLayout->addWidget(labelPitchTicks);
 
     directionControlLayout->addLayout(hLayoutRoll);
-    //vLayout->addWidget(labelRoll);
     directionControlLayout->addWidget(sliderRoll);
     directionControlLayout->addWidget(labelRollTicks);
     QGroupBox *directionControl = new QGroupBox("Camera Direction");
@@ -285,6 +272,14 @@ inline void setupControlPanel(QVBoxLayout *vLayout, QWidget *mainWindow, General
     QObject::connect(meshVisibleBtn, &QCheckBox::stateChanged, cylinerModel, &GeneralMeshModel::showMesh);
     QObject::connect(restoreSelectBtn, SIGNAL(clicked(bool)), cylinerModel, SLOT(restoreState(bool)));
     QObject::connect(restoreViewBtn, &QPushButton::clicked, cameraWrapper, &CameraWrapper::resetCameraView);
+    QObject::connect(restoreViewBtn, &QPushButton::clicked, cameraWrapper, [cameraWrapper, sliderYaw, sliderPitch, sliderRoll, sliderLat, sliderLng, sliderScale](){
+        sliderYaw->setValue(180);
+        sliderPitch->setValue(0);
+        sliderRoll->setValue(0);
+        sliderLat->setValue(0);
+        sliderLng->setValue(0);
+        sliderScale->setValue(cameraWrapper->init_distanceToOrigin);
+    });
     QObject::connect(frontViewBtn, &QPushButton::clicked, cameraWrapper, [cameraWrapper, sliderYaw, sliderPitch, sliderRoll, sliderLat, sliderLng, sliderScale](){
         cameraWrapper->setCustomView(cameraWrapper->init_distanceToOrigin, 0, 0, 0, 180, 0);
         sliderYaw->setValue(180);
@@ -292,7 +287,6 @@ inline void setupControlPanel(QVBoxLayout *vLayout, QWidget *mainWindow, General
         sliderRoll->setValue(0);
         sliderLat->setValue(0);
         sliderLng->setValue(0);
-        sliderScale->setValue(cameraWrapper->init_distanceToOrigin);
     });
     QObject::connect(leftViewBtn, &QPushButton::clicked, cameraWrapper, [cameraWrapper, sliderYaw, sliderPitch, sliderRoll, sliderLat, sliderLng, sliderScale](){
         cameraWrapper->setCustomView(cameraWrapper->init_distanceToOrigin, 0, 270, 0, 90, 0);
@@ -301,7 +295,6 @@ inline void setupControlPanel(QVBoxLayout *vLayout, QWidget *mainWindow, General
         sliderRoll->setValue(0);
         sliderLat->setValue(0);
         sliderLng->setValue(270);
-        sliderScale->setValue(cameraWrapper->init_distanceToOrigin);
     });
     QObject::connect(topViewBtn, &QPushButton::clicked, cameraWrapper, [cameraWrapper, sliderYaw, sliderPitch, sliderRoll, sliderLat, sliderLng, sliderScale](){
         cameraWrapper->setCustomView(cameraWrapper->init_distanceToOrigin, 90, 0, -90, 180, 0);
@@ -310,7 +303,6 @@ inline void setupControlPanel(QVBoxLayout *vLayout, QWidget *mainWindow, General
         sliderRoll->setValue(0);
         sliderLat->setValue(90);
         sliderLng->setValue(0);
-        sliderScale->setValue(cameraWrapper->init_distanceToOrigin);
     });
 
     QObject::connect(projSwitch, SIGNAL(valueChanged(bool)),  cameraWrapper, SLOT(setProjectiveMode(bool)));
@@ -353,7 +345,7 @@ int main(int argc, char **argv){
     Qt3DCore::QEntity *rootEntity = new Qt3DCore::QEntity();
 
     // view and container
-    Qt3DExtras::Qt3DWindow *view = new Qt3DExtras::Qt3DWindow();
+    MainWindow *view = new MainWindow();
     view->setRootEntity(rootEntity);
     view->defaultFrameGraph()->setClearColor(QColor(QRgb(0x4d4d4f))); 
     QWidget *container = QWidget::createWindowContainer(view);
@@ -377,6 +369,7 @@ int main(int argc, char **argv){
     cameraWrapper->addCameraController(camController);
     camController->setCamera(nullptr);
     camera = cameraWrapper;
+    view->addCamera(cameraEntity);
 
     // Light source
     Qt3DCore::QEntity *lightEntity = new Qt3DCore::QEntity(rootEntity);

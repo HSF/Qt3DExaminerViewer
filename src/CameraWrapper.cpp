@@ -7,6 +7,7 @@
 CameraWrapper::CameraWrapper(Qt3DCore::QEntity *rootEntity,  Qt3DRender::QCamera *camera) : m_rootEntity(rootEntity)
 {
     m_camera = camera;
+    m_camera->setProjectionType(Qt3DRender::QCameraLens::PerspectiveProjection);
     resetCameraView();
 }
 
@@ -15,7 +16,6 @@ Qt3DRender::QCamera *CameraWrapper::camera(){
 }
 
 void CameraWrapper::resetCameraView(){
-    m_camera->setProjectionType(Qt3DRender::QCameraLens::PerspectiveProjection);
     m_camera->setPosition(QVector3D(0, 0, init_distanceToOrigin));
     m_camera->setUpVector(QVector3D(0, 1, 0));
     m_camera->setViewCenter(QVector3D(0, 0, 0));
@@ -29,7 +29,7 @@ void CameraWrapper::resetCameraView(){
 }
 
 void CameraWrapper::setCustomView(int dis, int lat, int lng, int pitch, int yaw, int roll){
-    m_distanceToOrigin = dis;
+    //m_distanceToOrigin = dis;
     m_latitude = qDegreesToRadians((float)lat);
     m_longitude = qDegreesToRadians((float)lng);
     m_roll = qDegreesToRadians((float)roll);
@@ -75,7 +75,6 @@ void CameraWrapper::translateView(QVector3D bias, int scale){
         m_camera->setPosition(m_distanceToOrigin*(-m_camera->viewVector()).normalized() + bias);
     }
     m_camera->setViewCenter(bias);
-    qInfo() << "camera pos: " << m_camera->position();
 }
 
 void CameraWrapper::zoomOrth(int edge){
