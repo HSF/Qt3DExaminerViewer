@@ -16,6 +16,10 @@
 #include <Qt3DExtras/QPhongMaterial>
 #include <QtWidgets/QCommandLinkButton>
 #include <Qt3DRender/QObjectPicker>
+#define TIPS QString("1) Left click to highlight\n" \
+           "2) CMD/Ctrl + left click to unpack children\n" \
+           "3) Shift + left click to focus on clicked surface point\n" \
+           "4) Shift + right click to focus on clicked object volume center")
 
 extern QCommandLinkButton *info;
 extern CameraWrapper *camera;
