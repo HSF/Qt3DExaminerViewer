@@ -33,6 +33,8 @@ GeneralMeshModel::GeneralMeshModel(Qt3DCore::QEntity *rootEntity, Qt3DRender::QG
     m_meshEntity->addComponent(m_picker);
     QObject::connect(m_picker, &Qt3DRender::QObjectPicker::clicked, this, &GeneralMeshModel::unpackSubMesh);
     QObject::connect(m_picker, &Qt3DRender::QObjectPicker::clicked, this, &GeneralMeshModel::changeState);
+    QObject::connect(m_picker, &Qt3DRender::QObjectPicker::clicked, this, &GeneralMeshModel::changeState);
+    QObject::connect(m_picker, &Qt3DRender::QObjectPicker::clicked, this, &GeneralMeshModel::onMoveCamera);
     QObject::connect(m_picker, &Qt3DRender::QObjectPicker::clicked, this,[mesh](){ info->setDescription(QString("This is ") + mesh->objectName());});
     QObject::connect(m_picker, &Qt3DRender::QObjectPicker::exited, this, [](){ info->setDescription(QString("move mouse inside a volume to see tips"));});
     QObject::connect(m_picker, &Qt3DRender::QObjectPicker::entered, this, [](){ info->setDescription(QString("1) Left click to select\n"
@@ -48,10 +50,16 @@ void GeneralMeshModel::add_subModel(GeneralMeshModel *subModel){
     m_subModels.push_back(subModel);
 }
 
-void GeneralMeshModel::changeState(Qt3DRender::QPickEvent* event){
-    qInfo() << "clicked position: " << event->position();
+void GeneralMeshModel::onMoveCamera(Qt3DRender::QPickEvent *event){
+     if(event->button() == Qt3DRender::QPickEvent::LeftButton && event->modifiers() == Qt::ShiftModifier){
+         camera->translateView(event->worldIntersection());
+     }
+}
 
-    if(event->button() == Qt3DRender::QPickEvent::LeftButton){
+void GeneralMeshModel::changeState(Qt3DRender::QPickEvent *event){
+    qInfo() << "clicked position: " << event->worldIntersection();
+
+    if(event->button() == Qt3DRender::QPickEvent::LeftButton && event->modifiers() == Qt::NoModifier){
         Qt3DExtras::QPhongMaterial *material = (Qt3DExtras::QPhongMaterial*)(m_meshEntity->componentsOfType<Qt3DExtras::QPhongMaterial>()[0]);
         material->setDiffuse(QColor(255, 0, 0, 127));
     }

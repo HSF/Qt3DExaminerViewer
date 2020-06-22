@@ -19,6 +19,7 @@ void CameraWrapper::resetCameraView(){
     m_pitch = 0;
     m_roll = 0;
     m_yaw = M_PI;
+    m_bias = QVector3D(0.0f, 0.0f, 0.0f);
 }
 
 void CameraWrapper::setCustomView(int dis, int lat, int lng, int pitch, int yaw, int roll){
@@ -50,6 +51,12 @@ void CameraWrapper::disableCameraController(bool disEnble){
         m_camController ->setCamera(nullptr);
     else
         m_camController ->setCamera(m_camera);
+}
+
+void CameraWrapper::translateView(QVector3D bias){
+    m_bias = bias;
+    m_camera->setPosition(-m_camera->viewVector() + bias);
+    m_camera->setViewCenter(bias);
 }
 
 void CameraWrapper::translatePosRad(int radius){
@@ -89,7 +96,7 @@ void CameraWrapper::setPosition(){
     float y = m_distanceToOrigin * qSin(m_latitude);
     float x = m_distanceToOrigin * qCos(m_latitude) * qSin(m_longitude);
     float z = m_distanceToOrigin * qCos(m_latitude) * qCos(m_longitude);
-    m_camera -> setPosition(QVector3D(x, y, z));
+    m_camera -> setPosition(m_bias + QVector3D(x, y, z));
    /* m_camera -> setViewCenter(QVector3D(0, 0, 0));
     float upVectorY, upVectorX, upVectorZ;
     upVectorY = qCos(m_latitude);
