@@ -21,7 +21,7 @@ public:
     explicit CameraWrapper(Qt3DCore::QEntity *parent = nullptr, Qt3DRender::QCamera *camera=nullptr);
     void addCameraController(Qt3DExtras::QAbstractCameraController *camController);
     void setCustomView(int dis, int lat, int lng, int roll, int yaw, int pitch);
-    void translateView(QVector3D bias);
+    void translateView(QVector3D bias, int scale);
 signals:
 
 public slots:

@@ -53,9 +53,9 @@ void CameraWrapper::disableCameraController(bool disEnble){
         m_camController ->setCamera(m_camera);
 }
 
-void CameraWrapper::translateView(QVector3D bias){
+void CameraWrapper::translateView(QVector3D bias, int scale){
     m_bias = bias;
-    m_camera->setPosition(-m_camera->viewVector() + bias);
+    m_camera->setPosition(10*scale*(-m_camera->viewVector() + bias).normalized());
     m_camera->setViewCenter(bias);
 }
 
