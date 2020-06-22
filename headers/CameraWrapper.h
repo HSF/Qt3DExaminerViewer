@@ -7,7 +7,7 @@
 class CameraWrapper : public QObject{
     Q_OBJECT
 public:
-    const int init_distanceToOrigin = 50;
+    const int init_distanceToOrigin = 20;
 private:
     int m_distanceToOrigin;
     float m_longitude, m_latitude;
@@ -22,6 +22,7 @@ public:
     void addCameraController(Qt3DExtras::QAbstractCameraController *camController);
     void setCustomView(int dis, int lat, int lng, int roll, int yaw, int pitch);
     void translateView(QVector3D bias, int scale);
+    Qt3DRender::QCamera *camera();
 signals:
 
 public slots:
@@ -29,7 +30,7 @@ public slots:
     void setProjectiveMode(bool isPerspective);
     void disableCameraController(bool disEnble);
 
-    void translatePosRad(int radius);
+    void zoomInOut(int extent);
     void translatePosLat(int latitude);
     void translatePosLng(int longitude);
 
@@ -39,8 +40,8 @@ public slots:
 private:
     void setDirection();
     void setPosition();
-    void interpolateMove(QVector3D endPos, QVector3D endViewCenter);
-    void delay(int msec);
+    void translatePosRad(int radius);
+    void zoomOrth(int edge);
 };
 
 

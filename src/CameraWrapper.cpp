@@ -10,6 +10,10 @@ CameraWrapper::CameraWrapper(Qt3DCore::QEntity *rootEntity,  Qt3DRender::QCamera
     resetCameraView();
 }
 
+Qt3DRender::QCamera *CameraWrapper::camera(){
+    return m_camera;
+}
+
 void CameraWrapper::resetCameraView(){
     m_camera->setProjectionType(Qt3DRender::QCameraLens::PerspectiveProjection);
     m_camera->setPosition(QVector3D(0, 0, init_distanceToOrigin));
@@ -55,32 +59,31 @@ void CameraWrapper::disableCameraController(bool disEnble){
         m_camController ->setCamera(m_camera);
 }
 
-void CameraWrapper::translateView(QVector3D bias, int scale){
-    m_bias = bias;
-    m_distanceToOrigin = 10 * scale;
-    m_camera->setPosition(m_distanceToOrigin*(-m_camera->viewVector() + bias).normalized());
-    m_camera->setViewCenter(bias);
-    //interpolateMove(m_distanceToOrigin*(-m_camera->viewVector() + bias).normalized(), bias);
-}
-
-void CameraWrapper::interpolateMove(QVector3D endPos, QVector3D endViewCenter){
-    QVector3D startPos = m_camera->position();
-    QVector3D startViewCenter = m_camera->viewCenter();
-    QVector3D posDif = endPos - startPos;
-    QVector3D viewCenterDif = endViewCenter - startViewCenter;
-    int num = 10;
-    for(int i=1; i<=num; i++){
-        m_camera->setPosition(startPos + i/float(num) * posDif);
-        m_camera->setViewCenter(startViewCenter + i/float(num) * viewCenterDif);
-        //delay(10);
+void CameraWrapper::zoomInOut(int extent){
+    if(m_camera->projectionType() == Qt3DRender::QCameraLens::PerspectiveProjection){
+        translatePosRad(extent);
+    }
+    else{
+        zoomOrth(extent);
     }
 }
 
-void CameraWrapper::delay(int msec)
-{
-    QTime dieTime= QTime::currentTime().addMSecs(msec);
-    while (QTime::currentTime() < dieTime)
-        QCoreApplication::processEvents(QEventLoop::AllEvents, 100);
+void CameraWrapper::translateView(QVector3D bias, int scale){
+    m_bias = bias;
+    if(scale != 0 && m_camera->projectionType() == Qt3DRender::QCameraLens::PerspectiveProjection){
+        m_distanceToOrigin = 10 * scale;
+        m_camera->setPosition(m_distanceToOrigin*(-m_camera->viewVector()).normalized() + bias);
+    }
+    m_camera->setViewCenter(bias);
+    qInfo() << "camera pos: " << m_camera->position();
+}
+
+void CameraWrapper::zoomOrth(int edge){
+    float edgeF = edge * 20.0  / 100.0;
+    m_camera->setTop(edgeF);
+    m_camera->setBottom(-edgeF);
+    m_camera->setLeft(-edgeF*m_camera->aspectRatio());
+    m_camera->setRight(edgeF*m_camera->aspectRatio());
 }
 
 void CameraWrapper::translatePosRad(int radius){
