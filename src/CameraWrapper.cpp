@@ -1,4 +1,6 @@
 #include "headers/CameraWrapper.h"
+#include <QCoreApplication>
+#include <QTime>
 #include <Qt3DCore/qtransform.h>
 #include <QtMath>
 
@@ -55,8 +57,30 @@ void CameraWrapper::disableCameraController(bool disEnble){
 
 void CameraWrapper::translateView(QVector3D bias, int scale){
     m_bias = bias;
-    m_camera->setPosition(10*scale*(-m_camera->viewVector() + bias).normalized());
+    m_distanceToOrigin = 10 * scale;
+    m_camera->setPosition(m_distanceToOrigin*(-m_camera->viewVector() + bias).normalized());
     m_camera->setViewCenter(bias);
+    //interpolateMove(m_distanceToOrigin*(-m_camera->viewVector() + bias).normalized(), bias);
+}
+
+void CameraWrapper::interpolateMove(QVector3D endPos, QVector3D endViewCenter){
+    QVector3D startPos = m_camera->position();
+    QVector3D startViewCenter = m_camera->viewCenter();
+    QVector3D posDif = endPos - startPos;
+    QVector3D viewCenterDif = endViewCenter - startViewCenter;
+    int num = 10;
+    for(int i=1; i<=num; i++){
+        m_camera->setPosition(startPos + i/float(num) * posDif);
+        m_camera->setViewCenter(startViewCenter + i/float(num) * viewCenterDif);
+        //delay(10);
+    }
+}
+
+void CameraWrapper::delay(int msec)
+{
+    QTime dieTime= QTime::currentTime().addMSecs(msec);
+    while (QTime::currentTime() < dieTime)
+        QCoreApplication::processEvents(QEventLoop::AllEvents, 100);
 }
 
 void CameraWrapper::translatePosRad(int radius){
