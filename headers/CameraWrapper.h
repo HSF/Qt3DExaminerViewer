@@ -39,6 +39,8 @@ public slots:
 private:
     void setDirection();
     void setPosition();
+    void interpolateMove(QVector3D endPos, QVector3D endViewCenter);
+    void delay(int msec);
 };
 
 

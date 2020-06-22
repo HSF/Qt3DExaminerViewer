@@ -53,8 +53,6 @@ void GeneralMeshModel::onMoveCamera(Qt3DRender::QPickEvent *event){
          camera->translateView(event->worldIntersection(), m_mesh->property("maxLength").toInt());
      }
      else if(event->button() == Qt3DRender::QPickEvent::RightButton && event->modifiers() == Qt::ShiftModifier){
-         qInfo() << m_mesh->property("maxLength").toInt();
-         qInfo() << "center: " << m_meshTransform->translation();
          camera->translateView(m_meshTransform->translation(), m_mesh->property("maxLength").toInt());
      }
 }
