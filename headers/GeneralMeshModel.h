@@ -45,8 +45,10 @@ private slots:
     void onMoveCamera(Qt3DRender::QPickEvent *event);
 
 private:
-    Qt3DCore::QEntity *m_rootEntity;
     Qt3DCore::QEntity *m_meshEntity;
+    Qt3DRender::QGeometryRenderer *m_mesh;
+    Qt3DCore::QTransform *m_meshTransform;
+    Qt3DExtras::QPhongMaterial *m_meshMaterial;
     Qt3DRender::QObjectPicker *m_picker;
     QVector<GeneralMeshModel*> m_subModels;
     bool m_isSelectMode;

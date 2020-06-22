@@ -68,7 +68,11 @@ void setUpSliderController(QLabel *label, QSlider *slider, QString tip, int init
 void setUpInfoWindow(){
     info = new QCommandLinkButton();
     info->setText(QStringLiteral("Info windows:"));
-    info->setDescription(QString::fromLatin1("Click dectector volumes to see some properties."));
+    info->setDescription(QString("1) Left click to select\n"
+                                 "2) CMD/Ctrl + left click to unpack children\n"
+                                 "3) Shift + left click to focus on clicked point\n"
+                                 "4) Click \"restore original state\" "
+                                 "button to revert all changes"));
     info->setIconSize(QSize(0,0));
     info->setFixedSize(QSize(180, 140));
     info->setMaximumSize(QSize(180, 140));
@@ -164,10 +168,10 @@ inline void setupControlPanel(QVBoxLayout *vLayout, QWidget *mainWindow, General
     topViewBtn->setMaximumSize(QSize(60, 30));
     topViewBtn->setMinimumSize(QSize(30,15));
     topViewBtn->setText(QString("top"));
+    hLayoutPredefinedView -> addWidget(restoreViewBtn);
     hLayoutPredefinedView -> addWidget(frontViewBtn);
     hLayoutPredefinedView -> addWidget(leftViewBtn);
     hLayoutPredefinedView -> addWidget(topViewBtn);
-    hLayoutPredefinedView -> addWidget(restoreViewBtn);
 
     // Switch between Ortho and Perspective
     SwitchButton* projSwitch = new SwitchButton(mainWindow, "Ortho", "Persp");
@@ -394,6 +398,7 @@ int main(int argc, char **argv){
     // geometry model
     Qt3DExtras::QCylinderMesh *meshCyliner = new Qt3DExtras::QCylinderMesh();
     meshCyliner->setObjectName(QString("World Volume"));
+    meshCyliner->setProperty("maxLength", 4);
     GeneralMeshModel *cylinerModel = new GeneralMeshModel(rootEntity, meshCyliner);
     cylinerModel->translateMesh(QVector3D(0.0f, 0.0f, 0.0f));
     cylinerModel->rotateMesh(Qt3DCore::QTransform::fromEulerAngles(90.0,0,0));
@@ -401,6 +406,7 @@ int main(int argc, char **argv){
 
     Qt3DExtras::QCuboidMesh *meshBox1 = new Qt3DExtras::QCuboidMesh();
     meshBox1->setObjectName(QString("Muon \n at position (0,0,1)"));
+    meshBox1->setProperty("maxLength", 2);
     GeneralMeshModel *cuboidModel1 = new GeneralMeshModel(rootEntity, meshBox1);
     cuboidModel1->translateMesh(QVector3D(0.0f, 0.0f, 1.0f));
     cuboidModel1->scaleMesh(QVector3D(2,2,2));
@@ -408,6 +414,7 @@ int main(int argc, char **argv){
 
     Qt3DExtras::QCuboidMesh *meshBox2 = new Qt3DExtras::QCuboidMesh();
     meshBox2->setObjectName(QString("Calorimeter \n at position (0,0,-1)"));
+    meshBox2->setProperty("maxLength", 2);
     GeneralMeshModel *cuboidModel2 = new GeneralMeshModel(rootEntity, meshBox2);
     cuboidModel2->translateMesh(QVector3D(0.0f, 0.0f, -1.0f));
     cuboidModel2->scaleMesh(QVector3D(2,2,2));
@@ -415,12 +422,14 @@ int main(int argc, char **argv){
 
     Qt3DExtras::QCuboidMesh *meshBox3 = new Qt3DExtras::QCuboidMesh();
     meshBox3->setObjectName(QString("one daughter of Muon \n at position (0,0,1)"));
+    meshBox3->setProperty("maxLength", 1);
     GeneralMeshModel *cuboidModel3 = new GeneralMeshModel(rootEntity, meshBox3);
     cuboidModel3->translateMesh(QVector3D(0.0f, 0.0f, 1.0f));
     cuboidModel3->showMesh(false);
 
     Qt3DExtras::QSphereMesh *meshSphere = new Qt3DExtras::QSphereMesh();
     meshSphere->setObjectName(QString("one daughter of Calorimeter \n at position (0,0,-1)"));
+    meshSphere->setProperty("maxLength", 1);
     GeneralMeshModel *sphereModel = new GeneralMeshModel(rootEntity, meshSphere);
     sphereModel->translateMesh(QVector3D(0.0f, 0.0f, -1.0f));
     sphereModel->showMesh(false);
@@ -447,20 +456,21 @@ int main(int argc, char **argv){
     cuboidModel2->add_subModel(sphereModel);
     // Create detector mesh model
     // Mesh shape and properties
-   /* Qt3DRender::QMesh *mesh = new Qt3DRender::QMesh();
+  /*  Qt3DRender::QMesh *mesh = new Qt3DRender::QMesh();
     mesh->setSource(QUrl("qrc:/mesh/TrackML-PixelDetector.obj"));
+    mesh->setObjectName(QString("ATLAS detector volume"));
     mesh->setProperty("Vertices", QVariant(37216));
     mesh->setProperty("Edges", QVariant(58416));
     mesh->setProperty("Faces", QVariant(29208));
-    MeshModel *detectorModel = new MeshModel(rootEntity, mesh);
-
-     * Qt3DRender::QMesh *meshLeft = new Qt3DRender::QMesh();
+    GeneralMeshModel *detectorModel = new GeneralMeshModel(rootEntity, mesh);
+    detectorModel->scaleMesh(QVector3D(0.006f, 0.006f, 0.006f));
+      Qt3DRender::QMesh *meshLeft = new Qt3DRender::QMesh();
        meshLeft->setSource(QUrl("qrc:/mesh/left_part.obj"));
        meshLeft->setProperty("Vertices", QVariant(3));
        meshLeft->setProperty("Edges", QVariant(5));
        meshLeft->setProperty("Faces", QVariant(29));
        MeshModel *subModelLeft = new MeshModel(rootEntity, meshLeft);
-
+       subModelLeft->scaleMesh(QVector3D(0.006f, 0.006f, 0.006f));
 
        Qt3DRender::QMesh *meshRight = new Qt3DRender::QMesh();
        meshRight->setSource(QUrl("qrc:/mesh/right_part.obj"));
@@ -468,6 +478,7 @@ int main(int argc, char **argv){
        meshRight->setProperty("Edges", QVariant(58));
        meshRight->setProperty("Faces", QVariant(2));
        MeshModel *subModelRight = new MeshModel(rootEntity, meshRight);
+       subModelRight->scaleMesh(QVector3D(0.006f, 0.006f, 0.006f));
 
        Qt3DRender::QMesh *meshMiddle = new Qt3DRender::QMesh();
        meshMiddle->setSource(QUrl("qrc:/mesh/middle_part.obj"));
@@ -475,6 +486,7 @@ int main(int argc, char **argv){
        meshMiddle->setProperty("Edges", QVariant(56));
        meshMiddle->setProperty("Faces", QVariant(8));
        MeshModel *subModelMiddle = new MeshModel(rootEntity, meshMiddle);
+       subModelMiddle->scaleMesh(QVector3D(0.006f, 0.006f, 0.006f));
 
        detectorModel->add_subModel(subModelLeft);
        detectorModel->add_subModel(subModelRight);

@@ -7,40 +7,38 @@
 #include <Qt3DRender/QObjectPicker>
 
 GeneralMeshModel::GeneralMeshModel(Qt3DCore::QEntity *rootEntity, Qt3DRender::QGeometryRenderer *mesh)
-    : m_rootEntity(rootEntity), m_isSelectMode(true){
+    : m_mesh(mesh), m_isSelectMode(true){
 
     // Build Mesh Entity
-    m_meshEntity = new Qt3DCore::QEntity(m_rootEntity);
+    m_meshEntity = new Qt3DCore::QEntity(rootEntity);
 
     // Mesh Transform
-    Qt3DCore::QTransform *meshTransform = new Qt3DCore::QTransform();
-    meshTransform->setScale(1.0f);
-    meshTransform->setRotation(QQuaternion::fromAxisAndAngle(QVector3D(0.0f, 1.0f, 0.0f), 0.0f));
-    meshTransform->setTranslation(QVector3D(0.0f, 0.0f, 0.0f));
+    m_meshTransform = new Qt3DCore::QTransform();
+    m_meshTransform->setScale(1.0f);
+    m_meshTransform->setRotation(QQuaternion::fromAxisAndAngle(QVector3D(0.0f, 1.0f, 0.0f), 0.0f));
+    m_meshTransform->setTranslation(QVector3D(0.0f, 0.0f, 0.0f));
 
     // Mesh material
-    Qt3DExtras::QPhongMaterial *meshMaterial = new Qt3DExtras::QPhongMaterial();
-    meshMaterial->setDiffuse(QColor(QRgb(0xbeb32b)));
+    m_meshMaterial = new Qt3DExtras::QPhongMaterial();
+    m_meshMaterial->setDiffuse(QColor(QRgb(0xbeb32b)));
 
     // Mesh picker
     m_picker = new Qt3DRender::QObjectPicker(m_meshEntity);
     m_picker->setEnabled(true);
     m_picker->setHoverEnabled(true);
 
-    m_meshEntity->addComponent(mesh);
-    m_meshEntity->addComponent(meshMaterial);
-    m_meshEntity->addComponent(meshTransform);
+    m_meshEntity->addComponent(m_mesh);
+    m_meshEntity->addComponent(m_meshMaterial);
+    m_meshEntity->addComponent(m_meshTransform);
     m_meshEntity->addComponent(m_picker);
     QObject::connect(m_picker, &Qt3DRender::QObjectPicker::clicked, this, &GeneralMeshModel::unpackSubMesh);
     QObject::connect(m_picker, &Qt3DRender::QObjectPicker::clicked, this, &GeneralMeshModel::changeState);
-    QObject::connect(m_picker, &Qt3DRender::QObjectPicker::clicked, this, &GeneralMeshModel::changeState);
     QObject::connect(m_picker, &Qt3DRender::QObjectPicker::clicked, this, &GeneralMeshModel::onMoveCamera);
-    QObject::connect(m_picker, &Qt3DRender::QObjectPicker::clicked, this,[mesh](){ info->setDescription(QString("This is ") + mesh->objectName());});
-    QObject::connect(m_picker, &Qt3DRender::QObjectPicker::exited, this, [](){ info->setDescription(QString("move mouse inside a volume to see tips"));});
-    QObject::connect(m_picker, &Qt3DRender::QObjectPicker::entered, this, [](){ info->setDescription(QString("1) Left click to select\n"
+    QObject::connect(m_picker, &Qt3DRender::QObjectPicker::exited, this, [](){ info->setDescription(QString("1) Left click to select\n"
                                                                                                              "2) CMD/Ctrl + left click to unpack children\n"
-                                                                                                             "3) Click \"revert original state\" "
-                                                                                                             "button to restore"));});
+                                                                                                             "3) Shift + left click to focus on clicked point\n"
+                                                                                                             "4) Click \"revert original state\" "
+                                                                                                             "button to revert all changes"));});
 }
 
 GeneralMeshModel::~GeneralMeshModel(){
@@ -52,16 +50,19 @@ void GeneralMeshModel::add_subModel(GeneralMeshModel *subModel){
 
 void GeneralMeshModel::onMoveCamera(Qt3DRender::QPickEvent *event){
      if(event->button() == Qt3DRender::QPickEvent::LeftButton && event->modifiers() == Qt::ShiftModifier){
-         camera->translateView(event->worldIntersection());
+         camera->translateView(event->worldIntersection(), m_mesh->property("maxLength").toInt());
+     }
+     else if(event->button() == Qt3DRender::QPickEvent::RightButton && event->modifiers() == Qt::ShiftModifier){
+         qInfo() << m_mesh->property("maxLength").toInt();
+         qInfo() << "center: " << m_meshTransform->translation();
+         camera->translateView(m_meshTransform->translation(), m_mesh->property("maxLength").toInt());
      }
 }
 
 void GeneralMeshModel::changeState(Qt3DRender::QPickEvent *event){
-    qInfo() << "clicked position: " << event->worldIntersection();
-
     if(event->button() == Qt3DRender::QPickEvent::LeftButton && event->modifiers() == Qt::NoModifier){
-        Qt3DExtras::QPhongMaterial *material = (Qt3DExtras::QPhongMaterial*)(m_meshEntity->componentsOfType<Qt3DExtras::QPhongMaterial>()[0]);
-        material->setDiffuse(QColor(255, 0, 0, 127));
+        m_meshMaterial->setDiffuse(QColor(255, 0, 0, 127));
+        info->setDescription(QString("This is ") + m_mesh->objectName());
     }
 }
 
@@ -87,8 +88,7 @@ void GeneralMeshModel::restoreState(bool checked){
         subModel->restoreState(checked);
         subModel->showMesh(false);
     }
-    Qt3DExtras::QPhongMaterial *material = (Qt3DExtras::QPhongMaterial*)(m_meshEntity->componentsOfType<Qt3DExtras::QPhongMaterial>()[0]);
-    material->setDiffuse(QColor(QRgb(0xbeb32b)));
+    m_meshMaterial->setDiffuse(QColor(QRgb(0xbeb32b)));
     showMesh(true);
     if(m_isSelectMode) enablePick(true);
 }
@@ -96,7 +96,7 @@ void GeneralMeshModel::restoreState(bool checked){
 void GeneralMeshModel::unpackSubMesh(Qt3DRender::QPickEvent* event){
     if(event->modifiers() == Qt::ControlModifier && event->button() == Qt3DRender::QPickEvent::LeftButton){
         if(m_subModels.size() == 0){
-            //info->setDescription(QString("This volume has no children"));
+            info->setDescription(QString("This volume has no children"));
             return;
         }
         showMesh(false);
@@ -116,24 +116,21 @@ void GeneralMeshModel::translateMesh(QVector3D translation){
     for(GeneralMeshModel *subModel:m_subModels){
         subModel->translateMesh(translation);
     }
-    Qt3DCore::QTransform *transform = (Qt3DCore::QTransform*)(m_meshEntity->componentsOfType<Qt3DCore::QTransform>()[0]);
-    transform->setTranslation(translation);
+    m_meshTransform->setTranslation(translation);
 }
 
 void GeneralMeshModel::rotateMesh(QQuaternion rotation){
     for(GeneralMeshModel *subModel:m_subModels){
         subModel->rotateMesh(rotation);
     }
-    Qt3DCore::QTransform *transform = (Qt3DCore::QTransform*)(m_meshEntity->componentsOfType<Qt3DCore::QTransform>()[0]);
-    transform->setRotation(rotation);
+    m_meshTransform->setRotation(rotation);
 }
 
 void GeneralMeshModel::scaleMesh(QVector3D magnitude){
     for(GeneralMeshModel *subModel:m_subModels){
         subModel->scaleMesh(magnitude);
     }
-    Qt3DCore::QTransform *transform = (Qt3DCore::QTransform*)(m_meshEntity->componentsOfType<Qt3DCore::QTransform>()[0]);
-    transform->setScale3D(magnitude);
+    m_meshTransform->setScale3D(magnitude);
 }
 
 
