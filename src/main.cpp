@@ -73,9 +73,8 @@ void setUpInfoWindow(){
                                  "4) Click \"restore original state\" "
                                  "button to revert all changes"));
     info->setIconSize(QSize(0,0));
-    info->setFixedSize(QSize(180, 140));
-    info->setMaximumSize(QSize(180, 140));
-    info->setMinimumSize(QSize(100,100));
+    info->setMaximumSize(QSize(200, 160));
+    info->setMinimumSize(QSize(120,120));
     info->setFont(QFont ("Courier", 13));
 }
 
@@ -92,7 +91,7 @@ inline void setupControlPanel(QVBoxLayout *vLayout, QWidget *mainWindow, General
     QHBoxLayout *hLayoutRad = new QHBoxLayout(mainWindow);
     QLabel *labelScale = new QLabel(mainWindow);
     QSlider *sliderScale = new QSlider(mainWindow);
-    setUpSliderController(labelScale, sliderScale, "radius (1~100m)", int(cameraWrapper->init_distanceToOrigin));
+    setUpSliderController(labelScale, sliderScale, "Zoom level", int(cameraWrapper->init_distanceToOrigin));
     sliderScale->setRange(1, 100);
     QSpinBox *spinScale = new QSpinBox(mainWindow);
     spinScale->setRange(1, 100);
@@ -100,12 +99,7 @@ inline void setupControlPanel(QVBoxLayout *vLayout, QWidget *mainWindow, General
     spinScale->setMaximumWidth(50);
     hLayoutRad->addWidget(labelScale);
     hLayoutRad->addWidget(spinScale);
-    QLabel *labelScaleTicks = new QLabel(mainWindow);
-    labelScaleTicks->setText("  1  \t\t  50  \t\t  100");
-    QFont font = labelScaleTicks->font();
-    font.setPointSize(10);
-    labelScaleTicks->setFont(font);
-    labelScaleTicks->setMaximumHeight(10);
+
 
     // Control longitude of Camera
     QLabel *labelLng = new QLabel(mainWindow);
@@ -119,6 +113,8 @@ inline void setupControlPanel(QVBoxLayout *vLayout, QWidget *mainWindow, General
     hLayoutLng->addWidget(spinLng);
     QLabel *labelLngTicks = new QLabel(mainWindow);
     labelLngTicks->setText("  0  \t\t  180  \t\t  359");
+    QFont font = labelLngTicks->font();
+    font.setPointSize(10);
     labelLngTicks->setFont(font);
     labelLngTicks->setMaximumHeight(10);
 
@@ -150,22 +146,22 @@ inline void setupControlPanel(QVBoxLayout *vLayout, QWidget *mainWindow, General
     QPushButton *restoreViewBtn = new QPushButton(mainWindow);
     restoreViewBtn->setEnabled(true);
     restoreViewBtn->setMaximumSize(QSize(70, 30));
-    restoreViewBtn->setMinimumSize(QSize(30,15));
+    restoreViewBtn->setMinimumSize(QSize(30,20));
     restoreViewBtn->setText(QString("orginal"));
     QPushButton *frontViewBtn = new QPushButton(mainWindow);
     frontViewBtn->setEnabled(true);
     frontViewBtn->setMaximumSize(QSize(60, 30));
-    frontViewBtn->setMinimumSize(QSize(30,15));
+    frontViewBtn->setMinimumSize(QSize(30,20));
     frontViewBtn->setText(QString("front"));
     QPushButton *leftViewBtn = new QPushButton(mainWindow);
     leftViewBtn->setEnabled(true);
     leftViewBtn->setMaximumSize(QSize(60, 30));
-    leftViewBtn->setMinimumSize(QSize(30,15));
+    leftViewBtn->setMinimumSize(QSize(30,20));
     leftViewBtn->setText(QString("left"));
     QPushButton *topViewBtn = new QPushButton(mainWindow);
     topViewBtn->setEnabled(true);
     topViewBtn->setMaximumSize(QSize(60, 30));
-    topViewBtn->setMinimumSize(QSize(30,15));
+    topViewBtn->setMinimumSize(QSize(30,20));
     topViewBtn->setText(QString("top"));
     hLayoutPredefinedView -> addWidget(restoreViewBtn);
     hLayoutPredefinedView -> addWidget(frontViewBtn);
@@ -235,7 +231,6 @@ inline void setupControlPanel(QVBoxLayout *vLayout, QWidget *mainWindow, General
     positionControlLayout->addLayout(hLayoutRad);
     //vLayout->addWidget(labelScale);
     positionControlLayout->addWidget(sliderScale);
-    positionControlLayout->addWidget(labelScaleTicks);
 
     positionControlLayout->addLayout(hLayoutLng);
     //vLayout->addWidget(labelLng);
@@ -297,7 +292,7 @@ inline void setupControlPanel(QVBoxLayout *vLayout, QWidget *mainWindow, General
         sliderRoll->setValue(0);
         sliderLat->setValue(0);
         sliderLng->setValue(0);
-        sliderScale->setValue(50);
+        sliderScale->setValue(cameraWrapper->init_distanceToOrigin);
     });
     QObject::connect(leftViewBtn, &QPushButton::clicked, cameraWrapper, [cameraWrapper, sliderYaw, sliderPitch, sliderRoll, sliderLat, sliderLng, sliderScale](){
         cameraWrapper->setCustomView(cameraWrapper->init_distanceToOrigin, 0, 270, 0, 90, 0);
@@ -306,7 +301,7 @@ inline void setupControlPanel(QVBoxLayout *vLayout, QWidget *mainWindow, General
         sliderRoll->setValue(0);
         sliderLat->setValue(0);
         sliderLng->setValue(270);
-        sliderScale->setValue(50);
+        sliderScale->setValue(cameraWrapper->init_distanceToOrigin);
     });
     QObject::connect(topViewBtn, &QPushButton::clicked, cameraWrapper, [cameraWrapper, sliderYaw, sliderPitch, sliderRoll, sliderLat, sliderLng, sliderScale](){
         cameraWrapper->setCustomView(cameraWrapper->init_distanceToOrigin, 90, 0, -90, 180, 0);
@@ -315,14 +310,15 @@ inline void setupControlPanel(QVBoxLayout *vLayout, QWidget *mainWindow, General
         sliderRoll->setValue(0);
         sliderLat->setValue(90);
         sliderLng->setValue(0);
-        sliderScale->setValue(50);
+        sliderScale->setValue(cameraWrapper->init_distanceToOrigin);
     });
 
     QObject::connect(projSwitch, SIGNAL(valueChanged(bool)),  cameraWrapper, SLOT(setProjectiveMode(bool)));
+    QObject::connect(projSwitch, &SwitchButton::valueChanged, cameraWrapper, [cameraWrapper, sliderScale](){cameraWrapper->zoomInOut(sliderScale->value());});
     QObject::connect(selectSwitch, SIGNAL(valueChanged(bool)),  cameraWrapper, SLOT(disableCameraController(bool)));
     QObject::connect(selectSwitch, SIGNAL(valueChanged(bool)),  cylinerModel, SLOT(enablePickAll(bool)));
 
-    QObject::connect(sliderScale,SIGNAL(valueChanged(int)), cameraWrapper, SLOT(translatePosRad(int)));
+    QObject::connect(sliderScale,SIGNAL(valueChanged(int)), cameraWrapper, SLOT(zoomInOut(int)));
     QObject::connect(sliderScale, SIGNAL(valueChanged(int)), spinScale, SLOT(setValue(int)));
     QObject::connect(spinScale, SIGNAL(valueChanged(int)), sliderScale, SLOT(setValue(int)));
 
@@ -362,7 +358,7 @@ int main(int argc, char **argv){
     view->defaultFrameGraph()->setClearColor(QColor(QRgb(0x4d4d4f))); 
     QWidget *container = QWidget::createWindowContainer(view);
     QSize screenSize = view->screen()->size();
-    container->setMinimumSize(QSize(200, 100));
+    container->setMinimumSize(QSize(100, 100));
     container->setMaximumSize(screenSize);
 
     // Layout
@@ -433,7 +429,7 @@ int main(int argc, char **argv){
     sphereModel->translateMesh(QVector3D(0.0f, 0.0f, -1.0f));
     sphereModel->showMesh(false);
 
-    Qt3DExtras::QExtrudedTextMesh *textMesh1 = new Qt3DExtras::QExtrudedTextMesh();
+    /*Qt3DExtras::QExtrudedTextMesh *textMesh1 = new Qt3DExtras::QExtrudedTextMesh();
     textMesh1->setObjectName("A");
     textMesh1->setText("A");
     GeneralMeshModel *textModel1 = new GeneralMeshModel(rootEntity, textMesh1);
@@ -447,7 +443,7 @@ int main(int argc, char **argv){
     GeneralMeshModel *textModel2 = new GeneralMeshModel(rootEntity, textMesh2);
     textModel2->translateMesh(QVector3D(0.0f, -4.0f, -5.0f));
     textModel2->scaleMesh(QVector3D(1.0f, 1.0f, 0.2f));
-    textModel2->enablePickAll(false);
+    textModel2->enablePickAll(false);*/
 
     cylinerModel->add_subModel(cuboidModel1);
     cylinerModel->add_subModel(cuboidModel2);
