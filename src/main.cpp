@@ -35,6 +35,7 @@
 #include <Qt3DExtras/QExtrudedTextMesh>
 
 QCommandLinkButton *info;
+CameraWrapper *camera;
 
 void setUpLight(Qt3DCore::QEntity *lightEntity, QVector3D position){
     Qt3DRender::QPointLight *light = new Qt3DRender::QPointLight(lightEntity);
@@ -143,6 +144,11 @@ inline void setupControlPanel(QVBoxLayout *vLayout, QWidget *mainWindow, General
 
     // Predefined view
     QHBoxLayout *hLayoutPredefinedView = new QHBoxLayout(mainWindow);
+    QPushButton *restoreViewBtn = new QPushButton(mainWindow);
+    restoreViewBtn->setEnabled(true);
+    restoreViewBtn->setMaximumSize(QSize(70, 30));
+    restoreViewBtn->setMinimumSize(QSize(30,15));
+    restoreViewBtn->setText(QString("orginal"));
     QPushButton *frontViewBtn = new QPushButton(mainWindow);
     frontViewBtn->setEnabled(true);
     frontViewBtn->setMaximumSize(QSize(60, 30));
@@ -161,6 +167,7 @@ inline void setupControlPanel(QVBoxLayout *vLayout, QWidget *mainWindow, General
     hLayoutPredefinedView -> addWidget(frontViewBtn);
     hLayoutPredefinedView -> addWidget(leftViewBtn);
     hLayoutPredefinedView -> addWidget(topViewBtn);
+    hLayoutPredefinedView -> addWidget(restoreViewBtn);
 
     // Switch between Ortho and Perspective
     SwitchButton* projSwitch = new SwitchButton(mainWindow, "Ortho", "Persp");
@@ -277,9 +284,9 @@ inline void setupControlPanel(QVBoxLayout *vLayout, QWidget *mainWindow, General
     vLayout->addWidget(directionControl);
 
     // Connect UI with model
-    //QObject::connect(meshVisibleBtn, &QCheckBox::stateChanged, detectorModel, &MeshModel::showMesh);
+    QObject::connect(meshVisibleBtn, &QCheckBox::stateChanged, cylinerModel, &GeneralMeshModel::showMesh);
     QObject::connect(restoreSelectBtn, SIGNAL(clicked(bool)), cylinerModel, SLOT(restoreState(bool)));
-    //QObject::connect(frontViewBtn, &QPushButton::clicked, cameraWrapper, &CameraWrapper::resetCameraView);
+    QObject::connect(restoreViewBtn, &QPushButton::clicked, cameraWrapper, &CameraWrapper::resetCameraView);
     QObject::connect(frontViewBtn, &QPushButton::clicked, cameraWrapper, [cameraWrapper, sliderYaw, sliderPitch, sliderRoll, sliderLat, sliderLng, sliderScale](){
         cameraWrapper->setCustomView(cameraWrapper->init_distanceToOrigin, 0, 0, 0, 180, 0);
         sliderYaw->setValue(180);
@@ -370,6 +377,7 @@ int main(int argc, char **argv){
     Qt3DExtras::QOrbitCameraController *camController = new Qt3DExtras::QOrbitCameraController(rootEntity);
     cameraWrapper->addCameraController(camController);
     camController->setCamera(nullptr);
+    camera = cameraWrapper;
 
     // Light source
     Qt3DCore::QEntity *lightEntity = new Qt3DCore::QEntity(rootEntity);

@@ -2,7 +2,9 @@
 #define GENERALMESHMODEL_H
 #include <QWidget>
 #include <Qt3DRender/qpickevent.h>
+#include "CameraWrapper.h"
 #include <QString>
+#include <QCamera>
 #include <QtCore/QDebug>
 #include <QtCore/QString>
 #include <QtWidgets/QLabel>
@@ -16,6 +18,7 @@
 #include <Qt3DRender/QObjectPicker>
 
 extern QCommandLinkButton *info;
+extern CameraWrapper *camera;
 
 class GeneralMeshModel: public QObject{
     Q_OBJECT
@@ -39,6 +42,7 @@ private slots:
     void changeState(Qt3DRender::QPickEvent* event);
     void restoreState(bool checked);
     void enablePick(bool enable);
+    void onMoveCamera(Qt3DRender::QPickEvent *event);
 
 private:
     Qt3DCore::QEntity *m_rootEntity;
