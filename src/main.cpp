@@ -369,7 +369,6 @@ int main(int argc, char **argv){
     cameraWrapper->addCameraController(camController);
     camController->setCamera(nullptr);
     camera = cameraWrapper;
-    view->addCamera(cameraEntity);
 
     // Light source
     Qt3DCore::QEntity *lightEntity = new Qt3DCore::QEntity(rootEntity);
