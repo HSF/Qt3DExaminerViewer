@@ -1,8 +1,6 @@
 #ifndef GENERALMESHMODEL_H
 #define GENERALMESHMODEL_H
 #include "CameraWrapper.h"
-#include <QKeyframeAnimation>
-#include <QPropertyAnimation>
 #include <QWidget>
 #include <Qt3DRender/qpickevent.h>
 #include <QString>

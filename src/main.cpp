@@ -6,6 +6,7 @@
 #include <QtMath>
 #include <QApplication>
 #include <QGuiApplication>
+#include <QPropertyAnimation>
 #include <QtGui/QScreen>
 #include <QtWidgets/QApplication>
 #include <QtWidgets/QWidget>
@@ -280,29 +281,48 @@ inline void setupControlPanel(QVBoxLayout *vLayout, QWidget *mainWindow, General
         sliderLng->setValue(0);
         sliderScale->setValue(cameraWrapper->init_distanceToOrigin);
     });
-    QObject::connect(frontViewBtn, &QPushButton::clicked, cameraWrapper, [cameraWrapper, sliderYaw, sliderPitch, sliderRoll, sliderLat, sliderLng, sliderScale](){
-        cameraWrapper->setCustomView(cameraWrapper->init_distanceToOrigin, 0, 0, 0, 180, 0);
-        sliderYaw->setValue(180);
-        sliderPitch->setValue(0);
-        sliderRoll->setValue(0);
+    QObject::connect(frontViewBtn, &QPushButton::clicked, cameraWrapper, [cameraWrapper, sliderYaw, sliderPitch, sliderRoll, sliderLat, sliderLng](){
+        QVector<int> dof5{0, 0, 0, 180, 0};
+       /* QPropertyAnimation *smoothMove = new QPropertyAnimation(cameraWrapper, "dof5");
+        smoothMove->setDuration(500);
+        smoothMove->setStartValue(QVariant::fromValue(cameraWrapper->customView()));
+        smoothMove->setEndValue(QVariant::fromValue(dof5));
+        smoothMove->start();*/
+        cameraWrapper->setCustomView(dof5);
         sliderLat->setValue(0);
         sliderLng->setValue(0);
-    });
-    QObject::connect(leftViewBtn, &QPushButton::clicked, cameraWrapper, [cameraWrapper, sliderYaw, sliderPitch, sliderRoll, sliderLat, sliderLng, sliderScale](){
-        cameraWrapper->setCustomView(cameraWrapper->init_distanceToOrigin, 0, 270, 0, 90, 0);
-        sliderYaw->setValue(90);
         sliderPitch->setValue(0);
+        sliderYaw->setValue(180);
         sliderRoll->setValue(0);
+    });
+    QObject::connect(leftViewBtn, &QPushButton::clicked, cameraWrapper, [cameraWrapper, sliderYaw, sliderPitch, sliderRoll, sliderLat, sliderLng](){
+        QVector<int> dof5{0, 270, 0, 90, 0};
+        /*
+        QPropertyAnimation *smoothMove = new QPropertyAnimation(cameraWrapper, "dof5");
+        smoothMove->setDuration(500);
+        smoothMove->setStartValue(QVariant::fromValue(cameraWrapper->customView()));
+        smoothMove->setEndValue(QVariant::fromValue(dof5));
+        smoothMove->start();*/
+        cameraWrapper->setCustomView(dof5);
         sliderLat->setValue(0);
         sliderLng->setValue(270);
-    });
-    QObject::connect(topViewBtn, &QPushButton::clicked, cameraWrapper, [cameraWrapper, sliderYaw, sliderPitch, sliderRoll, sliderLat, sliderLng, sliderScale](){
-        cameraWrapper->setCustomView(cameraWrapper->init_distanceToOrigin, 90, 0, -90, 180, 0);
-        sliderYaw->setValue(180);
-        sliderPitch->setValue(-90);
+        sliderPitch->setValue(0);
+        sliderYaw->setValue(90);
         sliderRoll->setValue(0);
+    });
+    QObject::connect(topViewBtn, &QPushButton::clicked, cameraWrapper, [cameraWrapper, sliderYaw, sliderPitch, sliderRoll, sliderLat, sliderLng](){
+        QVector<int> dof5{90, 0, -90, 180, 0};
+        /*QPropertyAnimation *smoothMove = new QPropertyAnimation(cameraWrapper, "dof5");
+        smoothMove->setDuration(500);
+        smoothMove->setStartValue(QVariant::fromValue(cameraWrapper->customView()));
+        smoothMove->setEndValue(QVariant::fromValue(dof5));
+        smoothMove->start();*/
+        cameraWrapper->setCustomView(dof5);
         sliderLat->setValue(90);
         sliderLng->setValue(0);
+        sliderPitch->setValue(-90);
+        sliderYaw->setValue(180);
+        sliderRoll->setValue(0);
     });
 
     QObject::connect(projSwitch, SIGNAL(valueChanged(bool)),  cameraWrapper, SLOT(setProjectiveMode(bool)));

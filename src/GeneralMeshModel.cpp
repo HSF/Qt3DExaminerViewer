@@ -57,17 +57,6 @@ void GeneralMeshModel::changeState(Qt3DRender::QPickEvent *event){
     if(event->button() == Qt3DRender::QPickEvent::LeftButton && event->modifiers() == Qt::NoModifier){
         m_meshMaterial->setDiffuse(QColor(255, 0, 0, 127));
         info->setDescription(QString("This is ") + m_mesh->objectName());
-
-        Qt3DAnimation::QKeyframeAnimation *ani = new Qt3DAnimation::QKeyframeAnimation(m_meshEntity);
-        ani->setTarget(m_meshTransform);
-        Qt3DCore::QTransform *path = new Qt3DCore::QTransform();
-        for(int i=0; i<=10; i++){
-            path->setTranslation(QVector3D(0.0f, i, 0.0f));
-            ani->addKeyframe(path);
-        }
-        ani->setStartMode(Qt3DAnimation::QKeyframeAnimation::Repeat);
-        ani->setEndMode(Qt3DAnimation::QKeyframeAnimation::Repeat);
-        ani->startTimer(1, Qt::CoarseTimer);
     }
 }
 
