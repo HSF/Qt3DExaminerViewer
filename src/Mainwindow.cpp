@@ -1,5 +1,6 @@
 #include "headers/Mainwindow.h"
 #include <QDebug>
+#include <QKeyEvent>
 
 MainWindow::MainWindow(): Qt3DExtras::Qt3DWindow(){
 }
@@ -17,4 +18,15 @@ void MainWindow::resizeEvent(QResizeEvent* event)
 
 void MainWindow::mousePressEvent(QMouseEvent *event){
     Qt3DExtras::Qt3DWindow::mousePressEvent(event);
+}
+
+void MainWindow::keyPressEvent(QKeyEvent *event)
+{
+    switch (event->key()) {
+    case Qt::Key_X:
+        qInfo()<<"Key X is pressed";
+        break;
+    default:
+        break;
+    }
 }
