@@ -34,6 +34,7 @@ GeneralMeshModel::GeneralMeshModel(Qt3DCore::QEntity *rootEntity, Qt3DRender::QG
     QObject::connect(m_picker, &Qt3DRender::QObjectPicker::clicked, this, &GeneralMeshModel::unpackSubMesh);
     QObject::connect(m_picker, &Qt3DRender::QObjectPicker::clicked, this, &GeneralMeshModel::changeState);
     QObject::connect(m_picker, &Qt3DRender::QObjectPicker::clicked, this, &GeneralMeshModel::onMoveCamera);
+    QObject::connect(m_picker, &Qt3DRender::QObjectPicker::clicked, this, &GeneralMeshModel::packMesh);
     QObject::connect(m_picker, &Qt3DRender::QObjectPicker::exited, this, [](){ info->setDescription(TIPS);});
 }
 
@@ -42,6 +43,11 @@ GeneralMeshModel::~GeneralMeshModel(){
 
 void GeneralMeshModel::add_subModel(GeneralMeshModel *subModel){
     m_subModels.push_back(subModel);
+    subModel->add_parentModel(this);
+}
+
+void GeneralMeshModel::add_parentModel(GeneralMeshModel *parentModel){
+    m_parentModel = parentModel;
 }
 
 void GeneralMeshModel::onMoveCamera(Qt3DRender::QPickEvent *event){
@@ -99,6 +105,19 @@ void GeneralMeshModel::unpackSubMesh(Qt3DRender::QPickEvent* event){
             subModel->showMesh(true);
             subModel->enablePick(true);
         }
+    }
+}
+
+void GeneralMeshModel::packMesh(Qt3DRender::QPickEvent* event){
+    if(event->modifiers() == Qt::AltModifier && event->button() == Qt3DRender::QPickEvent::LeftButton){
+        if(m_parentModel == nullptr){
+            info->setDescription(QString("This volume has no parent"));
+            return;
+        }
+        showMesh(false);
+        enablePick(false);
+        m_parentModel->showMesh(true);
+        m_parentModel->enablePick(true);
     }
 }
 

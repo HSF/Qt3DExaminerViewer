@@ -17,9 +17,10 @@
 #include <QtWidgets/QCommandLinkButton>
 #include <Qt3DRender/QObjectPicker>
 #define TIPS QString("1) Left click to highlight\n" \
-           "2) CMD/Ctrl + left click to unpack children\n" \
-           "3) Shift + left click to focus on clicked surface point\n" \
-           "4) Shift + right click to focus on clicked object volume center")
+           "2) CMD/Ctrl + left click to open volume\n" \
+           "3) Option/Alt + left click to close volume\n" \
+           "4) Shift + left click to focus on clicked surface point\n" \
+           "5) Shift + right click to focus on clicked object volume center")
 
 extern QCommandLinkButton *info;
 extern CameraWrapper *camera;
@@ -30,6 +31,7 @@ public:
     explicit GeneralMeshModel(Qt3DCore::QEntity *rootEntity, Qt3DRender::QGeometryRenderer *mesh);
     ~GeneralMeshModel();
     void add_subModel(GeneralMeshModel *subModel);
+    void add_parentModel(GeneralMeshModel *parentModel);
 
 signals:
     void mouseEnter(QString tip);
@@ -40,6 +42,7 @@ public slots:
     void rotateMesh(QQuaternion rotation);
     void scaleMesh(QVector3D magnitude);
     void unpackSubMesh(Qt3DRender::QPickEvent* event);
+    void packMesh(Qt3DRender::QPickEvent* event);
     void enablePickAll(bool enable);
 
 private slots:
@@ -55,6 +58,7 @@ private:
     Qt3DExtras::QPhongMaterial *m_meshMaterial;
     Qt3DRender::QObjectPicker *m_picker;
     QVector<GeneralMeshModel*> m_subModels;
+    GeneralMeshModel *m_parentModel;
     bool m_isSelectMode;
 };
 

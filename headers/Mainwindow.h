@@ -11,6 +11,7 @@ public:
 private:
     void resizeEvent(QResizeEvent* event);
     void mousePressEvent(QMouseEvent *event);
+    void keyPressEvent(QKeyEvent *event);
 };
 
 #endif // MAINWINDOW_H
