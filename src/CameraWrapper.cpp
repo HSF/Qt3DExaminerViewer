@@ -29,23 +29,24 @@ void CameraWrapper::resetCameraView(){
     m_bias = QVector3D(0.0f, 0.0f, 0.0f);
 }
 
-void CameraWrapper::setCustomView(QVector<int> dof5){
-    m_latitude = qDegreesToRadians((float)dof5[0]);
-    m_longitude = qDegreesToRadians((float)dof5[1]);
-    m_pitch = qDegreesToRadians((float)dof5[2]);
-    m_yaw = qDegreesToRadians((float)dof5[3]);
-    m_roll = qDegreesToRadians((float)dof5[4]);
+void CameraWrapper::setCustomView(QVector4D dof4){
+    m_latitude = qDegreesToRadians((float)dof4[0]);
+    m_longitude = qDegreesToRadians((float)dof4[1]);
+    m_pitch = qDegreesToRadians((float)dof4[2]);
+    m_yaw = qDegreesToRadians((float)dof4[3]);
+    m_roll = 0.0f;
     setPosition();
     setDirection();
 }
 
-const QVector<int> CameraWrapper::customView(){
-     QVector<int> dof5{int(qRadiansToDegrees(m_latitude)),
+const QVector4D CameraWrapper::customView(){
+     /*QVector4D dof5{int(qRadiansToDegrees(m_latitude)),
                  int(qRadiansToDegrees(m_longitude)),
                  int(qRadiansToDegrees(m_roll)),
                  int(qRadiansToDegrees(m_yaw)),
-                 int(qRadiansToDegrees(m_pitch))};
-     return dof5;
+                 int(qRadiansToDegrees(m_pitch))};*/
+     return QVector4D(int(qRadiansToDegrees(m_latitude)), int(qRadiansToDegrees(m_longitude)),
+                      int(qRadiansToDegrees(m_pitch)), int(qRadiansToDegrees(m_yaw)));
 }
 
 void CameraWrapper::setProjectiveMode(bool isPerspective){
@@ -160,7 +161,7 @@ void CameraWrapper::setDirection(){
     float x = qCos(m_pitch) * qSin(m_yaw);
     float z = qCos(m_pitch) * qCos(m_yaw);
     QVector3D viewDirection = QVector3D(x, y, z);
-    QVector3D viewCenter = m_camera->position() + init_distanceToOrigin * viewDirection;
+    QVector3D viewCenter = m_camera->position() + m_distanceToOrigin * viewDirection;
     m_camera->setViewCenter(viewCenter);
 
     x = qCos(m_roll);
@@ -181,4 +182,7 @@ void CameraWrapper::setDirection(){
     }
     QVector3D newUpVector = x * extraAxisX + y * extraAxisY;
     m_camera -> setUpVector(newUpVector);
+    qInfo() << "position: " << m_camera -> position();
+    qInfo() << "upvector: " << m_camera -> upVector();
+    qInfo() << "viewCenter: " << m_camera -> viewCenter();
 }
