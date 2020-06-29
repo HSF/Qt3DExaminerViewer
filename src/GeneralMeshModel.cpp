@@ -1,10 +1,9 @@
 #include "headers/GeneralMeshModel.h"
 #include <QGuiApplication>
-#include <QString>
 #include <QtCore/QDebug>
-#include <QtCore/QString>
 #include <QtWidgets/QCommandLinkButton>
-#include <Qt3DRender/QObjectPicker>
+#include <QtWidgets/QLabel>
+#include <Qt3DRender/qpickevent.h>
 
 GeneralMeshModel::GeneralMeshModel(Qt3DCore::QEntity *rootEntity, Qt3DRender::QGeometryRenderer *mesh)
     : m_mesh(mesh), m_isSelectMode(true){

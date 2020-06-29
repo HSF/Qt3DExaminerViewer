@@ -2,20 +2,16 @@
 #define GENERALMESHMODEL_H
 #include "CameraWrapper.h"
 #include <QWidget>
-#include <Qt3DRender/qpickevent.h>
-#include <QString>
 #include <QCamera>
-#include <QtCore/QDebug>
 #include <QtCore/QString>
-#include <QtWidgets/QLabel>
 #include <Qt3DCore/qentity.h>
 #include <Qt3DCore/qtransform.h>
 #include <QtCore/QObject>
 #include <Qt3DRender/qmesh.h>
-#include <Qt3DRender/qpickevent.h>
 #include <Qt3DExtras/QPhongMaterial>
 #include <QtWidgets/QCommandLinkButton>
 #include <Qt3DRender/QObjectPicker>
+
 #define TIPS QString("1) Left click to highlight\n" \
            "2) CMD/Ctrl + left click to open volume\n" \
            "3) Option/Alt + left click to close volume\n" \
