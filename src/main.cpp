@@ -2,6 +2,7 @@
 #include "headers/CameraWrapper.h"
 #include "headers/GeneralMeshModel.h"
 #include "headers/Mainwindow.h"
+#include "headers/CustomOrbitCameraController.h"
 
 #include <QtMath>
 #include <QApplication>
@@ -386,7 +387,7 @@ int main(int argc, char **argv){
     // Camera and Camera controls
     Qt3DRender::QCamera *cameraEntity = view->camera();
     CameraWrapper *cameraWrapper = new CameraWrapper(rootEntity, cameraEntity);
-    Qt3DExtras::QOrbitCameraController *camController = new Qt3DExtras::QOrbitCameraController(rootEntity);
+    CustomOrbitCameraController *camController = new CustomOrbitCameraController(rootEntity);
     cameraWrapper->addCameraController(camController);
     camController->setCamera(nullptr);
     camera = cameraWrapper;

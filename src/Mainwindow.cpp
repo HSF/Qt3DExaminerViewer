@@ -6,15 +6,17 @@
 #include <Qt3DInput/QMouseDevice>
 
 MainWindow::MainWindow(): Qt3DExtras::Qt3DWindow(){
+    Qt3DCore::QEntity *deviceEntity = new Qt3DCore::QEntity();
     Qt3DInput::QAnalogAxisInput *mouseTxInput = new Qt3DInput::QAnalogAxisInput();
-    mouseTxInput->setSourceDevice(new Qt3DInput::QMouseDevice());
+    Qt3DInput::QMouseDevice *mouse = new Qt3DInput::QMouseDevice();
+    mouseTxInput->setSourceDevice(mouse);
     mouseTxInput->setAxis(Qt3DInput::QMouseDevice::X);
     m_axisX = new Qt3DInput::QAxis();
     m_axisX->addInput(mouseTxInput);
     qInfo() << m_axisX->value();
 
     Qt3DInput::QAnalogAxisInput *mouseTyInput = new Qt3DInput::QAnalogAxisInput();
-    mouseTyInput->setSourceDevice(new Qt3DInput::QMouseDevice());
+    mouseTyInput->setSourceDevice(mouse);
     mouseTyInput->setAxis(Qt3DInput::QMouseDevice::Y);
     m_axisY = new Qt3DInput::QAxis();
     m_axisY->addInput(mouseTyInput);
@@ -23,7 +25,9 @@ MainWindow::MainWindow(): Qt3DExtras::Qt3DWindow(){
     m_logicalDevice = new Qt3DInput::QLogicalDevice();
     m_logicalDevice->addAxis(m_axisX);
     m_logicalDevice->addAxis(m_axisY);
+    m_logicalDevice->setEnabled(true);
     qInfo() << m_logicalDevice->isEnabled();
+    deviceEntity->addComponent(m_logicalDevice);
 }
 
 void MainWindow::resizeEvent(QResizeEvent* event)
