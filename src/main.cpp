@@ -98,7 +98,6 @@ inline void setupControlPanel(QVBoxLayout *vLayout, QWidget *mainWindow, General
     hLayoutRad->addWidget(labelScale);
     hLayoutRad->addWidget(spinScale);
 
-
     // Control longitude of Camera
     QLabel *labelLng = new QLabel(mainWindow);
     QSlider *sliderLng = new QSlider(mainWindow);
