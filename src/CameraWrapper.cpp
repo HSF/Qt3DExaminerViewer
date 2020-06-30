@@ -10,6 +10,8 @@ CameraWrapper::CameraWrapper(Qt3DCore::QEntity *rootEntity,  Qt3DRender::QCamera
     m_camera = camera;
     m_camera->setProjectionType(Qt3DRender::QCameraLens::PerspectiveProjection);
     resetCameraView();
+    m_center = GLOBAL_CENTER;
+    QObject::connect(m_camera, &Qt3DRender::QCamera::viewCenterChanged, m_camera, [this](){emit viewCenterChanged(m_camera->viewCenter());});
 }
 
 Qt3DRender::QCamera *CameraWrapper::camera(){
@@ -27,6 +29,10 @@ void CameraWrapper::resetCameraView(){
     m_roll = 0;
     m_yaw = M_PI;
     m_bias = QVector3D(0.0f, 0.0f, 0.0f);
+}
+
+void CameraWrapper::setCoordinateCenter(int index){
+    m_center = index;
 }
 
 void CameraWrapper::setCustomView(QVector4D dof4){
@@ -148,7 +154,10 @@ void CameraWrapper::setPosition(){
     float y = m_distanceToOrigin * qSin(m_latitude);
     float x = m_distanceToOrigin * qCos(m_latitude) * qSin(m_longitude);
     float z = m_distanceToOrigin * qCos(m_latitude) * qCos(m_longitude);
-    m_camera -> setPosition(m_bias + QVector3D(x, y, z));
+    if(m_center == LOCAL_CENTER)
+        m_camera -> setPosition(m_camera->viewCenter() + QVector3D(x, y, z));
+    else
+        m_camera -> setPosition(QVector3D(x, y, z));
    /* m_camera -> setViewCenter(QVector3D(0, 0, 0));
     float upVectorY, upVectorX, upVectorZ;
     upVectorY = qCos(m_latitude);
