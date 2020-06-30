@@ -43,13 +43,7 @@ void MainWindow::resizeEvent(QResizeEvent* event)
 
 void MainWindow::mousePressEvent(QMouseEvent *event){
     Qt3DExtras::Qt3DWindow::mousePressEvent(event);
-    qInfo()<<"mouse is pressed";
-
-    qInfo()<< event->globalX();
-    qInfo()<< event->globalY();
-
-    qInfo() << m_logicalDevice->axes().at(0)->value();
-    qInfo() << m_axisY->value();
+    //qInfo()<<"mouse is pressed";
     QObject::connect(m_axisX, &Qt3DInput::QAxis::valueChanged, this, [this](){qInfo() << "x: " << m_axisX->value();});
     QObject::connect(m_axisY, &Qt3DInput::QAxis::valueChanged, this, [this](){qInfo() << "y: " << m_axisY->value();});
 }

@@ -1,7 +1,7 @@
 #ifndef CAMERAWRAPPER_H
 #define CAMERAWRAPPER_H
 #include <QWidget>
-#include <QCamera>
+#include <Qt3DRender/QCamera>
 #include <Qt3DExtras/QAbstractCameraController.h>
 
 class CameraWrapper : public QObject{
@@ -11,10 +11,12 @@ class CameraWrapper : public QObject{
     Q_PROPERTY(QVector4D dof4 READ customView WRITE setCustomView )
 public:
     const int init_distanceToOrigin = 20;
+    const int GLOBAL_CENTER = 0, LOCAL_CENTER = 1;
 private:
     int m_distanceToOrigin;
     float m_longitude, m_latitude;
     float m_roll, m_yaw, m_pitch;
+    int m_center;
     QVector3D m_bias;
     Qt3DCore::QEntity *m_rootEntity;
     Qt3DRender::QCamera *m_camera;
@@ -30,10 +32,11 @@ public:
     void translateView(QVector3D bias, int scale);
     Qt3DRender::QCamera *camera();
 signals:
-
+    void viewCenterChanged(const QVector3D &viewCenter);
 public slots:
     void resetCameraView();
     void setProjectiveMode(bool isPerspective);
+    void setCoordinateCenter(int index);
     void disableCameraController(bool disEnble);
 
     void zoomInOut(int extent);
