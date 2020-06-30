@@ -5,7 +5,6 @@
 #include "headers/CustomOrbitCameraController.h"
 
 #include <QtMath>
-#include <QComboBox>
 #include <QApplication>
 #include <QGuiApplication>
 #include <QPropertyAnimation>
@@ -19,6 +18,8 @@
 #include <QtWidgets/QCommandLinkButton>
 #include <QtWidgets/QSpinBox>
 #include <QtWidgets/QGroupBox>
+#include <QtWidgets/QTabWidget>
+#include <QtWidgets/QComboBox>
 #include <Qt3DCore/qtransform.h>
 #include <Qt3DCore/qaspectengine.h>
 #include <Qt3DCore/qentity.h>
@@ -73,8 +74,8 @@ void setUpInfoWindow(){
     info->setText(QStringLiteral("Info windows:"));
     info->setDescription(TIPS);
     info->setIconSize(QSize(0,0));
-    info->setMaximumSize(QSize(200, 180));
-    info->setMinimumSize(QSize(140, 160));
+    info->setMaximumSize(QSize(200, 200));
+    info->setMinimumSize(QSize(140, 180));
     info->setFont(QFont ("Courier", 12));
 }
 
@@ -87,10 +88,12 @@ inline void setupControlPanel(QVBoxLayout *vLayout, QWidget *mainWindow, General
     meshVisibleBtn->setChecked(true);
     meshVisibleBtn->setText(QStringLiteral("Display Detector Volume"));
 
-    QComboBox *focusCenter = new QComboBox();
+    QTabWidget *posTab = new QTabWidget(mainWindow);
+    QComboBox *focusCenter = new QComboBox(mainWindow);
     focusCenter->addItem(QString("global coordinate"));
     focusCenter->addItem(QString("local coordinate"));
     // Control radius of Camera to origin
+    QGridLayout *posLayout = new QGridLayout(mainWindow);
     QHBoxLayout *hLayoutRad = new QHBoxLayout(mainWindow);
     QLabel *labelScale = new QLabel(mainWindow);
     QSlider *sliderScale = new QSlider(mainWindow);
@@ -102,6 +105,9 @@ inline void setupControlPanel(QVBoxLayout *vLayout, QWidget *mainWindow, General
     spinScale->setMaximumWidth(50);
     hLayoutRad->addWidget(labelScale);
     hLayoutRad->addWidget(spinScale);
+    //posLayout->addWidget(labelScale, 0, 0);
+   // posLayout->addWidget(spinScale, 0, 2);
+   // posLayout->addWidget(sliderScale, 2, 0, 1, 3);
 
     // Control longitude of Camera
     QLabel *labelLng = new QLabel(mainWindow);
@@ -225,7 +231,6 @@ inline void setupControlPanel(QVBoxLayout *vLayout, QWidget *mainWindow, General
 
     vLayout->addWidget(info);
     vLayout->addWidget(meshVisibleBtn);
-    //vLayout->addWidget(focusCenter);
 
     positionControlLayout->addWidget(focusCenter);
     positionControlLayout->addLayout(hLayoutRad);
@@ -241,10 +246,11 @@ inline void setupControlPanel(QVBoxLayout *vLayout, QWidget *mainWindow, General
 
     QGroupBox *positionControl = new QGroupBox("Camera Position");
     positionControl->setLayout(positionControlLayout);
-    //positionControl->setFixedSize(230, 260);
+    positionControl->setFixedSize(230, 260);
     positionControl->setMinimumSize(QSize(100, 200));
     positionControl->setMaximumSize(QSize(230, 260));
-
+    posTab->addTab(positionControl, positionControl->title());
+    vLayout->addWidget(posTab);
     vLayout->addWidget(positionControl);
 
     vLayout->addWidget(restoreSelectBtn);
@@ -273,7 +279,9 @@ inline void setupControlPanel(QVBoxLayout *vLayout, QWidget *mainWindow, General
     //directionControl->setFixedSize(230, 260);
     directionControl->setMinimumSize(QSize(100, 200));
     directionControl->setMaximumSize(QSize(230, 260));
-    vLayout->addWidget(directionControl);
+    posTab->addTab(directionControl, directionControl->title());
+    //vLayout->addWidget(directionControl);
+
 
     // Connect UI with model
     QObject::connect(meshVisibleBtn, &QCheckBox::stateChanged, cylinerModel, &GeneralMeshModel::showMesh);
