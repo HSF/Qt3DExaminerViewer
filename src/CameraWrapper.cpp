@@ -46,11 +46,6 @@ void CameraWrapper::setCustomView(QVector4D dof4){
 }
 
 const QVector4D CameraWrapper::customView(){
-     /*QVector4D dof5{int(qRadiansToDegrees(m_latitude)),
-                 int(qRadiansToDegrees(m_longitude)),
-                 int(qRadiansToDegrees(m_roll)),
-                 int(qRadiansToDegrees(m_yaw)),
-                 int(qRadiansToDegrees(m_pitch))};*/
      return QVector4D(int(qRadiansToDegrees(m_latitude)), int(qRadiansToDegrees(m_longitude)),
                       int(qRadiansToDegrees(m_pitch)), int(qRadiansToDegrees(m_yaw)));
 }
