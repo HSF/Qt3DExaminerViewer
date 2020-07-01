@@ -20,6 +20,7 @@
 #include <QtWidgets/QGroupBox>
 #include <QtWidgets/QTabWidget>
 #include <QtWidgets/QComboBox>
+#include <QtWidgets/QRadioButton>
 #include <Qt3DCore/qtransform.h>
 #include <Qt3DCore/qaspectengine.h>
 #include <Qt3DCore/qentity.h>
@@ -88,7 +89,29 @@ inline void setupControlPanel(QVBoxLayout *vLayout, QWidget *mainWindow, General
     meshVisibleBtn->setChecked(true);
     meshVisibleBtn->setText(QStringLiteral("Display Detector Volume"));
 
+    vLayout->addWidget(info);
+    vLayout->addWidget(meshVisibleBtn);
+
+    QGroupBox *cameraBox = new QGroupBox("camera", mainWindow);
+    QVBoxLayout *cameraLy = new QVBoxLayout(mainWindow);
+    vLayout->addWidget(cameraBox);
+    cameraBox->setLayout(cameraLy);
+    // Switch between Ortho and Perspective
+    //SwitchButton* projSwitch = new SwitchButton(mainWindow, "Ortho", "Persp");
+    //projSwitch->setInitialState(true);
+    QLabel *labelProj = new QLabel("projective", mainWindow);
+    QRadioButton *orthoBtn = new QRadioButton("orthographic", mainWindow);
+    QRadioButton *perspBtn = new QRadioButton("perspective", mainWindow);
+    QGridLayout *hLayoutSwitch = new QGridLayout(mainWindow);
+    hLayoutSwitch->addWidget(labelProj, 0, 0);
+    hLayoutSwitch->addWidget(orthoBtn, 0, 1);
+    hLayoutSwitch->addWidget(perspBtn, 1, 1);
+    vLayout->addLayout(hLayoutSwitch);
+
+    cameraLy->addLayout(hLayoutSwitch);
+
     QTabWidget *posTab = new QTabWidget(mainWindow);
+    cameraLy->addWidget(posTab);
     posTab->setMaximumSize(QSize(240, 280));
     QComboBox *focusCenter = new QComboBox(mainWindow);
     focusCenter->addItem(QString("global coordinate"));
@@ -143,43 +166,6 @@ inline void setupControlPanel(QVBoxLayout *vLayout, QWidget *mainWindow, General
     labelLatTicks->setFont(font);
     labelLatTicks->setMaximumHeight(10);
 
-    // Cancel selected and unpacked state
-    QPushButton *restoreSelectBtn = new QPushButton(mainWindow);
-    restoreSelectBtn->setEnabled(true);
-    restoreSelectBtn->setFixedSize(QSize(200, 30));
-    restoreSelectBtn->setText(QString("revert original state"));
-
-    // Predefined view
-    QHBoxLayout *hLayoutPredefinedView = new QHBoxLayout(mainWindow);
-    QPushButton *restoreViewBtn = new QPushButton(mainWindow);
-    restoreViewBtn->setEnabled(true);
-    restoreViewBtn->setMaximumSize(QSize(70, 30));
-    restoreViewBtn->setText(QString("orginal"));
-    QPushButton *frontViewBtn = new QPushButton(mainWindow);
-    frontViewBtn->setEnabled(true);
-    frontViewBtn->setMaximumSize(QSize(60, 30));
-    frontViewBtn->setText(QString("front"));
-    QPushButton *leftViewBtn = new QPushButton(mainWindow);
-    leftViewBtn->setEnabled(true);
-    leftViewBtn->setMaximumSize(QSize(50, 30));
-    leftViewBtn->setText(QString("left"));
-    QPushButton *topViewBtn = new QPushButton(mainWindow);
-    topViewBtn->setEnabled(true);
-    topViewBtn->setMaximumSize(QSize(50, 30));
-    topViewBtn->setText(QString("top"));
-    hLayoutPredefinedView -> addWidget(restoreViewBtn);
-    hLayoutPredefinedView -> addWidget(frontViewBtn);
-    hLayoutPredefinedView -> addWidget(leftViewBtn);
-    hLayoutPredefinedView -> addWidget(topViewBtn);
-
-    // Switch between Ortho and Perspective
-    SwitchButton* projSwitch = new SwitchButton(mainWindow, "Ortho", "Persp");
-    projSwitch->setInitialState(true);
-
-    // Switch between navigation and select mode
-    SwitchButton* selectSwitch = new SwitchButton(mainWindow, "View", "Select");
-    selectSwitch->setInitialState(true);
-
     // Control yaw angle of Camera
     QLabel *labelYaw = new QLabel(mainWindow);
     QSlider *sliderYaw = new QSlider(mainWindow);
@@ -229,8 +215,7 @@ inline void setupControlPanel(QVBoxLayout *vLayout, QWidget *mainWindow, General
 
     QVBoxLayout *positionControlLayout = new QVBoxLayout(mainWindow);
 
-    vLayout->addWidget(info);
-    vLayout->addWidget(meshVisibleBtn);
+
 
     positionControlLayout->addWidget(focusCenter);
     positionControlLayout->addLayout(hLayoutRad);
@@ -252,13 +237,57 @@ inline void setupControlPanel(QVBoxLayout *vLayout, QWidget *mainWindow, General
     posTab->addTab(positionControl, "Camera position");
     vLayout->addWidget(posTab);
 
+
+
+
+
+
+    // Cancel selected and unpacked state
+    QPushButton *restoreSelectBtn = new QPushButton(mainWindow);
+    restoreSelectBtn->setEnabled(true);
+    restoreSelectBtn->setFixedSize(QSize(200, 30));
+    restoreSelectBtn->setText(QString("revert original state"));
+
+    // Predefined view
+    QHBoxLayout *hLayoutPredefinedView = new QHBoxLayout(mainWindow);
+    QPushButton *restoreViewBtn = new QPushButton(mainWindow);
+    restoreViewBtn->setEnabled(true);
+    restoreViewBtn->setMaximumSize(QSize(70, 30));
+    restoreViewBtn->setText(QString("orginal"));
+    QPushButton *frontViewBtn = new QPushButton(mainWindow);
+    frontViewBtn->setEnabled(true);
+    frontViewBtn->setMaximumSize(QSize(60, 30));
+    frontViewBtn->setText(QString("front"));
+    QPushButton *leftViewBtn = new QPushButton(mainWindow);
+    leftViewBtn->setEnabled(true);
+    leftViewBtn->setMaximumSize(QSize(50, 30));
+    leftViewBtn->setText(QString("left"));
+    QPushButton *topViewBtn = new QPushButton(mainWindow);
+    topViewBtn->setEnabled(true);
+    topViewBtn->setMaximumSize(QSize(50, 30));
+    topViewBtn->setText(QString("top"));
+    hLayoutPredefinedView -> addWidget(restoreViewBtn);
+    hLayoutPredefinedView -> addWidget(frontViewBtn);
+    hLayoutPredefinedView -> addWidget(leftViewBtn);
+    hLayoutPredefinedView -> addWidget(topViewBtn);
+
+
+    // Switch between navigation and select mode
+    //SwitchButton* selectSwitch = new SwitchButton(mainWindow, "View", "Select");
+    //selectSwitch->setInitialState(true);
+    QLabel *labelSel = new QLabel("cursor", mainWindow);
+    QRadioButton *selectBtn = new QRadioButton("select", mainWindow);
+    QRadioButton *viewBtn = new QRadioButton("view", mainWindow);
+
     vLayout->addWidget(restoreSelectBtn);
     vLayout->addLayout(hLayoutPredefinedView);
 
-    QHBoxLayout *hLayoutSwitch = new QHBoxLayout(mainWindow);
-    hLayoutSwitch->addWidget(projSwitch);
-    hLayoutSwitch->addWidget(selectSwitch);
-    vLayout->addLayout(hLayoutSwitch);
+
+    QGridLayout *hLayoutSelect = new QGridLayout(mainWindow);
+    hLayoutSelect->addWidget(labelSel, 0, 0);
+    hLayoutSelect->addWidget(viewBtn, 0, 1);
+    hLayoutSelect->addWidget(selectBtn, 1, 1);
+    vLayout->addLayout(hLayoutSelect);
 
     QVBoxLayout *directionControlLayout = new QVBoxLayout(mainWindow);
 
@@ -346,10 +375,10 @@ inline void setupControlPanel(QVBoxLayout *vLayout, QWidget *mainWindow, General
         sliderRoll->setValue(0);
     });
 
-    QObject::connect(projSwitch, SIGNAL(valueChanged(bool)),  cameraWrapper, SLOT(setProjectiveMode(bool)));
+    /*QObject::connect(projSwitch, SIGNAL(valueChanged(bool)),  cameraWrapper, SLOT(setProjectiveMode(bool)));
     QObject::connect(projSwitch, &SwitchButton::valueChanged, cameraWrapper, [cameraWrapper, sliderScale](){cameraWrapper->zoomInOut(sliderScale->value());});
     QObject::connect(selectSwitch, SIGNAL(valueChanged(bool)),  cameraWrapper, SLOT(disableCameraController(bool)));
-    QObject::connect(selectSwitch, SIGNAL(valueChanged(bool)),  cylinerModel, SLOT(enablePickAll(bool)));
+    QObject::connect(selectSwitch, SIGNAL(valueChanged(bool)),  cylinerModel, SLOT(enablePickAll(bool)));*/
 
     QObject::connect(sliderScale,SIGNAL(valueChanged(int)), cameraWrapper, SLOT(zoomInOut(int)));
     QObject::connect(sliderScale, SIGNAL(valueChanged(int)), spinScale, SLOT(setValue(int)));
