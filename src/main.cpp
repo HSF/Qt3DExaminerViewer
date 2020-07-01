@@ -83,44 +83,69 @@ void setUpInfoWindow(){
 inline void setupControlPanel(QVBoxLayout *vLayout, QWidget *mainWindow, GeneralMeshModel *cylinerModel, CameraWrapper *cameraWrapper){
     // Create a info window to display mesh properties
     setUpInfoWindow();
-
-    // Control visibility of Volume
-    QCheckBox *meshVisibleBtn = new QCheckBox(mainWindow);
-    meshVisibleBtn->setChecked(true);
-    meshVisibleBtn->setText(QStringLiteral("Display Detector Volume"));
-
     vLayout->addWidget(info);
-    vLayout->addWidget(meshVisibleBtn);
 
+    /************ Volume control******************/
+    // Control visibility of Volume
+    QGroupBox *volBox = new QGroupBox("volume", mainWindow);
+    QVBoxLayout *volLy = new QVBoxLayout(mainWindow);
+    QCheckBox *meshVisibleBtn = new QCheckBox("Display Detector Volume", mainWindow);
+    meshVisibleBtn->setChecked(true);
+    volLy->addWidget(meshVisibleBtn);
+
+    //Switch between navigation and select mode
+    //SwitchButton* selectSwitch = new SwitchButton(mainWindow, "View", "Select");
+    //selectSwitch->setInitialState(true);
+    QGridLayout *hLayoutSelect = new QGridLayout(mainWindow);
+    QLabel *labelSel = new QLabel("mouse", mainWindow);
+    QRadioButton *selectBtn = new QRadioButton("select", mainWindow);
+    QRadioButton *viewBtn = new QRadioButton("view", mainWindow);
+    viewBtn->setChecked(true);
+    hLayoutSelect->addWidget(labelSel, 0, 0);
+    hLayoutSelect->addWidget(viewBtn, 0, 1);
+    hLayoutSelect->addWidget(selectBtn, 0, 2);
+    volLy->addLayout(hLayoutSelect);
+
+    // Cancel selected and unpacked state
+    QHBoxLayout *hLayoutRestore = new QHBoxLayout(mainWindow);
+    QPushButton *restoreSelectBtn = new QPushButton("revert original state", volBox);
+    restoreSelectBtn->setMaximumSize(QSize(200, 30));
+    hLayoutRestore->addWidget(restoreSelectBtn);
+    volLy->addLayout(hLayoutRestore);
+
+    //volLy->addWidget(restoreSelectBtn);
+    volBox->setLayout(volLy);
+    vLayout->addWidget(volBox);
+
+
+    /************ Camera control******************/
     QGroupBox *cameraBox = new QGroupBox("camera", mainWindow);
     QVBoxLayout *cameraLy = new QVBoxLayout(mainWindow);
-    vLayout->addWidget(cameraBox);
-    cameraBox->setLayout(cameraLy);
     // Switch between Ortho and Perspective
     //SwitchButton* projSwitch = new SwitchButton(mainWindow, "Ortho", "Persp");
     //projSwitch->setInitialState(true);
-    QLabel *labelProj = new QLabel("projective", mainWindow);
-    QRadioButton *orthoBtn = new QRadioButton("orthographic", mainWindow);
-    QRadioButton *perspBtn = new QRadioButton("perspective", mainWindow);
+    QLabel *labelProj = new QLabel("projection", mainWindow);
+    QRadioButton *orthoBtn = new QRadioButton("ortho", cameraBox);
+    QRadioButton *perspBtn = new QRadioButton("persp", cameraBox);
+    perspBtn->setChecked(true);
     QGridLayout *hLayoutSwitch = new QGridLayout(mainWindow);
     hLayoutSwitch->addWidget(labelProj, 0, 0);
-    hLayoutSwitch->addWidget(orthoBtn, 0, 1);
-    hLayoutSwitch->addWidget(perspBtn, 1, 1);
-    vLayout->addLayout(hLayoutSwitch);
+    hLayoutSwitch->addWidget(perspBtn, 0, 1);
+    hLayoutSwitch->addWidget(orthoBtn, 0, 2);
 
     cameraLy->addLayout(hLayoutSwitch);
 
     QTabWidget *posTab = new QTabWidget(mainWindow);
-    cameraLy->addWidget(posTab);
     posTab->setMaximumSize(QSize(240, 280));
     QComboBox *focusCenter = new QComboBox(mainWindow);
     focusCenter->addItem(QString("global coordinate"));
     focusCenter->addItem(QString("local coordinate"));
+
     // Control radius of Camera to origin
     QHBoxLayout *hLayoutRad = new QHBoxLayout(mainWindow);
     QLabel *labelScale = new QLabel(mainWindow);
     QSlider *sliderScale = new QSlider(mainWindow);
-    setUpSliderController(labelScale, sliderScale, "Zoom level", int(cameraWrapper->init_distanceToOrigin));
+    setUpSliderController(labelScale, sliderScale, "Radius", int(cameraWrapper->init_distanceToOrigin));
     sliderScale->setRange(1, 100);
     QSpinBox *spinScale = new QSpinBox(mainWindow);
     spinScale->setRange(1, 100);
@@ -128,22 +153,18 @@ inline void setupControlPanel(QVBoxLayout *vLayout, QWidget *mainWindow, General
     spinScale->setMaximumWidth(50);
     hLayoutRad->addWidget(labelScale);
     hLayoutRad->addWidget(spinScale);
-    //posLayout->addWidget(labelScale, 0, 0);
-   // posLayout->addWidget(spinScale, 0, 2);
-   // posLayout->addWidget(sliderScale, 2, 0, 1, 3);
 
     // Control longitude of Camera
     QLabel *labelLng = new QLabel(mainWindow);
     QSlider *sliderLng = new QSlider(mainWindow);
-    setUpSliderController(labelLng, sliderLng, "longitude (0~359°)", 0);
+    setUpSliderController(labelLng, sliderLng, "longitude", 0);
     QHBoxLayout *hLayoutLng = new QHBoxLayout(mainWindow);
     QSpinBox *spinLng = new QSpinBox(mainWindow);
     spinLng->setRange(0, 359);
     spinLng->setMaximumWidth(50);
     hLayoutLng->addWidget(labelLng);
     hLayoutLng->addWidget(spinLng);
-    QLabel *labelLngTicks = new QLabel(mainWindow);
-    labelLngTicks->setText("0\t\t180\t\t359");
+    QLabel *labelLngTicks = new QLabel("0\t\t180\t\t359", mainWindow);
     QFont font = labelLngTicks->font();
     font.setPointSize(10);
     labelLngTicks->setFont(font);
@@ -153,7 +174,7 @@ inline void setupControlPanel(QVBoxLayout *vLayout, QWidget *mainWindow, General
     QHBoxLayout *hLayoutLat = new QHBoxLayout(mainWindow);
     QLabel *labelLat = new QLabel(mainWindow);
     QSlider *sliderLat = new QSlider(mainWindow);
-    setUpSliderController(labelLat, sliderLat, "latitude (-90~90°)", 0);
+    setUpSliderController(labelLat, sliderLat, "latitude", 0);
     sliderLat->setRange(-90, 90);
     QSpinBox *spinLat = new QSpinBox(mainWindow);
     spinLat->setRange(-90, 90);
@@ -161,15 +182,32 @@ inline void setupControlPanel(QVBoxLayout *vLayout, QWidget *mainWindow, General
     spinLat->setMaximumWidth(50);
     hLayoutLat->addWidget(labelLat);
     hLayoutLat->addWidget(spinLat);
-    QLabel *labelLatTicks = new QLabel(mainWindow);
-    labelLatTicks->setText("-90\t\t  0\t\t90");
+    QLabel *labelLatTicks = new QLabel("-90\t\t  0\t\t90", mainWindow);
     labelLatTicks->setFont(font);
     labelLatTicks->setMaximumHeight(10);
 
+    QVBoxLayout *positionControlLayout = new QVBoxLayout(mainWindow);
+    positionControlLayout->addWidget(focusCenter);
+    positionControlLayout->addLayout(hLayoutRad);
+    positionControlLayout->addWidget(sliderScale);
+    positionControlLayout->addLayout(hLayoutLng);
+    positionControlLayout->addWidget(sliderLng);
+    positionControlLayout->addWidget(labelLngTicks);
+    positionControlLayout->addLayout(hLayoutLat);
+    positionControlLayout->addWidget(sliderLat);
+    positionControlLayout->addWidget(labelLatTicks);
+    QWidget *positionControl = new QWidget(mainWindow);
+    positionControl->setLayout(positionControlLayout);
+    positionControl->setFixedSize(230, 260);
+    positionControl->setMinimumSize(QSize(100, 200));
+    positionControl->setMaximumSize(QSize(230, 260));
+    posTab->addTab(positionControl, "position");
+
+    /*** Angle control ***/
     // Control yaw angle of Camera
     QLabel *labelYaw = new QLabel(mainWindow);
     QSlider *sliderYaw = new QSlider(mainWindow);
-    setUpSliderController(labelYaw, sliderYaw, "yaw (0~359°)", 180);
+    setUpSliderController(labelYaw, sliderYaw, "yaw", 180);
     QHBoxLayout *hLayoutYaw = new QHBoxLayout(mainWindow);
     QSpinBox *spinYaw = new QSpinBox(mainWindow);
     spinYaw->setRange(0, 359);
@@ -177,15 +215,14 @@ inline void setupControlPanel(QVBoxLayout *vLayout, QWidget *mainWindow, General
     spinYaw->setMaximumWidth(50);
     hLayoutYaw->addWidget(labelYaw);
     hLayoutYaw->addWidget(spinYaw);
-    QLabel *labelYawTicks = new QLabel(mainWindow);
-    labelYawTicks->setText("  0\t\t180\t\t359");
+    QLabel *labelYawTicks = new QLabel("  0\t\t180\t\t359", mainWindow);
     labelYawTicks->setFont(font);
     labelYawTicks->setMaximumHeight(8);
 
     // Control pitch angle of Camera
     QLabel *labelPitch = new QLabel(mainWindow);
     QSlider *sliderPitch = new QSlider(mainWindow);
-    setUpSliderController(labelPitch, sliderPitch, "pitch (-90~90°)", 0);
+    setUpSliderController(labelPitch, sliderPitch, "pitch", 0);
     sliderPitch->setRange(-90, 90);
     QHBoxLayout *hLayoutPitch = new QHBoxLayout(mainWindow);
     QSpinBox *spinPitch = new QSpinBox(mainWindow);
@@ -193,112 +230,31 @@ inline void setupControlPanel(QVBoxLayout *vLayout, QWidget *mainWindow, General
     spinPitch->setMaximumWidth(50);
     hLayoutPitch->addWidget(labelPitch);
     hLayoutPitch->addWidget(spinPitch);
-    QLabel *labelPitchTicks = new QLabel(mainWindow);
-    labelPitchTicks->setText("-90\t\t  0\t\t90");
+    QLabel *labelPitchTicks = new QLabel("-90\t\t  0\t\t90", mainWindow);
     labelPitchTicks->setFont(font);
     labelPitchTicks->setMaximumHeight(8);
 
     // Control roll angle of Camera
     QLabel *labelRoll = new QLabel(mainWindow);
     QSlider *sliderRoll = new QSlider(mainWindow);
-    setUpSliderController(labelRoll, sliderRoll, "roll (0~359°)", 0);
+    setUpSliderController(labelRoll, sliderRoll, "roll", 0);
     QHBoxLayout *hLayoutRoll = new QHBoxLayout(mainWindow);
     QSpinBox *spinRoll = new QSpinBox(mainWindow);
     spinRoll->setRange(0, 359);
     spinRoll->setMaximumWidth(50);
     hLayoutRoll->addWidget(labelRoll);
     hLayoutRoll->addWidget(spinRoll);
-    QLabel *labelRollTicks = new QLabel(mainWindow);
-    labelRollTicks->setText("  0\t\t180\t\t359");
+    QLabel *labelRollTicks = new QLabel("  0\t\t180\t\t359", mainWindow);
     labelRollTicks->setFont(font);
     labelRollTicks->setMaximumHeight(8);
 
-    QVBoxLayout *positionControlLayout = new QVBoxLayout(mainWindow);
-
-
-
-    positionControlLayout->addWidget(focusCenter);
-    positionControlLayout->addLayout(hLayoutRad);
-    positionControlLayout->addWidget(sliderScale);
-
-    positionControlLayout->addLayout(hLayoutLng);
-    positionControlLayout->addWidget(sliderLng);
-    positionControlLayout->addWidget(labelLngTicks);
-
-    positionControlLayout->addLayout(hLayoutLat);
-    positionControlLayout->addWidget(sliderLat);
-    positionControlLayout->addWidget(labelLatTicks);
-
-    QWidget *positionControl = new QWidget(mainWindow);
-    positionControl->setLayout(positionControlLayout);
-    positionControl->setFixedSize(230, 260);
-    positionControl->setMinimumSize(QSize(100, 200));
-    positionControl->setMaximumSize(QSize(230, 260));
-    posTab->addTab(positionControl, "Camera position");
-    vLayout->addWidget(posTab);
-
-
-
-
-
-
-    // Cancel selected and unpacked state
-    QPushButton *restoreSelectBtn = new QPushButton(mainWindow);
-    restoreSelectBtn->setEnabled(true);
-    restoreSelectBtn->setFixedSize(QSize(200, 30));
-    restoreSelectBtn->setText(QString("revert original state"));
-
-    // Predefined view
-    QHBoxLayout *hLayoutPredefinedView = new QHBoxLayout(mainWindow);
-    QPushButton *restoreViewBtn = new QPushButton(mainWindow);
-    restoreViewBtn->setEnabled(true);
-    restoreViewBtn->setMaximumSize(QSize(70, 30));
-    restoreViewBtn->setText(QString("orginal"));
-    QPushButton *frontViewBtn = new QPushButton(mainWindow);
-    frontViewBtn->setEnabled(true);
-    frontViewBtn->setMaximumSize(QSize(60, 30));
-    frontViewBtn->setText(QString("front"));
-    QPushButton *leftViewBtn = new QPushButton(mainWindow);
-    leftViewBtn->setEnabled(true);
-    leftViewBtn->setMaximumSize(QSize(50, 30));
-    leftViewBtn->setText(QString("left"));
-    QPushButton *topViewBtn = new QPushButton(mainWindow);
-    topViewBtn->setEnabled(true);
-    topViewBtn->setMaximumSize(QSize(50, 30));
-    topViewBtn->setText(QString("top"));
-    hLayoutPredefinedView -> addWidget(restoreViewBtn);
-    hLayoutPredefinedView -> addWidget(frontViewBtn);
-    hLayoutPredefinedView -> addWidget(leftViewBtn);
-    hLayoutPredefinedView -> addWidget(topViewBtn);
-
-
-    // Switch between navigation and select mode
-    //SwitchButton* selectSwitch = new SwitchButton(mainWindow, "View", "Select");
-    //selectSwitch->setInitialState(true);
-    QLabel *labelSel = new QLabel("cursor", mainWindow);
-    QRadioButton *selectBtn = new QRadioButton("select", mainWindow);
-    QRadioButton *viewBtn = new QRadioButton("view", mainWindow);
-
-    vLayout->addWidget(restoreSelectBtn);
-    vLayout->addLayout(hLayoutPredefinedView);
-
-
-    QGridLayout *hLayoutSelect = new QGridLayout(mainWindow);
-    hLayoutSelect->addWidget(labelSel, 0, 0);
-    hLayoutSelect->addWidget(viewBtn, 0, 1);
-    hLayoutSelect->addWidget(selectBtn, 1, 1);
-    vLayout->addLayout(hLayoutSelect);
-
     QVBoxLayout *directionControlLayout = new QVBoxLayout(mainWindow);
-
     directionControlLayout->addLayout(hLayoutYaw);
     directionControlLayout->addWidget(sliderYaw);
     directionControlLayout->addWidget(labelYawTicks);
-
     directionControlLayout->addLayout(hLayoutPitch);
     directionControlLayout->addWidget(sliderPitch);
     directionControlLayout->addWidget(labelPitchTicks);
-
     directionControlLayout->addLayout(hLayoutRoll);
     directionControlLayout->addWidget(sliderRoll);
     directionControlLayout->addWidget(labelRollTicks);
@@ -307,7 +263,36 @@ inline void setupControlPanel(QVBoxLayout *vLayout, QWidget *mainWindow, General
     directionControl->setFixedSize(230, 260);
     directionControl->setMinimumSize(QSize(100, 200));
     directionControl->setMaximumSize(QSize(230, 260));
-    posTab->addTab(directionControl, "Camera Direction");
+    posTab->addTab(directionControl, "Direction");
+
+    // Predefined view
+    QGridLayout *hLayoutPredefinedView = new QGridLayout(mainWindow);
+    QLabel *tipView = new QLabel("Quick visit", mainWindow);
+    QPushButton *initialViewBtn = new QPushButton("initial", mainWindow);
+    initialViewBtn->setMaximumSize(QSize(70, 30));
+    QPushButton *viewAllBtn = new QPushButton("view all", mainWindow);
+    viewAllBtn->setMaximumSize(QSize(70, 30));
+    QPushButton *frontViewBtn = new QPushButton("front", mainWindow);
+    frontViewBtn->setMaximumSize(QSize(70, 30));
+    QPushButton *leftViewBtn = new QPushButton("left", mainWindow);
+    leftViewBtn->setMaximumSize(QSize(70, 30));
+    QPushButton *topViewBtn = new QPushButton("top", mainWindow);
+    topViewBtn->setMaximumSize(QSize(70, 30));
+    hLayoutPredefinedView -> addWidget(tipView, 0, 0);
+    hLayoutPredefinedView -> addWidget(initialViewBtn, 0, 2);
+    hLayoutPredefinedView -> addWidget(viewAllBtn, 0, 1);
+    hLayoutPredefinedView -> addWidget(frontViewBtn, 1, 0);
+    hLayoutPredefinedView -> addWidget(leftViewBtn, 1, 1);
+    hLayoutPredefinedView -> addWidget(topViewBtn, 1, 2);
+
+    cameraLy->addWidget(posTab);
+    cameraLy->addLayout(hLayoutPredefinedView);
+    cameraBox->setLayout(cameraLy);
+    vLayout->addWidget(cameraBox);
+
+
+
+
 
     // Connect UI with model
     QObject::connect(meshVisibleBtn, &QCheckBox::stateChanged, cylinerModel, &GeneralMeshModel::showMesh);
@@ -320,8 +305,8 @@ inline void setupControlPanel(QVBoxLayout *vLayout, QWidget *mainWindow, General
     });
     QObject::connect(focusCenter, SIGNAL(currentIndexChanged(int)), cameraWrapper, SLOT(setCoordinateCenter(int)));
     QObject::connect(restoreSelectBtn, SIGNAL(clicked(bool)), cylinerModel, SLOT(restoreState(bool)));
-    QObject::connect(restoreViewBtn, &QPushButton::clicked, cameraWrapper, &CameraWrapper::resetCameraView);
-    QObject::connect(restoreViewBtn, &QPushButton::clicked, cameraWrapper, [cameraWrapper, sliderYaw, sliderPitch, sliderRoll, sliderLat, sliderLng, sliderScale](){
+    QObject::connect(initialViewBtn, &QPushButton::clicked, cameraWrapper, &CameraWrapper::resetCameraView);
+    QObject::connect(initialViewBtn, &QPushButton::clicked, cameraWrapper, [cameraWrapper, sliderYaw, sliderPitch, sliderRoll, sliderLat, sliderLng, sliderScale](){
         sliderYaw->setValue(180);
         sliderPitch->setValue(0);
         sliderRoll->setValue(0);
