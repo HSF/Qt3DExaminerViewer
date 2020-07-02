@@ -100,10 +100,10 @@ inline void setupControlPanel(QVBoxLayout *vLayout, QWidget *mainWindow, General
     QLabel *labelSel = new QLabel("mouse", mainWindow);
     QRadioButton *selectBtn = new QRadioButton("select", mainWindow);
     QRadioButton *viewBtn = new QRadioButton("view", mainWindow);
-    viewBtn->setChecked(true);
+    selectBtn->setChecked(true);
     hLayoutSelect->addWidget(labelSel, 0, 0);
-    hLayoutSelect->addWidget(viewBtn, 0, 1);
-    hLayoutSelect->addWidget(selectBtn, 0, 2);
+    hLayoutSelect->addWidget(viewBtn, 0, 2);
+    hLayoutSelect->addWidget(selectBtn, 0, 1);
     volLy->addLayout(hLayoutSelect);
 
     // Cancel selected and unpacked state
@@ -145,7 +145,7 @@ inline void setupControlPanel(QVBoxLayout *vLayout, QWidget *mainWindow, General
     QHBoxLayout *hLayoutRad = new QHBoxLayout(mainWindow);
     QLabel *labelScale = new QLabel(mainWindow);
     QSlider *sliderScale = new QSlider(mainWindow);
-    setUpSliderController(labelScale, sliderScale, "Radius", int(cameraWrapper->init_distanceToOrigin));
+    setUpSliderController(labelScale, sliderScale, "radius", int(cameraWrapper->init_distanceToOrigin));
     sliderScale->setRange(1, 100);
     QSpinBox *spinScale = new QSpinBox(mainWindow);
     spinScale->setRange(1, 100);
@@ -305,6 +305,8 @@ inline void setupControlPanel(QVBoxLayout *vLayout, QWidget *mainWindow, General
     });
     QObject::connect(focusCenter, SIGNAL(currentIndexChanged(int)), cameraWrapper, SLOT(setCoordinateCenter(int)));
     QObject::connect(restoreSelectBtn, SIGNAL(clicked(bool)), cylinerModel, SLOT(restoreState(bool)));
+
+    QObject::connect(viewAllBtn, &QPushButton::clicked, cameraWrapper, &CameraWrapper::viewAll);
     QObject::connect(initialViewBtn, &QPushButton::clicked, cameraWrapper, &CameraWrapper::resetCameraView);
     QObject::connect(initialViewBtn, &QPushButton::clicked, cameraWrapper, [cameraWrapper, sliderYaw, sliderPitch, sliderRoll, sliderLat, sliderLng, sliderScale](){
         sliderYaw->setValue(180);
@@ -360,11 +362,22 @@ inline void setupControlPanel(QVBoxLayout *vLayout, QWidget *mainWindow, General
         sliderRoll->setValue(0);
     });
 
-    /*QObject::connect(projSwitch, SIGNAL(valueChanged(bool)),  cameraWrapper, SLOT(setProjectiveMode(bool)));
-    QObject::connect(projSwitch, &SwitchButton::valueChanged, cameraWrapper, [cameraWrapper, sliderScale](){cameraWrapper->zoomInOut(sliderScale->value());});
-    QObject::connect(selectSwitch, SIGNAL(valueChanged(bool)),  cameraWrapper, SLOT(disableCameraController(bool)));
-    QObject::connect(selectSwitch, SIGNAL(valueChanged(bool)),  cylinerModel, SLOT(enablePickAll(bool)));*/
-
+    QObject::connect(perspBtn, &QRadioButton::clicked,  cameraWrapper,
+                     [cameraWrapper, sliderScale](bool clicked){
+                      cameraWrapper->setProjectiveMode(clicked);
+                      cameraWrapper->zoomInOut(sliderScale->value()); });
+    QObject::connect(orthoBtn, &QRadioButton::clicked,  cameraWrapper,
+                     [cameraWrapper, sliderScale](bool clicked){
+                      cameraWrapper->setProjectiveMode(!clicked);
+                      cameraWrapper->zoomInOut(sliderScale->value()); });
+    QObject::connect(selectBtn, &QRadioButton::clicked,  cameraWrapper,
+                     [cameraWrapper, cylinerModel](bool clicked){
+                      cameraWrapper->disableCameraController(clicked);
+                      cylinerModel->enablePickAll(clicked); });
+    QObject::connect(viewBtn, &QRadioButton::clicked,  cameraWrapper,
+                     [cameraWrapper, cylinerModel](bool clicked){
+                      cameraWrapper->disableCameraController(!clicked);
+                      cylinerModel->enablePickAll(!clicked); });
     QObject::connect(sliderScale,SIGNAL(valueChanged(int)), cameraWrapper, SLOT(zoomInOut(int)));
     QObject::connect(sliderScale, SIGNAL(valueChanged(int)), spinScale, SLOT(setValue(int)));
     QObject::connect(spinScale, SIGNAL(valueChanged(int)), sliderScale, SLOT(setValue(int)));
@@ -452,7 +465,7 @@ int main(int argc, char **argv){
     GeneralMeshModel *cuboidModel1 = new GeneralMeshModel(rootEntity, meshBox1);
     cuboidModel1->translateMesh(QVector3D(0.0f, 0.0f, 1.0f));
     cuboidModel1->scaleMesh(QVector3D(2,2,2));
-    cuboidModel1->showMesh(false);
+    //cuboidModel1->showMesh(false);
 
     Qt3DExtras::QCuboidMesh *meshBox2 = new Qt3DExtras::QCuboidMesh();
     meshBox2->setObjectName(QString("Calorimeter \n at position (0,0,-1)"));
@@ -460,21 +473,21 @@ int main(int argc, char **argv){
     GeneralMeshModel *cuboidModel2 = new GeneralMeshModel(rootEntity, meshBox2);
     cuboidModel2->translateMesh(QVector3D(0.0f, 0.0f, -1.0f));
     cuboidModel2->scaleMesh(QVector3D(2,2,2));
-    cuboidModel2->showMesh(false);
+    //cuboidModel2->showMesh(false);
 
     Qt3DExtras::QCuboidMesh *meshBox3 = new Qt3DExtras::QCuboidMesh();
     meshBox3->setObjectName(QString("one daughter of Muon \n at position (0,0,1)"));
     meshBox3->setProperty("maxLength", 1);
     GeneralMeshModel *cuboidModel3 = new GeneralMeshModel(rootEntity, meshBox3);
     cuboidModel3->translateMesh(QVector3D(0.0f, 0.0f, 1.0f));
-    cuboidModel3->showMesh(false);
+    //cuboidModel3->showMesh(false);
 
     Qt3DExtras::QSphereMesh *meshSphere = new Qt3DExtras::QSphereMesh();
     meshSphere->setObjectName(QString("one daughter of Calorimeter \n at position (0,0,-1)"));
     meshSphere->setProperty("maxLength", 1);
     GeneralMeshModel *sphereModel = new GeneralMeshModel(rootEntity, meshSphere);
     sphereModel->translateMesh(QVector3D(0.0f, 0.0f, -1.0f));
-    sphereModel->showMesh(false);
+    //sphereModel->showMesh(false);
 
     /*Qt3DExtras::QExtrudedTextMesh *textMesh1 = new Qt3DExtras::QExtrudedTextMesh();
     textMesh1->setObjectName("A");
@@ -538,6 +551,5 @@ int main(int argc, char **argv){
     // Show window
     mainWindow->show();
     mainWindow->resize(1200, 800);
-
     return app.exec();
 }

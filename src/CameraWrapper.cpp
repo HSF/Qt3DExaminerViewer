@@ -31,6 +31,16 @@ void CameraWrapper::resetCameraView(){
     m_bias = QVector3D(0.0f, 0.0f, 0.0f);
 }
 
+void CameraWrapper::viewAll(){
+    m_camera->viewAll();
+    qInfo() << "view all";
+}
+
+void CameraWrapper::viewEntity(Qt3DCore::QEntity *entity){
+    m_camera->viewEntity(entity);
+    qInfo() << "view entity";
+}
+
 void CameraWrapper::setCoordinateCenter(int index){
     m_center = index;
 }
@@ -128,7 +138,6 @@ void CameraWrapper::translatePosLng(int longitude){
     m_longitude = qDegreesToRadians((float)longitude);
     setPosition();
 }
-
 
 void CameraWrapper::rotateViewRoll(int roll){
     m_roll = qDegreesToRadians((float)roll);
