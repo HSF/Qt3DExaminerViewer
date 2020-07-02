@@ -12,9 +12,6 @@ private:
     void resizeEvent(QResizeEvent* event) override;
     void mousePressEvent(QMouseEvent *event) override;
     void keyPressEvent(QKeyEvent *event) override;
-    Qt3DInput::QLogicalDevice *m_logicalDevice;
-    Qt3DInput::QAxis *m_axisX;
-    Qt3DInput::QAxis *m_axisY;
 };
 
 #endif // MAINWINDOW_H
