@@ -7,15 +7,11 @@ SOURCES += src/main.cpp \
     src/CameraWrapper.cpp \
     src/GeneralMeshModel.cpp \
     src/MainWindow.cpp \
-    src/SwithButton.cpp \
-    src/CustomOrbitCameraController.cpp
 
 HEADERS += \
     headers/CameraWrapper.h \
-    headers/CustomOrbitCameraController.h \
     headers/GeneralMeshModel.h \
     headers/Mainwindow.h \
-    headers/SwithButton.h
 
 RESOURCES += \
     res/resources.qrc
