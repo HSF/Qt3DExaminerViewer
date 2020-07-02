@@ -30,11 +30,13 @@ public:
     void setViewCenter(QVector3D viewCenter);
     void setPosition(QVector3D pos);
     void translateView(QVector3D bias, int scale);
+    void viewEntity(Qt3DCore::QEntity *entity);
     Qt3DRender::QCamera *camera();
 signals:
     void viewCenterChanged(const QVector3D &viewCenter);
 public slots:
     void resetCameraView();
+    void viewAll();
     void setProjectiveMode(bool isPerspective);
     void setCoordinateCenter(int index);
     void disableCameraController(bool disEnble);

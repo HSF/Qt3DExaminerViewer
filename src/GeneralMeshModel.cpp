@@ -54,7 +54,8 @@ void GeneralMeshModel::onMoveCamera(Qt3DRender::QPickEvent *event){
          camera->translateView(event->worldIntersection(), 0);
      }
      else if(event->button() == Qt3DRender::QPickEvent::RightButton && event->modifiers() == Qt::ShiftModifier){
-         camera->translateView(m_meshTransform->translation(), m_mesh->property("maxLength").toInt());
+         camera->viewEntity(m_meshEntity);
+         //camera->translateView(m_meshTransform->translation(), m_mesh->property("maxLength").toInt());
      }
 }
 
@@ -85,7 +86,6 @@ void GeneralMeshModel::enablePick(bool enable){
 void GeneralMeshModel::restoreState(bool checked){
     for(GeneralMeshModel *subModel:m_subModels){
         subModel->restoreState(checked);
-        subModel->showMesh(false);
     }
     m_meshMaterial->setDiffuse(QColor(QRgb(0xbeb32b)));
     showMesh(true);
@@ -100,10 +100,10 @@ void GeneralMeshModel::unpackSubMesh(Qt3DRender::QPickEvent* event){
         }
         showMesh(false);
         enablePick(false);
-        for(GeneralMeshModel *subModel:m_subModels){
+        /*for(GeneralMeshModel *subModel:m_subModels){
             subModel->showMesh(true);
             subModel->enablePick(true);
-        }
+        }*/
     }
 }
 
@@ -113,8 +113,8 @@ void GeneralMeshModel::packMesh(Qt3DRender::QPickEvent* event){
             info->setDescription(QString("This volume has no parent"));
             return;
         }
-        showMesh(false);
-        enablePick(false);
+        /*showMesh(false);
+        enablePick(false);*/
         m_parentModel->showMesh(true);
         m_parentModel->enablePick(true);
     }
