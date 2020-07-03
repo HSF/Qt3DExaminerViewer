@@ -33,12 +33,10 @@ void CameraWrapper::resetCameraView(){
 
 void CameraWrapper::viewAll(){
     m_camera->viewAll();
-    qInfo() << "view all";
 }
 
 void CameraWrapper::viewEntity(Qt3DCore::QEntity *entity){
     m_camera->viewEntity(entity);
-    qInfo() << "view entity";
 }
 
 void CameraWrapper::setCoordinateCenter(int index){
@@ -51,8 +49,8 @@ void CameraWrapper::setCustomView(QVector4D dof4){
     m_pitch = qDegreesToRadians((float)dof4[2]);
     m_yaw = qDegreesToRadians((float)dof4[3]);
     m_roll = 0.0f;
-    setPosition();
-    setDirection();
+    sphericalToPosition();
+    sphericalToDirection();
 }
 
 const QVector4D CameraWrapper::customView(){
@@ -131,30 +129,30 @@ void CameraWrapper::setPosition(QVector3D pos){
 
 void CameraWrapper::translatePosLat(int latitude){
     m_latitude = qDegreesToRadians((float)latitude);;
-    setPosition();
+    sphericalToPosition();
 }
 
 void CameraWrapper::translatePosLng(int longitude){
     m_longitude = qDegreesToRadians((float)longitude);
-    setPosition();
+    sphericalToPosition();
 }
 
 void CameraWrapper::rotateViewRoll(int roll){
     m_roll = qDegreesToRadians((float)roll);
-    setDirection();
+    sphericalToDirection();
 }
 
 void CameraWrapper::rotateViewYaw(int yaw){
     m_yaw = qDegreesToRadians((float)yaw);
-    setDirection();
+    sphericalToDirection();
 }
 
 void CameraWrapper::rotateViewPitch(int pitch){
     m_pitch = qDegreesToRadians((float)pitch);
-    setDirection();
+    sphericalToDirection();
 }
 
-void CameraWrapper::setPosition(){
+void CameraWrapper::sphericalToPosition(){
     float y = m_distanceToOrigin * qSin(m_latitude);
     float x = m_distanceToOrigin * qCos(m_latitude) * qSin(m_longitude);
     float z = m_distanceToOrigin * qCos(m_latitude) * qCos(m_longitude);
@@ -169,7 +167,7 @@ void CameraWrapper::setPosition(){
     upVectorZ = - qSin(m_latitude) * qCos(m_longitude);
     m_camera -> setUpVector(QVector3D(upVectorX, upVectorY, upVectorZ));*/
 }
-void CameraWrapper::setDirection(){
+void CameraWrapper::sphericalToDirection(){
     float y = qSin(m_pitch);
     float x = qCos(m_pitch) * qSin(m_yaw);
     float z = qCos(m_pitch) * qCos(m_yaw);
