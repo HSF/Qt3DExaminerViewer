@@ -30,9 +30,9 @@ open `Qt3DExaminerViewer.pro` file with QtCreator, click `run` button on the lef
 
 | input | action |
 | ---- | ---- |
-| Left mouse button<br>Arrow keys | translate the camera position and camera view center, the view direction keeps same.|
-| Right mouse button<br>Control key + left mouse button<br>Alt/Option key + up/down keys | rotate the camera position <br> around the camera view center, the view center keeps same.|
-| scroll wheel<br>Page up/page down keys<br>Fn + up/down keys | zoom the camera in and out, the view center and view direction keep same. |
+| Left mouse button<br>Arrow keys | translate the camera position and camera view center,<br>the view direction keeps same.|
+| Right mouse button<br>Control(on Mac) key + left mouse button<br>Alt/Option key + up/down keys | rotate the camera position around the camera view center,<br>the view center keeps same.|
+| scroll wheel<br>Page up/Page down keys<br>Fn + up/down keys | zoom the camera in and out,<br>the view center and view direction keep same. |
 ## current UI
 - control camera position and direction with slider/spinbox/keyboard arrow keys or touchpad/mouse(in view mode)
 
