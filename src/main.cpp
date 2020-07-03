@@ -268,20 +268,20 @@ inline void setupControlPanel(QVBoxLayout *vLayout, QWidget *mainWindow, General
     QGridLayout *hLayoutPredefinedView = new QGridLayout(mainWindow);
     QLabel *tipView = new QLabel("Quick visit", mainWindow);
     QPushButton *initialViewBtn = new QPushButton("initial", mainWindow);
-    initialViewBtn->setMaximumSize(QSize(70, 30));
+    initialViewBtn->setMaximumSize(QSize(70, 25));
     QPushButton *viewAllBtn = new QPushButton("view all", mainWindow);
-    viewAllBtn->setMaximumSize(QSize(70, 30));
+    viewAllBtn->setMaximumSize(QSize(70, 25));
     QPushButton *frontViewBtn = new QPushButton("front", mainWindow);
-    frontViewBtn->setMaximumSize(QSize(70, 30));
+    frontViewBtn->setMaximumSize(QSize(70, 25));
     QPushButton *leftViewBtn = new QPushButton("left", mainWindow);
-    leftViewBtn->setMaximumSize(QSize(70, 30));
+    leftViewBtn->setMaximumSize(QSize(70, 25));
     QPushButton *topViewBtn = new QPushButton("top", mainWindow);
-    topViewBtn->setMaximumSize(QSize(70, 30));
+    topViewBtn->setMaximumSize(QSize(70, 25));
 
     QHBoxLayout *hLayoutTour = new QHBoxLayout(mainWindow);
     QLabel *tourTipView = new QLabel("Start a tour", mainWindow);
     QPushButton *tourBtn = new QPushButton("route 1", mainWindow);
-    tourBtn->setMaximumSize(100, 30);
+    tourBtn->setMaximumSize(100, 25);
     hLayoutTour->addWidget(tourTipView);
     hLayoutTour->addWidget(tourBtn);
 
@@ -374,7 +374,7 @@ inline void setupControlPanel(QVBoxLayout *vLayout, QWidget *mainWindow, General
         QVector4D dof5 = QVector4D(-90, 90, 90, 270);
         QVector4D dof6 = QVector4D(-90, 0, 90, 180);
 
-        QVector3D startPosition = QVector3D(0.0f, 0.0f, cameraWrapper->init_distanceToOrigin);
+        QVector3D startPosition = QVector3D(0.0f, 0.0f, cameraWrapper->init_distanceToOrigin-5);
         QVector3D initialPos = cameraWrapper->camera()->position();
         QSequentialAnimationGroup *aniGroup = new QSequentialAnimationGroup();
         QPropertyAnimation *smoothMove1 = new QPropertyAnimation(cameraWrapper, "position");
