@@ -277,8 +277,14 @@ inline void setupControlPanel(QVBoxLayout *vLayout, QWidget *mainWindow, General
     leftViewBtn->setMaximumSize(QSize(70, 30));
     QPushButton *topViewBtn = new QPushButton("top", mainWindow);
     topViewBtn->setMaximumSize(QSize(70, 30));
-    QPushButton *tourBtn = new QPushButton("start a tour", mainWindow);
+
+    QHBoxLayout *hLayoutTour = new QHBoxLayout(mainWindow);
+    QLabel *tourTipView = new QLabel("Start a tour", mainWindow);
+    QPushButton *tourBtn = new QPushButton("route 1", mainWindow);
     tourBtn->setMaximumSize(100, 30);
+    hLayoutTour->addWidget(tourTipView);
+    hLayoutTour->addWidget(tourBtn);
+
     hLayoutPredefinedView -> addWidget(tipView, 0, 0);
     hLayoutPredefinedView -> addWidget(initialViewBtn, 0, 2);
     hLayoutPredefinedView -> addWidget(viewAllBtn, 0, 1);
@@ -288,12 +294,9 @@ inline void setupControlPanel(QVBoxLayout *vLayout, QWidget *mainWindow, General
 
     cameraLy->addWidget(posTab);
     cameraLy->addLayout(hLayoutPredefinedView);
-    cameraLy->addWidget(tourBtn);
+    cameraLy->addLayout(hLayoutTour);
     cameraBox->setLayout(cameraLy);
     vLayout->addWidget(cameraBox);
-
-
-
 
 
     // Connect UI with model
@@ -364,8 +367,13 @@ inline void setupControlPanel(QVBoxLayout *vLayout, QWidget *mainWindow, General
     });
 
     QObject::connect(tourBtn, &QPushButton::clicked, cameraWrapper, [cameraWrapper](){
-        QVector4D dof41 = QVector4D(0, 0, 0, 180);
-        QVector4D dof42 = QVector4D(0, 359, 0, 539);
+        QVector4D dof1 = QVector4D(0, 0, 0, 180);
+        QVector4D dof2 = QVector4D(0, 270, 0, 450);
+        QVector4D dof3 = QVector4D(90, 270, -90, 450);
+        QVector4D dof4 = QVector4D(90, 90, -90, 270);
+        QVector4D dof5 = QVector4D(-90, 90, 90, 270);
+        QVector4D dof6 = QVector4D(-90, 0, 90, 180);
+
         QVector3D startPosition = QVector3D(0.0f, 0.0f, cameraWrapper->init_distanceToOrigin);
         QVector3D initialPos = cameraWrapper->camera()->position();
         QSequentialAnimationGroup *aniGroup = new QSequentialAnimationGroup();
@@ -375,20 +383,26 @@ inline void setupControlPanel(QVBoxLayout *vLayout, QWidget *mainWindow, General
         smoothMove1->setEndValue(QVariant::fromValue(startPosition));
 
         QPropertyAnimation *smoothMove2 = new QPropertyAnimation(cameraWrapper, "dof4");
-        smoothMove2->setDuration(3000);
-        smoothMove2->setStartValue(dof41);
-        smoothMove2->setEndValue(dof42);
+        smoothMove2->setDuration(9000);
+        smoothMove2->setKeyValueAt(0, dof1);
+        smoothMove2->setKeyValueAt(0.3, dof2);
+        smoothMove2->setKeyValueAt(0.4, dof3);
+        smoothMove2->setKeyValueAt(0.6, dof4);
+        smoothMove2->setKeyValueAt(0.8, dof5);
+        smoothMove2->setKeyValueAt(0.9, dof6);
+        smoothMove2->setKeyValueAt(1, dof1);
 
         QPropertyAnimation *smoothMove3 = new QPropertyAnimation(cameraWrapper, "position");
         smoothMove3->setDuration(2000);
         smoothMove3->setStartValue(QVariant::fromValue(startPosition));
         smoothMove3->setEndValue(QVariant::fromValue(initialPos));
-
-        aniGroup->addAnimation(smoothMove1);
+        if((initialPos - startPosition).length() > 1e-1)
+            aniGroup->addAnimation(smoothMove1);
         aniGroup->addAnimation(smoothMove2);
-        aniGroup->addAnimation(smoothMove3);
+        if((initialPos - startPosition).length() > 1e-1)
+            aniGroup->addAnimation(smoothMove3);
         aniGroup->start();
-        cameraWrapper->setCustomView(dof42);
+        //cameraWrapper->setCustomView(dof42);
     });
 
 

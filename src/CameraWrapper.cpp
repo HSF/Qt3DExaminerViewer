@@ -96,9 +96,10 @@ void CameraWrapper::zoomOrth(int edge){
 
 void CameraWrapper::translatePosRad(int radius){
     // prevent divided by zero later
-    QVector3D position = m_camera -> position();
-    m_camera->setPosition(position * radius / m_distanceToOrigin);
+    //QVector3D position = m_camera -> position();
+    //m_camera->setPosition(position * radius / m_distanceToOrigin);
     m_distanceToOrigin = radius;
+    sphericalToPosition();
 }
 
 void CameraWrapper::translateView(QVector3D bias, int scale){
@@ -124,6 +125,7 @@ void CameraWrapper::setViewCenter(QVector3D viewCenter){
 }
 
 void CameraWrapper::setPosition(QVector3D pos){
+    m_distanceToOrigin = (m_camera->position() - m_camera->viewCenter()).length();
     m_camera->setPosition(pos);
 }
 
@@ -158,8 +160,11 @@ void CameraWrapper::sphericalToPosition(){
     float z = m_distanceToOrigin * qCos(m_latitude) * qCos(m_longitude);
     if(m_center == LOCAL_CENTER)
         m_camera -> setPosition(m_camera->viewCenter() + QVector3D(x, y, z));
-    else
+    else{
         m_camera -> setPosition(QVector3D(x, y, z));
+        m_camera -> setViewCenter(QVector3D(0, 0, 0));
+    }
+
    /* m_camera -> setViewCenter(QVector3D(0, 0, 0));
     float upVectorY, upVectorX, upVectorZ;
     upVectorY = qCos(m_latitude);
