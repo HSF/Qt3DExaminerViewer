@@ -30,16 +30,15 @@ open `Qt3DExaminerViewer.pro` file with QtCreator, click `run` button then it wi
 
 | input | action |
 | - | - |
-| Left mouse button | While the left mouse button is pressed, mouse movement along x-axis moves the camera left and right and movement along y-axis moves it up and down.|
-| Right mouse button | While the right mouse button is pressed, mouse movement along x-axis pans the camera around the camera view center and movement along y-axis tilts it around the camera view center. |
-| Both left and right mouse button | While both the left and the right mouse button are pressed, mouse movement along y-axis zooms the camera in and out without changing the view center. |
+| Left mouse button | while long pressing left mouse button, mouse movement translate the camera position and  camera view center, the view direction keeps same.|
+| Right mouse button | While long pressing right mouse button, mouse movement rotate the camera position around the camera view center, the view center keeps same.|
+| scroll wheel | scroll wheel of mouse zooms the camera in and out without changing the view center and view direction. |
 | Arrow keys | Move the camera vertically and horizontally relative to camera viewport.|
-| Page up and page down keys | Move the camera forwards and backwards. |
-| Shift key | Changes the behavior of the up and down arrow keys to zoom the camera in and out without changing the view center. The other movement keys are disabled. | 
-| Alt key | Changes the behovior of the arrow keys to pan and tilt the camera around the view center. Disables the page up and page down keys.|
-
+| Page up and page down keys/Fn + up/down Arrow key(on laptop) | Zoom the camera in and out, i.e., Move the camera forwards and backwards.|
+| Alt/Option key + up/down Arrow key | Changes the behovior of the arrow keys to pan and tilt the camera around the view center. Disables the page up and page down keys.|
+|Control key + left mouse button | same as Right mouse button, mouse movement rotate the camera position around the camera view center |
 ## current UI
 - control camera position and direction with slider/spinbox/mouse or touchpad(in view mode)
 
-![spinbox](https://firebasestorage.googleapis.com/v0/b/steam-key-269816.appspot.com/o/Screenshot%202020-06-26%20at%2023.42.21.png?alt=media&token=1c0855ce-6e30-4441-9201-b7413b74dce2)
+![spinbox](https://firebasestorage.googleapis.com/v0/b/steam-key-269816.appspot.com/o/Screenshot%202020-07-03%20at%2023.59.31.png?alt=media&token=195f9f81-8f37-4560-9854-7f50f6e00a81)
 
