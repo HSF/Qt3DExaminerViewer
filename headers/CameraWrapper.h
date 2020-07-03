@@ -49,8 +49,8 @@ public slots:
     void rotateViewYaw(int yaw);
     void rotateViewPitch(int pitch);
 private:
-    void setDirection();
-    void setPosition();
+    void sphericalToDirection();
+    void sphericalToPosition();
     void translatePosRad(int radius);
     void zoomOrth(int edge);
 };

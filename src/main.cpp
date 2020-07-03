@@ -1,13 +1,12 @@
-#include "headers/SwithButton.h"
 #include "headers/CameraWrapper.h"
 #include "headers/GeneralMeshModel.h"
 #include "headers/Mainwindow.h"
-//#include "headers/CustomOrbitCameraController.h"
 
 #include <QtMath>
 #include <QApplication>
 #include <QGuiApplication>
 #include <QPropertyAnimation>
+#include <QSequentialAnimationGroup>
 #include <QtGui/QScreen>
 #include <QtWidgets/QApplication>
 #include <QtWidgets/QWidget>
@@ -278,6 +277,8 @@ inline void setupControlPanel(QVBoxLayout *vLayout, QWidget *mainWindow, General
     leftViewBtn->setMaximumSize(QSize(70, 30));
     QPushButton *topViewBtn = new QPushButton("top", mainWindow);
     topViewBtn->setMaximumSize(QSize(70, 30));
+    QPushButton *tourBtn = new QPushButton("start a tour", mainWindow);
+    tourBtn->setMaximumSize(100, 30);
     hLayoutPredefinedView -> addWidget(tipView, 0, 0);
     hLayoutPredefinedView -> addWidget(initialViewBtn, 0, 2);
     hLayoutPredefinedView -> addWidget(viewAllBtn, 0, 1);
@@ -287,6 +288,7 @@ inline void setupControlPanel(QVBoxLayout *vLayout, QWidget *mainWindow, General
 
     cameraLy->addWidget(posTab);
     cameraLy->addLayout(hLayoutPredefinedView);
+    cameraLy->addWidget(tourBtn);
     cameraBox->setLayout(cameraLy);
     vLayout->addWidget(cameraBox);
 
@@ -301,7 +303,6 @@ inline void setupControlPanel(QVBoxLayout *vLayout, QWidget *mainWindow, General
             focusCenter->setCurrentIndex(0);
         else
             focusCenter->setCurrentIndex(1);
-        qInfo() << "current view Center: " << viewCenter;
     });
     QObject::connect(focusCenter, SIGNAL(currentIndexChanged(int)), cameraWrapper, SLOT(setCoordinateCenter(int)));
     QObject::connect(restoreSelectBtn, SIGNAL(clicked(bool)), cylinerModel, SLOT(restoreState(bool)));
@@ -361,6 +362,35 @@ inline void setupControlPanel(QVBoxLayout *vLayout, QWidget *mainWindow, General
         sliderYaw->setValue(180);
         sliderRoll->setValue(0);
     });
+
+    QObject::connect(tourBtn, &QPushButton::clicked, cameraWrapper, [cameraWrapper](){
+        QVector4D dof41 = QVector4D(0, 0, 0, 180);
+        QVector4D dof42 = QVector4D(0, 359, 0, 539);
+        QVector3D startPosition = QVector3D(0.0f, 0.0f, cameraWrapper->init_distanceToOrigin);
+        QVector3D initialPos = cameraWrapper->camera()->position();
+        QSequentialAnimationGroup *aniGroup = new QSequentialAnimationGroup();
+        QPropertyAnimation *smoothMove1 = new QPropertyAnimation(cameraWrapper, "position");
+        smoothMove1->setDuration(2000);
+        smoothMove1->setStartValue(QVariant::fromValue(initialPos));
+        smoothMove1->setEndValue(QVariant::fromValue(startPosition));
+
+        QPropertyAnimation *smoothMove2 = new QPropertyAnimation(cameraWrapper, "dof4");
+        smoothMove2->setDuration(3000);
+        smoothMove2->setStartValue(dof41);
+        smoothMove2->setEndValue(dof42);
+
+        QPropertyAnimation *smoothMove3 = new QPropertyAnimation(cameraWrapper, "position");
+        smoothMove3->setDuration(2000);
+        smoothMove3->setStartValue(QVariant::fromValue(startPosition));
+        smoothMove3->setEndValue(QVariant::fromValue(initialPos));
+
+        aniGroup->addAnimation(smoothMove1);
+        aniGroup->addAnimation(smoothMove2);
+        aniGroup->addAnimation(smoothMove3);
+        aniGroup->start();
+        cameraWrapper->setCustomView(dof42);
+    });
+
 
     QObject::connect(perspBtn, &QRadioButton::clicked,  cameraWrapper,
                      [cameraWrapper, sliderScale](bool clicked){
