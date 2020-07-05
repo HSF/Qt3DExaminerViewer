@@ -8,7 +8,7 @@ class CameraWrapper : public QObject{
     Q_OBJECT
     Q_PROPERTY(QVector3D viewCenter WRITE setViewCenter)
     Q_PROPERTY(QVector3D position WRITE setPosition)
-    Q_PROPERTY(QVector4D dof4 READ customView WRITE setCustomView )
+    Q_PROPERTY(QVector4D dof4 WRITE setCustomView READ customView)
 public:
     const int init_distanceToOrigin = 20;
     const int GLOBAL_CENTER = 0, LOCAL_CENTER = 1;
@@ -27,6 +27,7 @@ public:
     void addCameraController(Qt3DExtras::QAbstractCameraController *camController);
     void setCustomView(QVector4D dof4);
     const QVector4D customView();
+    const QVector<float> fullCustomView();
     void setViewCenter(QVector3D viewCenter);
     void setPosition(QVector3D pos);
     void translateView(QVector3D bias, int scale);
@@ -34,6 +35,7 @@ public:
     Qt3DRender::QCamera *camera();
 signals:
     void viewCenterChanged(const QVector3D &viewCenter);
+    void positionChanged(const QVector3D &position);
 public slots:
     void resetCameraView();
     void viewAll();
