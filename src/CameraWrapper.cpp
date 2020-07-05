@@ -11,6 +11,7 @@ CameraWrapper::CameraWrapper(Qt3DCore::QEntity *rootEntity,  Qt3DRender::QCamera
     m_camera->setProjectionType(Qt3DRender::QCameraLens::PerspectiveProjection);
     resetCameraView();
     m_center = GLOBAL_CENTER;
+    QObject::connect(m_camera, &Qt3DRender::QCamera::positionChanged, m_camera, [this](){emit positionChanged(m_camera->position());});
     QObject::connect(m_camera, &Qt3DRender::QCamera::viewCenterChanged, m_camera, [this](){emit viewCenterChanged(m_camera->viewCenter());});
 }
 
@@ -56,6 +57,12 @@ void CameraWrapper::setCustomView(QVector4D dof4){
 const QVector4D CameraWrapper::customView(){
      return QVector4D(int(qRadiansToDegrees(m_latitude)), int(qRadiansToDegrees(m_longitude)),
                       int(qRadiansToDegrees(m_pitch)), int(qRadiansToDegrees(m_yaw)));
+}
+
+const QVector<float> CameraWrapper::fullCustomView(){
+     return QVector<float>{float(m_distanceToOrigin), qRadiansToDegrees(m_latitude), qRadiansToDegrees(m_longitude),
+                      qRadiansToDegrees(m_pitch), qRadiansToDegrees(m_yaw), qRadiansToDegrees(m_roll),
+                      m_bias[0], m_bias[1], m_bias[2]};
 }
 
 void CameraWrapper::setProjectiveMode(bool isPerspective){
@@ -122,6 +129,7 @@ void CameraWrapper::translateView(QVector3D bias, int scale){
 
 void CameraWrapper::setViewCenter(QVector3D viewCenter){
     m_camera->setViewCenter(viewCenter);
+    m_bias = viewCenter;
 }
 
 void CameraWrapper::setPosition(QVector3D pos){
@@ -200,5 +208,6 @@ void CameraWrapper::sphericalToDirection(){
     m_camera -> setUpVector(newUpVector);
     /*qInfo() << "position: " << m_camera -> position();
     qInfo() << "upvector: " << m_camera -> upVector();
-    qInfo() << "viewCenter: " << m_camera -> viewCenter();*/
+    qInfo() << "viewCenter: " << m_camera -> viewCenter();
+    qInfo() << "df" << m_distanceToOrigin;*/
 }
