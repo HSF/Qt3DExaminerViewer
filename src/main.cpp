@@ -76,9 +76,45 @@ void setUpInfoWindow(){
     info->setText(QStringLiteral("Info windows:"));
     info->setDescription(TIPS);
     info->setIconSize(QSize(0,0));
-    info->setMaximumSize(QSize(200, 200));
-    info->setMinimumSize(QSize(140, 180));
+    info->setMaximumSize(QSize(250, 150));
+    info->setMinimumSize(QSize(200, 150));
     info->setFont(QFont ("Courier", 12));
+}
+
+void setUpVolumePanel(QVBoxLayout *vLayout, QWidget *mainWindow, GeneralMeshModel *cylinerModel, CameraWrapper *cameraWrapper){
+    // Control visibility of Volume
+    QGroupBox *volBox = new QGroupBox("Volume Control", mainWindow);
+    QVBoxLayout *volLy = new QVBoxLayout(mainWindow);
+
+    //Switch between navigation and select mode
+    QGridLayout *hLayoutSelect = new QGridLayout(mainWindow);
+    QLabel *labelSel = new QLabel("mouse", mainWindow);
+    QRadioButton *selectBtn = new QRadioButton("select", mainWindow);
+    QRadioButton *viewBtn = new QRadioButton("view", mainWindow);
+    selectBtn->setChecked(true);
+    hLayoutSelect->addWidget(labelSel, 0, 0);
+    hLayoutSelect->addWidget(viewBtn, 0, 2);
+    hLayoutSelect->addWidget(selectBtn, 0, 1);
+    volLy->addLayout(hLayoutSelect);
+
+    // Cancel selected and unpacked state
+    QHBoxLayout *hLayoutRestore = new QHBoxLayout(mainWindow);
+    QPushButton *restoreSelectBtn = new QPushButton("revert original state", volBox);
+    restoreSelectBtn->setMaximumSize(QSize(200, 25));
+    hLayoutRestore->addWidget(restoreSelectBtn);
+    volLy->addLayout(hLayoutRestore);
+    volBox->setLayout(volLy);
+    vLayout->addWidget(volBox);
+
+    QObject::connect(restoreSelectBtn, SIGNAL(clicked(bool)), cylinerModel, SLOT(restoreState(bool)));
+    QObject::connect(selectBtn, &QRadioButton::clicked,
+                     [cameraWrapper, cylinerModel](bool clicked){
+                      cameraWrapper->disableCameraController(clicked);
+                      cylinerModel->enablePickAll(clicked); });
+    QObject::connect(viewBtn, &QRadioButton::clicked,
+                     [cameraWrapper, cylinerModel](bool clicked){
+                      cameraWrapper->disableCameraController(!clicked);
+                      cylinerModel->enablePickAll(!clicked); });
 }
 
 inline QSequentialAnimationGroup *getRoute1Tour(CameraWrapper *cameraWrapper){
@@ -120,46 +156,20 @@ inline QSequentialAnimationGroup *getRoute1Tour(CameraWrapper *cameraWrapper){
 }
 
 inline void setupControlPanel(QVBoxLayout *vLayout, QWidget *mainWindow, GeneralMeshModel *cylinerModel, CameraWrapper *cameraWrapper){
+    /************ Info window ******************/
     // Create a info window to display mesh properties
     setUpInfoWindow();
     vLayout->addWidget(info);
 
     /************ Volume control******************/
-    // Control visibility of Volume
-    QGroupBox *volBox = new QGroupBox("Volume Control", mainWindow);
-    QVBoxLayout *volLy = new QVBoxLayout(mainWindow);
-
-    //Switch between navigation and select mode
-    //SwitchButton* selectSwitch = new SwitchButton(mainWindow, "View", "Select");
-    //selectSwitch->setInitialState(true);
-    QGridLayout *hLayoutSelect = new QGridLayout(mainWindow);
-    QLabel *labelSel = new QLabel("mouse", mainWindow);
-    QRadioButton *selectBtn = new QRadioButton("select", mainWindow);
-    QRadioButton *viewBtn = new QRadioButton("view", mainWindow);
-    selectBtn->setChecked(true);
-    hLayoutSelect->addWidget(labelSel, 0, 0);
-    hLayoutSelect->addWidget(viewBtn, 0, 2);
-    hLayoutSelect->addWidget(selectBtn, 0, 1);
-    volLy->addLayout(hLayoutSelect);
-
-    // Cancel selected and unpacked state
-    QHBoxLayout *hLayoutRestore = new QHBoxLayout(mainWindow);
-    QPushButton *restoreSelectBtn = new QPushButton("revert original state", volBox);
-    restoreSelectBtn->setMaximumSize(QSize(200, 25));
-    hLayoutRestore->addWidget(restoreSelectBtn);
-    volLy->addLayout(hLayoutRestore);
-
-    //volLy->addWidget(restoreSelectBtn);
-    volBox->setLayout(volLy);
-    vLayout->addWidget(volBox);
+    setUpVolumePanel(vLayout, mainWindow, cylinerModel, cameraWrapper);
 
 
-    /************ Camera control******************/
-    QGroupBox *cameraBox = new QGroupBox("Camera Control", mainWindow);
+    /************ Camera control ******************/
+    QGroupBox *cameraBox = new QGroupBox("Viewport Control", mainWindow);
     QVBoxLayout *cameraLy = new QVBoxLayout(mainWindow);
+    /**** position control ****/
     // Switch between Ortho and Perspective
-    //SwitchButton* projSwitch = new SwitchButton(mainWindow, "Ortho", "Persp");
-    //projSwitch->setInitialState(true);
     QLabel *labelProj = new QLabel("projection", mainWindow);
     QRadioButton *orthoBtn = new QRadioButton("ortho", cameraBox);
     QRadioButton *perspBtn = new QRadioButton("persp", cameraBox);
@@ -237,9 +247,9 @@ inline void setupControlPanel(QVBoxLayout *vLayout, QWidget *mainWindow, General
     positionControl->setFixedSize(230, 260);
     positionControl->setMinimumSize(QSize(100, 200));
     positionControl->setMaximumSize(QSize(230, 260));
-    posTab->addTab(positionControl, "position");
+    posTab->addTab(positionControl, "Position");
 
-    /*** Angle control ***/
+    /****** orientation control*****/
     // Control yaw angle of Camera
     QLabel *labelYaw = new QLabel(mainWindow);
     QSlider *sliderYaw = new QSlider(mainWindow);
@@ -299,168 +309,13 @@ inline void setupControlPanel(QVBoxLayout *vLayout, QWidget *mainWindow, General
     directionControl->setFixedSize(230, 260);
     directionControl->setMinimumSize(QSize(100, 200));
     directionControl->setMaximumSize(QSize(230, 260));
-    posTab->addTab(directionControl, "Direction");
+    posTab->addTab(directionControl, "Orientation");
 
     cameraLy->addWidget(posTab);
     cameraBox->setLayout(cameraLy);
     vLayout->addWidget(cameraBox);
 
-
-    /************* quick visit *****************/
-    QGroupBox *quickVisitBox = new QGroupBox("Quick Visit", mainWindow);
-    QVBoxLayout *quickLy = new QVBoxLayout(mainWindow);
-
-    // Predefined view
-    QGridLayout *hLayoutPredefinedView = new QGridLayout(mainWindow);
-    QLabel *tipView = new QLabel("Quick visit", mainWindow);
-    QPushButton *initialViewBtn = new QPushButton("initial", mainWindow);
-    initialViewBtn->setMaximumSize(QSize(70, 25));
-    QPushButton *viewAllBtn = new QPushButton("view all", mainWindow);
-    viewAllBtn->setMaximumSize(QSize(70, 25));
-    QPushButton *frontViewBtn = new QPushButton("front", mainWindow);
-    frontViewBtn->setMaximumSize(QSize(70, 25));
-    QPushButton *leftViewBtn = new QPushButton("left", mainWindow);
-    leftViewBtn->setMaximumSize(QSize(70, 25));
-    QPushButton *topViewBtn = new QPushButton("top", mainWindow);
-    topViewBtn->setMaximumSize(QSize(70, 25));
-
-    //QHBoxLayout *hLayoutBookmark = new QHBoxLayout(mainWindow);
-    QLabel *bookmarkTip = new QLabel("Bookmarks", mainWindow);
-    QComboBox *bookmarkedView = new QComboBox(mainWindow);
-    bookmarkedView->setMaximumSize(QSize(70, 25));
-    bookmarkedView->addItem("null");
-
-    QPushButton *addViewBtn = new QPushButton("Add", mainWindow);
-    /*hLayoutBookmark->addWidget(bookmarkTip);
-    hLayoutBookmark->addWidget(bookmarkedView);
-    hLayoutBookmark->addWidget(addViewBtn);*/
-
-    //QHBoxLayout *hLayoutTour = new QHBoxLayout(mainWindow);
-    QLabel *tourTipView = new QLabel("Start tours", mainWindow);
-    QPushButton *tourBtn = new QPushButton("route 1", mainWindow);
-    tourBtn->setMaximumSize(70, 25);
-    /*hLayoutTour->addWidget(tourTipView);
-    hLayoutTour->addWidget(tourBtn);*/
-
-    hLayoutPredefinedView -> addWidget(tipView, 0, 0);
-    hLayoutPredefinedView -> addWidget(initialViewBtn, 0, 2);
-    hLayoutPredefinedView -> addWidget(viewAllBtn, 0, 1);
-    hLayoutPredefinedView -> addWidget(frontViewBtn, 1, 0);
-    hLayoutPredefinedView -> addWidget(leftViewBtn, 1, 1);
-    hLayoutPredefinedView -> addWidget(topViewBtn, 1, 2);
-
-    hLayoutPredefinedView -> addWidget(bookmarkTip, 2, 0);
-    hLayoutPredefinedView -> addWidget(bookmarkedView, 2, 1);
-    hLayoutPredefinedView -> addWidget(addViewBtn, 2, 2);
-
-    hLayoutPredefinedView -> addWidget(tourTipView, 3, 0);
-    hLayoutPredefinedView -> addWidget(tourBtn, 3, 1);
-
-    quickLy->addLayout(hLayoutPredefinedView);
-    //quickLy->addLayout(hLayoutBookmark);
-    //quickLy->addLayout(hLayoutTour);
-    quickVisitBox->setLayout(quickLy);
-    vLayout->addWidget(quickVisitBox);
-
-    // Connect UI with model
-    QObject::connect(cameraWrapper, &CameraWrapper::viewCenterChanged, [focusCenter, bookmarkedView](QVector3D viewCenter){
-        if((viewCenter-QVector3D(0.0f,0.0f,0.0f)).length() < 1e-1)
-            focusCenter->setCurrentIndex(0);
-        else
-            focusCenter->setCurrentIndex(1);
-        bookmarkedView->setCurrentIndex(0);
-    });
-    QObject::connect(cameraWrapper, &CameraWrapper::positionChanged, [bookmarkedView](QVector3D viewCenter){
-        bookmarkedView->setCurrentIndex(0);
-    });
     QObject::connect(focusCenter, SIGNAL(currentIndexChanged(int)), cameraWrapper, SLOT(setCoordinateCenter(int)));
-    QObject::connect(restoreSelectBtn, SIGNAL(clicked(bool)), cylinerModel, SLOT(restoreState(bool)));
-
-    QObject::connect(viewAllBtn, &QPushButton::clicked, cameraWrapper, &CameraWrapper::viewAll);
-    QObject::connect(initialViewBtn, &QPushButton::clicked, cameraWrapper, &CameraWrapper::resetCameraView);
-    QObject::connect(initialViewBtn, &QPushButton::clicked, [cameraWrapper, sliderYaw, sliderPitch, sliderRoll, sliderLat, sliderLng, sliderScale](){
-        sliderYaw->setValue(180);
-        sliderPitch->setValue(0);
-        sliderRoll->setValue(0);
-        sliderLat->setValue(0);
-        sliderLng->setValue(0);
-        sliderScale->setValue(cameraWrapper->init_distanceToOrigin);
-    });
-    QObject::connect(frontViewBtn, &QPushButton::clicked, cameraWrapper, [cameraWrapper, sliderYaw, sliderPitch, sliderRoll, sliderLat, sliderLng](){
-        //QVector<int> dof5{0, 0, 0, 180, 0};
-        QVector4D dof4 = QVector4D(0, 0, 0, 180);
-        QPropertyAnimation *smoothMove = new QPropertyAnimation(cameraWrapper, "dof4");
-        smoothMove->setDuration(500);
-        smoothMove->setStartValue(QVariant::fromValue(cameraWrapper->customView()));
-        smoothMove->setEndValue(QVariant::fromValue(dof4));
-        smoothMove->start();
-        cameraWrapper->setCustomView(dof4);
-        sliderLat->setValue(0);
-        sliderLng->setValue(0);
-        sliderPitch->setValue(0);
-        sliderYaw->setValue(180);
-        sliderRoll->setValue(0);
-    });
-    QObject::connect(leftViewBtn, &QPushButton::clicked, [cameraWrapper, sliderYaw, sliderPitch, sliderRoll, sliderLat, sliderLng](){
-        //QVector<int> dof5{0, 270, 0, 90, 0, 0};
-        QVector4D dof4 = QVector4D(0, -90, 0, 90);
-        QPropertyAnimation *smoothMove = new QPropertyAnimation(cameraWrapper, "dof4");
-        smoothMove->setDuration(500);
-        smoothMove->setStartValue(QVariant::fromValue(cameraWrapper->customView()));
-        smoothMove->setEndValue(QVariant::fromValue(dof4));
-        smoothMove->start();
-       // cameraWrapper->setCustomView(dof4);
-        sliderLat->setValue(0);
-        sliderLng->setValue(270);
-        sliderPitch->setValue(0);
-        sliderYaw->setValue(90);
-        sliderRoll->setValue(0);
-    });
-    QObject::connect(topViewBtn, &QPushButton::clicked, [cameraWrapper, sliderYaw, sliderPitch, sliderRoll, sliderLat, sliderLng](){
-        //QVector<int> dof5{90, 0, -90, 180, 0};
-        QVector4D dof4 = QVector4D(90, 0, -90, 180);
-        QPropertyAnimation *smoothMove = new QPropertyAnimation(cameraWrapper, "dof4");
-        smoothMove->setDuration(500);
-        smoothMove->setStartValue(QVariant::fromValue(cameraWrapper->customView()));
-        smoothMove->setEndValue(QVariant::fromValue(dof4));
-        smoothMove->start();
-        cameraWrapper->setCustomView(dof4);
-        sliderLat->setValue(90);
-        sliderLng->setValue(0);
-        sliderPitch->setValue(-90);
-        sliderYaw->setValue(180);
-        sliderRoll->setValue(0);
-    });
-    QObject::connect(tourBtn, &QPushButton::clicked, [cameraWrapper](){
-        QAnimationGroup *aniGroup = getRoute1Tour(cameraWrapper);
-        aniGroup->start();
-    });
-    QObject::connect(addViewBtn, &QPushButton::clicked, [cameraWrapper, bookmarkedView](){
-        QVector<float> currentView = cameraWrapper->fullCustomView();
-        if((!(bookmarkedViewls.empty()) && currentView[3] != bookmarkedViewls.last()[3]
-            && currentView[1] != bookmarkedViewls.last()[1]
-            && currentView[0] != bookmarkedViewls.last()[0]
-            ) || bookmarkedViewls.empty())
-            bookmarkedView->addItem(QString("custom view") + QString::number(bookmarkedViewls.size()));
-            bookmarkedViewls.push_back(currentView);
-        });
-    QObject::connect(bookmarkedView, QOverload<int>::of(&QComboBox::currentIndexChanged),
-    [cameraWrapper, sliderScale, sliderYaw, sliderPitch, sliderRoll, sliderLat, sliderLng](int index)
-    {
-    if(index==0) return;
-    QVector<float> dof6 = bookmarkedViewls.at(index-1);
-    QVector4D dof4 = QVector4D(dof6[1], dof6[2], dof6[3], dof6[4]);
-    QVector3D bias = QVector3D(dof6[6], dof6[7], dof6[8]);
-    cameraWrapper->setViewCenter(bias);
-    cameraWrapper->setCustomView(dof4);
-    sliderScale->setValue(dof6[0]);
-    sliderLat->setValue(dof6[1]);
-    sliderLng->setValue(dof6[2]);
-    sliderPitch->setValue(dof6[3]);
-    sliderYaw->setValue(dof6[4]);
-    sliderRoll->setValue(dof6[5]);
-    });
-
     QObject::connect(perspBtn, &QRadioButton::clicked,
                      [cameraWrapper, sliderScale](bool clicked){
                       cameraWrapper->setProjectiveMode(clicked);
@@ -469,14 +324,7 @@ inline void setupControlPanel(QVBoxLayout *vLayout, QWidget *mainWindow, General
                      [cameraWrapper, sliderScale](bool clicked){
                       cameraWrapper->setProjectiveMode(!clicked);
                       cameraWrapper->zoomInOut(sliderScale->value()); });
-    QObject::connect(selectBtn, &QRadioButton::clicked,
-                     [cameraWrapper, cylinerModel](bool clicked){
-                      cameraWrapper->disableCameraController(clicked);
-                      cylinerModel->enablePickAll(clicked); });
-    QObject::connect(viewBtn, &QRadioButton::clicked,
-                     [cameraWrapper, cylinerModel](bool clicked){
-                      cameraWrapper->disableCameraController(!clicked);
-                      cylinerModel->enablePickAll(!clicked); });
+
     QObject::connect(sliderScale,SIGNAL(valueChanged(int)), cameraWrapper, SLOT(zoomInOut(int)));
     QObject::connect(sliderScale, SIGNAL(valueChanged(int)), spinScale, SLOT(setValue(int)));
     QObject::connect(spinScale, SIGNAL(valueChanged(int)), sliderScale, SLOT(setValue(int)));
@@ -502,6 +350,153 @@ inline void setupControlPanel(QVBoxLayout *vLayout, QWidget *mainWindow, General
     QObject::connect(sliderRoll, SIGNAL(valueChanged(int)), cameraWrapper, SLOT(rotateViewRoll(int)));
     QObject::connect(sliderRoll, SIGNAL(valueChanged(int)), spinRoll, SLOT(setValue(int)));
     QObject::connect(spinRoll, SIGNAL(valueChanged(int)), sliderRoll, SLOT(setValue(int)));
+
+
+    /************* quick visit *****************/
+    QGroupBox *quickVisitBox = new QGroupBox("Quick Visit", mainWindow);
+    QVBoxLayout *quickLy = new QVBoxLayout(mainWindow);
+
+    // Predefined view
+    QGridLayout *hLayoutPredefinedView = new QGridLayout(mainWindow);
+    QLabel *tipView = new QLabel("Quick visit", mainWindow);
+    QPushButton *initialViewBtn = new QPushButton("initial", mainWindow);
+    initialViewBtn->setMaximumSize(QSize(70, 25));
+    QPushButton *viewAllBtn = new QPushButton("view all", mainWindow);
+    viewAllBtn->setMaximumSize(QSize(70, 25));
+    QPushButton *frontViewBtn = new QPushButton("front", mainWindow);
+    frontViewBtn->setMaximumSize(QSize(70, 25));
+    QPushButton *leftViewBtn = new QPushButton("left", mainWindow);
+    leftViewBtn->setMaximumSize(QSize(70, 25));
+    QPushButton *topViewBtn = new QPushButton("top", mainWindow);
+    topViewBtn->setMaximumSize(QSize(70, 25));
+
+    // Bookmarked view
+    QHBoxLayout *hLayoutBookmark = new QHBoxLayout(mainWindow);
+    QLabel *bookmarkTip = new QLabel("Bookmarks", mainWindow);
+    QComboBox *bookmarkedView = new QComboBox(mainWindow);
+    QPushButton *addViewBtn = new QPushButton("Add", mainWindow);
+    bookmarkedView->setMaximumSize(QSize(100, 25));
+    addViewBtn->setMaximumSize(QSize(50,25));
+    bookmarkedView->addItem("null");
+    hLayoutBookmark->addWidget(bookmarkTip);
+    hLayoutBookmark->addWidget(bookmarkedView);
+    hLayoutBookmark->addWidget(addViewBtn);
+
+    // start a tour
+    QLabel *tourTipView = new QLabel("Start tours", mainWindow);
+    QPushButton *tourBtn = new QPushButton("route 1", mainWindow);
+    tourBtn->setMaximumSize(70, 25);
+    hLayoutPredefinedView -> addWidget(tipView, 0, 0);
+    hLayoutPredefinedView -> addWidget(initialViewBtn, 0, 2);
+    hLayoutPredefinedView -> addWidget(viewAllBtn, 0, 1);
+    hLayoutPredefinedView -> addWidget(frontViewBtn, 1, 0);
+    hLayoutPredefinedView -> addWidget(leftViewBtn, 1, 1);
+    hLayoutPredefinedView -> addWidget(topViewBtn, 1, 2);
+
+    hLayoutPredefinedView -> addWidget(tourTipView, 3, 0);
+    hLayoutPredefinedView -> addWidget(tourBtn, 3, 1);
+
+    quickLy->addLayout(hLayoutPredefinedView);
+    quickLy->addLayout(hLayoutBookmark);
+    quickVisitBox->setLayout(quickLy);
+    vLayout->addWidget(quickVisitBox);
+
+    QObject::connect(viewAllBtn, &QPushButton::clicked, cameraWrapper, &CameraWrapper::viewAll);
+    QObject::connect(initialViewBtn, &QPushButton::clicked, [cameraWrapper, sliderYaw, sliderPitch, sliderRoll, sliderLat, sliderLng, sliderScale]{
+        sliderYaw->setValue(180);
+        sliderPitch->setValue(0);
+        sliderRoll->setValue(0);
+        sliderLat->setValue(0);
+        sliderLng->setValue(0);
+        sliderScale->setValue(cameraWrapper->init_distanceToOrigin);
+        cameraWrapper->resetCameraView();
+    });
+    QObject::connect(frontViewBtn, &QPushButton::clicked, cameraWrapper,
+                     [cameraWrapper, sliderYaw, sliderPitch, sliderRoll, sliderLat, sliderLng](){
+        QVector4D dof4 = QVector4D(0, 0, 0, 180);
+        QPropertyAnimation *smoothMove = new QPropertyAnimation(cameraWrapper, "dof4");
+        smoothMove->setDuration(500);
+        smoothMove->setStartValue(QVariant::fromValue(cameraWrapper->customView()));
+        smoothMove->setEndValue(QVariant::fromValue(dof4));
+        smoothMove->start();
+        cameraWrapper->setCustomView(dof4);
+        sliderLat->setValue(0);
+        sliderLng->setValue(0);
+        sliderPitch->setValue(0);
+        sliderYaw->setValue(180);
+        sliderRoll->setValue(0);
+    });
+    QObject::connect(leftViewBtn, &QPushButton::clicked,
+                     [cameraWrapper, sliderYaw, sliderPitch, sliderRoll, sliderLat, sliderLng](){
+        QVector4D dof4 = QVector4D(0, -90, 0, 90);
+        QPropertyAnimation *smoothMove = new QPropertyAnimation(cameraWrapper, "dof4");
+        smoothMove->setDuration(500);
+        smoothMove->setStartValue(QVariant::fromValue(cameraWrapper->customView()));
+        smoothMove->setEndValue(QVariant::fromValue(dof4));
+        smoothMove->start();
+        cameraWrapper->setCustomView(dof4);
+        sliderLat->setValue(0);
+        sliderLng->setValue(270);
+        sliderPitch->setValue(0);
+        sliderYaw->setValue(90);
+        sliderRoll->setValue(0);
+    });
+    QObject::connect(topViewBtn, &QPushButton::clicked,
+                     [cameraWrapper, sliderYaw, sliderPitch, sliderRoll, sliderLat, sliderLng](){
+        QVector4D dof4 = QVector4D(90, 0, -90, 180);
+        QPropertyAnimation *smoothMove = new QPropertyAnimation(cameraWrapper, "dof4");
+        smoothMove->setDuration(500);
+        smoothMove->setStartValue(QVariant::fromValue(cameraWrapper->customView()));
+        smoothMove->setEndValue(QVariant::fromValue(dof4));
+        smoothMove->start();
+        cameraWrapper->setCustomView(dof4);
+        sliderLat->setValue(90);
+        sliderLng->setValue(0);
+        sliderPitch->setValue(-90);
+        sliderYaw->setValue(180);
+        sliderRoll->setValue(0);
+    });
+    QObject::connect(tourBtn, &QPushButton::clicked, [cameraWrapper](){
+        QAnimationGroup *aniGroup = getRoute1Tour(cameraWrapper);
+        aniGroup->start();
+    });
+    QObject::connect(addViewBtn, &QPushButton::clicked, [cameraWrapper, bookmarkedView](){
+        QVector<float> currentView = cameraWrapper->fullCustomView();
+        if((!(bookmarkedViewls.empty()) && currentView[3] != bookmarkedViewls.last()[3]
+            && currentView[1] != bookmarkedViewls.last()[1]
+            && currentView[0] != bookmarkedViewls.last()[0]
+            ) || bookmarkedViewls.empty())
+            bookmarkedView->addItem(QString("view") + QString::number(bookmarkedViewls.size()));
+            bookmarkedViewls.push_back(currentView);
+            qInfo() << "cliked";
+        });
+    QObject::connect(bookmarkedView, QOverload<int>::of(&QComboBox::currentIndexChanged),
+    [cameraWrapper, sliderScale, sliderYaw, sliderPitch, sliderRoll, sliderLat, sliderLng](int index)
+    {
+    if(index==0) return;
+    QVector<float> dof6 = bookmarkedViewls.at(index-1);
+    QVector4D dof4 = QVector4D(dof6[1], dof6[2], dof6[3], dof6[4]);
+    QVector3D bias = QVector3D(dof6[6], dof6[7], dof6[8]);
+    cameraWrapper->setViewCenter(bias);
+    cameraWrapper->setCustomView(dof4);
+    sliderScale->setValue(dof6[0]);
+    sliderLat->setValue(dof6[1]);
+    sliderLng->setValue(dof6[2]);
+    sliderPitch->setValue(dof6[3]);
+    sliderYaw->setValue(dof6[4]);
+    sliderRoll->setValue(dof6[5]);
+    });
+    /*
+    QObject::connect(cameraWrapper, &CameraWrapper::viewCenterChanged, [focusCenter, bookmarkedView](QVector3D viewCenter){
+        if((viewCenter-QVector3D(0.0f,0.0f,0.0f)).length() < 1e-1)
+            focusCenter->setCurrentIndex(0);
+        else
+            focusCenter->setCurrentIndex(1);
+        bookmarkedView->setCurrentIndex(0);
+    });
+    QObject::connect(cameraWrapper, &CameraWrapper::positionChanged, [bookmarkedView](){
+        bookmarkedView->setCurrentIndex(0);
+    });*/
 }
 
 int main(int argc, char **argv){
@@ -559,34 +554,30 @@ int main(int argc, char **argv){
     cylinerModel->scaleMesh(QVector3D(2,4,2));
 
     Qt3DExtras::QCuboidMesh *meshBox1 = new Qt3DExtras::QCuboidMesh();
-    meshBox1->setObjectName(QString("Muon \n at position (0,0,1)"));
+    meshBox1->setObjectName(QString("Muon \n"));
     meshBox1->setProperty("maxLength", 2);
     GeneralMeshModel *cuboidModel1 = new GeneralMeshModel(rootEntity, meshBox1);
     cuboidModel1->translateMesh(QVector3D(0.0f, 0.0f, 1.0f));
     cuboidModel1->scaleMesh(QVector3D(2,2,2));
-    //cuboidModel1->showMesh(false);
 
     Qt3DExtras::QCuboidMesh *meshBox2 = new Qt3DExtras::QCuboidMesh();
-    meshBox2->setObjectName(QString("Calorimeter \n at position (0,0,-1)"));
+    meshBox2->setObjectName(QString("Calorimeter \n"));
     meshBox2->setProperty("maxLength", 2);
     GeneralMeshModel *cuboidModel2 = new GeneralMeshModel(rootEntity, meshBox2);
     cuboidModel2->translateMesh(QVector3D(0.0f, 0.0f, -1.0f));
     cuboidModel2->scaleMesh(QVector3D(2,2,2));
-    //cuboidModel2->showMesh(false);
 
     Qt3DExtras::QCuboidMesh *meshBox3 = new Qt3DExtras::QCuboidMesh();
-    meshBox3->setObjectName(QString("one daughter of Muon \n at position (0,0,1)"));
+    meshBox3->setObjectName(QString("one daughter of Muon"));
     meshBox3->setProperty("maxLength", 1);
     GeneralMeshModel *cuboidModel3 = new GeneralMeshModel(rootEntity, meshBox3);
     cuboidModel3->translateMesh(QVector3D(0.0f, 0.0f, 1.0f));
-    //cuboidModel3->showMesh(false);
 
     Qt3DExtras::QSphereMesh *meshSphere = new Qt3DExtras::QSphereMesh();
-    meshSphere->setObjectName(QString("one daughter of Calorimeter \n at position (0,0,-1)"));
+    meshSphere->setObjectName(QString("one daughter of Calorimeter"));
     meshSphere->setProperty("maxLength", 1);
     GeneralMeshModel *sphereModel = new GeneralMeshModel(rootEntity, meshSphere);
     sphereModel->translateMesh(QVector3D(0.0f, 0.0f, -1.0f));
-    //sphereModel->showMesh(false);
 
     /*Qt3DExtras::QExtrudedTextMesh *textMesh1 = new Qt3DExtras::QExtrudedTextMesh();
     textMesh1->setObjectName("A");

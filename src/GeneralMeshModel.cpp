@@ -6,7 +6,7 @@
 #include <Qt3DRender/qpickevent.h>
 
 GeneralMeshModel::GeneralMeshModel(Qt3DCore::QEntity *rootEntity, Qt3DRender::QGeometryRenderer *mesh)
-    : m_mesh(mesh), m_isSelectMode(true){
+    : m_mesh(mesh), m_isSelectMode(true), m_isVisiable(true){
 
     // Build Mesh Entity
     m_meshEntity = new Qt3DCore::QEntity(rootEntity);
@@ -54,7 +54,7 @@ void GeneralMeshModel::onMoveCamera(Qt3DRender::QPickEvent *event){
          camera->translateView(event->worldIntersection(), 0);
      }
      else if(event->button() == Qt3DRender::QPickEvent::RightButton && event->modifiers() == Qt::ShiftModifier){
-         camera->viewEntity(m_meshEntity);
+         camera->camera()->viewEntity(m_meshEntity);
          //camera->translateView(m_meshTransform->translation(), m_mesh->property("maxLength").toInt());
      }
 }
@@ -70,7 +70,7 @@ void GeneralMeshModel::enablePickAll(bool enable){
     for(GeneralMeshModel *subModel:m_subModels){
         subModel->enablePickAll(enable);
     }
-    enablePick(enable);
+    enablePick(enable & m_isVisiable);
     m_isSelectMode=enable;
 }
 
@@ -122,6 +122,7 @@ void GeneralMeshModel::packMesh(Qt3DRender::QPickEvent* event){
 
 void GeneralMeshModel::showMesh(bool visible){
     m_meshEntity->setEnabled(visible);
+    m_isVisiable = visible;
 }
 
 void GeneralMeshModel::translateMesh(QVector3D translation){
