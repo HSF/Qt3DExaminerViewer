@@ -56,6 +56,7 @@ private:
     QVector<GeneralMeshModel*> m_subModels;
     GeneralMeshModel *m_parentModel;
     bool m_isSelectMode;
+    bool m_isVisiable;
 };
 
 #endif // GENERALMESHMODEL_H

@@ -36,10 +36,6 @@ void CameraWrapper::viewAll(){
     m_camera->viewAll();
 }
 
-void CameraWrapper::viewEntity(Qt3DCore::QEntity *entity){
-    m_camera->viewEntity(entity);
-}
-
 void CameraWrapper::setCoordinateCenter(int index){
     m_center = index;
 }
@@ -167,7 +163,7 @@ void CameraWrapper::sphericalToPosition(){
     float x = m_distanceToOrigin * qCos(m_latitude) * qSin(m_longitude);
     float z = m_distanceToOrigin * qCos(m_latitude) * qCos(m_longitude);
     if(m_center == LOCAL_CENTER)
-        m_camera -> setPosition(m_camera->viewCenter() + QVector3D(x, y, z));
+        m_camera -> setPosition(m_bias + QVector3D(x, y, z));
     else{
         m_camera -> setPosition(QVector3D(x, y, z));
         m_camera -> setViewCenter(QVector3D(0, 0, 0));
