@@ -7,11 +7,13 @@ SOURCES += src/main.cpp \
     src/CameraWrapper.cpp \
     src/GeneralMeshModel.cpp \
     src/MainWindow.cpp \
+    src/ModelFactory.cpp
 
 HEADERS += \
     headers/CameraWrapper.h \
     headers/GeneralMeshModel.h \
     headers/Mainwindow.h \
+    headers/ModelFactory.h
 
 RESOURCES += \
     res/resources.qrc

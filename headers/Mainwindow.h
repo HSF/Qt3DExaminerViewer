@@ -3,11 +3,12 @@
 #include <Qt3DRender/QCamera>
 #include <Qt3DExtras/Qt3DWindow>
 #include <Qt3DInput/QLogicalDevice>
-class MainWindow : public Qt3DExtras::Qt3DWindow
-{
+#include <QCloseEvent>
+class MainWindow : public Qt3DExtras::Qt3DWindow{
     Q_OBJECT
 public:
     explicit MainWindow();
+     ~MainWindow();
 private:
     void resizeEvent(QResizeEvent* event) override;
     void mousePressEvent(QMouseEvent *event) override;
