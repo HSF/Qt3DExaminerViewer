@@ -13,7 +13,7 @@ public:
     const int init_distanceToOrigin = 20;
     const int GLOBAL_CENTER = 0, LOCAL_CENTER = 1;
 private:
-    int m_distanceToOrigin;
+    int m_radius;
     float m_longitude, m_latitude;
     float m_roll, m_yaw, m_pitch;
     int m_center;
@@ -28,6 +28,7 @@ public:
     void setCustomView(QVector4D dof4);
     const QVector4D customView();
     const QVector<float> fullCustomView();
+    void setFullCustomView(const QVector<float> fullView);
     void setViewCenter(QVector3D viewCenter);
     void setPosition(QVector3D pos);
     void translateView(QVector3D bias, int scale);
