@@ -40,7 +40,7 @@
 
 QCommandLinkButton *info;
 CameraWrapper *camera;
-
+QComboBox *bookmarkedView;
 QVector<QVector<float>> bookmarkedViewls;
 
 void setUpLight(Qt3DCore::QEntity *lightEntity, QVector3D position){
@@ -119,19 +119,19 @@ void setUpVolumePanel(QVBoxLayout *vLayout, QWidget *mainWindow, GeneralMeshMode
 
 inline QSequentialAnimationGroup *getRoute1Tour(CameraWrapper *cameraWrapper){
     QSequentialAnimationGroup *tour1 = new QSequentialAnimationGroup();
-    QVector4D dof1 = QVector4D(0, 0, 0, 180);
-    QVector4D dof2 = QVector4D(0, 270, 0, 450);
-    QVector4D dof3 = QVector4D(90, 270, -90, 450);
-    QVector4D dof4 = QVector4D(90, 90, -90, 270);
-    QVector4D dof5 = QVector4D(-90, 90, 90, 270);
-    QVector4D dof6 = QVector4D(-90, 0, 90, 180);
+    int radius = cameraWrapper->init_distanceToOrigin-5;
+    QVector4D dof1 = QVector4D(cameraWrapper->init_distanceToOrigin-5, 0, 0, 0);
+    QVector4D dof2 = QVector4D(radius, 0, 270, 0);
+    QVector4D dof3 = QVector4D(radius, 90, 270, 0);
+    QVector4D dof4 = QVector4D(radius, 90, 90, 0);
+    QVector4D dof5 = QVector4D(radius, -90, 90, 0);
+    QVector4D dof6 = QVector4D(radius, -90, 0, 0);
 
-    QVector3D startPosition = QVector3D(0.0f, 0.0f, cameraWrapper->init_distanceToOrigin-5);
-    QVector3D initialPos = cameraWrapper->camera()->position();
-    QPropertyAnimation *smoothMove1 = new QPropertyAnimation(cameraWrapper, "position");
+    QVector4D initialView = cameraWrapper->customView();
+    QPropertyAnimation *smoothMove1 = new QPropertyAnimation(cameraWrapper, "dof4");
     smoothMove1->setDuration(2000);
-    smoothMove1->setStartValue(QVariant::fromValue(initialPos));
-    smoothMove1->setEndValue(QVariant::fromValue(startPosition));
+    smoothMove1->setStartValue(QVariant::fromValue(initialView));
+    smoothMove1->setEndValue(QVariant::fromValue(dof1));
 
     QPropertyAnimation *smoothMove2 = new QPropertyAnimation(cameraWrapper, "dof4");
     smoothMove2->setDuration(9000);
@@ -143,14 +143,14 @@ inline QSequentialAnimationGroup *getRoute1Tour(CameraWrapper *cameraWrapper){
     smoothMove2->setKeyValueAt(0.9, dof6);
     smoothMove2->setKeyValueAt(1, dof1);
 
-    QPropertyAnimation *smoothMove3 = new QPropertyAnimation(cameraWrapper, "position");
+    QPropertyAnimation *smoothMove3 = new QPropertyAnimation(cameraWrapper, "dof4");
     smoothMove3->setDuration(2000);
-    smoothMove3->setStartValue(QVariant::fromValue(startPosition));
-    smoothMove3->setEndValue(QVariant::fromValue(initialPos));
-    if((initialPos - startPosition).length() > 1e-1)
+    smoothMove3->setStartValue(QVariant::fromValue(dof1));
+    smoothMove3->setEndValue(QVariant::fromValue(initialView));
+    if((initialView - dof1).length() > 1e-1)
         tour1->addAnimation(smoothMove1);
     tour1->addAnimation(smoothMove2);
-    if((initialPos - startPosition).length() > 1e-1)
+    if((initialView - dof1).length() > 1e-1)
         tour1->addAnimation(smoothMove3);
     return tour1;
 }
@@ -373,7 +373,7 @@ inline void setupControlPanel(QVBoxLayout *vLayout, QWidget *mainWindow, General
     // Bookmarked view
     QHBoxLayout *hLayoutBookmark = new QHBoxLayout(mainWindow);
     QLabel *bookmarkTip = new QLabel("Bookmarks", mainWindow);
-    QComboBox *bookmarkedView = new QComboBox(mainWindow);
+    bookmarkedView = new QComboBox(mainWindow);
     QPushButton *addViewBtn = new QPushButton("Add", mainWindow);
     bookmarkedView->setMaximumSize(QSize(100, 25));
     addViewBtn->setMaximumSize(QSize(50,25));
@@ -402,9 +402,7 @@ inline void setupControlPanel(QVBoxLayout *vLayout, QWidget *mainWindow, General
     vLayout->addWidget(quickVisitBox);
 
     QObject::connect(viewAllBtn, &QPushButton::clicked, cameraWrapper, &CameraWrapper::viewAll);
-    QObject::connect(initialViewBtn, &QPushButton::clicked, [cameraWrapper, sliderYaw, sliderPitch, sliderRoll, sliderLat, sliderLng, sliderScale]{
-        sliderYaw->setValue(180);
-        sliderPitch->setValue(0);
+    QObject::connect(initialViewBtn, &QPushButton::clicked, [cameraWrapper, sliderRoll, sliderLat, sliderLng, sliderScale]{
         sliderRoll->setValue(0);
         sliderLat->setValue(0);
         sliderLng->setValue(0);
@@ -412,8 +410,8 @@ inline void setupControlPanel(QVBoxLayout *vLayout, QWidget *mainWindow, General
         cameraWrapper->resetCameraView();
     });
     QObject::connect(frontViewBtn, &QPushButton::clicked, cameraWrapper,
-                     [cameraWrapper, sliderYaw, sliderPitch, sliderRoll, sliderLat, sliderLng](){
-        QVector4D dof4 = QVector4D(0, 0, 0, 180);
+                     [cameraWrapper, sliderScale, sliderRoll, sliderLat, sliderLng](){
+        QVector4D dof4 = QVector4D(sliderScale->value(), 0, 0, 0);
         QPropertyAnimation *smoothMove = new QPropertyAnimation(cameraWrapper, "dof4");
         smoothMove->setDuration(500);
         smoothMove->setStartValue(QVariant::fromValue(cameraWrapper->customView()));
@@ -422,13 +420,11 @@ inline void setupControlPanel(QVBoxLayout *vLayout, QWidget *mainWindow, General
         cameraWrapper->setCustomView(dof4);
         sliderLat->setValue(0);
         sliderLng->setValue(0);
-        sliderPitch->setValue(0);
-        sliderYaw->setValue(180);
         sliderRoll->setValue(0);
     });
     QObject::connect(leftViewBtn, &QPushButton::clicked,
-                     [cameraWrapper, sliderYaw, sliderPitch, sliderRoll, sliderLat, sliderLng](){
-        QVector4D dof4 = QVector4D(0, -90, 0, 90);
+                     [cameraWrapper, sliderScale, sliderRoll, sliderLat, sliderLng](){
+        QVector4D dof4 = QVector4D(sliderScale->value(), 0, -90, 0);
         QPropertyAnimation *smoothMove = new QPropertyAnimation(cameraWrapper, "dof4");
         smoothMove->setDuration(500);
         smoothMove->setStartValue(QVariant::fromValue(cameraWrapper->customView()));
@@ -437,13 +433,11 @@ inline void setupControlPanel(QVBoxLayout *vLayout, QWidget *mainWindow, General
         cameraWrapper->setCustomView(dof4);
         sliderLat->setValue(0);
         sliderLng->setValue(270);
-        sliderPitch->setValue(0);
-        sliderYaw->setValue(90);
         sliderRoll->setValue(0);
     });
     QObject::connect(topViewBtn, &QPushButton::clicked,
-                     [cameraWrapper, sliderYaw, sliderPitch, sliderRoll, sliderLat, sliderLng](){
-        QVector4D dof4 = QVector4D(90, 0, -90, 180);
+                     [cameraWrapper, sliderRoll, sliderLat, sliderLng, sliderScale](){
+        QVector4D dof4 = QVector4D(sliderScale->value(), 90, 0, 0);
         QPropertyAnimation *smoothMove = new QPropertyAnimation(cameraWrapper, "dof4");
         smoothMove->setDuration(500);
         smoothMove->setStartValue(QVariant::fromValue(cameraWrapper->customView()));
@@ -452,15 +446,13 @@ inline void setupControlPanel(QVBoxLayout *vLayout, QWidget *mainWindow, General
         cameraWrapper->setCustomView(dof4);
         sliderLat->setValue(90);
         sliderLng->setValue(0);
-        sliderPitch->setValue(-90);
-        sliderYaw->setValue(180);
         sliderRoll->setValue(0);
     });
     QObject::connect(tourBtn, &QPushButton::clicked, [cameraWrapper](){
         QAnimationGroup *aniGroup = getRoute1Tour(cameraWrapper);
         aniGroup->start();
     });
-    QObject::connect(addViewBtn, &QPushButton::clicked, [cameraWrapper, bookmarkedView](){
+    QObject::connect(addViewBtn, &QPushButton::clicked, [cameraWrapper](){
         QVector<float> currentView = cameraWrapper->fullCustomView();
         if((!(bookmarkedViewls.empty()) && currentView[3] != bookmarkedViewls.last()[3]
             && currentView[1] != bookmarkedViewls.last()[1]
@@ -468,7 +460,7 @@ inline void setupControlPanel(QVBoxLayout *vLayout, QWidget *mainWindow, General
             ) || bookmarkedViewls.empty())
             bookmarkedView->addItem(QString("view") + QString::number(bookmarkedViewls.size()));
             bookmarkedViewls.push_back(currentView);
-            qInfo() << "cliked";
+            qInfo() << "clicked";
         });
     QObject::connect(bookmarkedView, QOverload<int>::of(&QComboBox::currentIndexChanged),
     [cameraWrapper, sliderScale, sliderYaw, sliderPitch, sliderRoll, sliderLat, sliderLng](int index)
@@ -497,6 +489,66 @@ inline void setupControlPanel(QVBoxLayout *vLayout, QWidget *mainWindow, General
     QObject::connect(cameraWrapper, &CameraWrapper::positionChanged, [bookmarkedView](){
         bookmarkedView->setCurrentIndex(0);
     });*/
+}
+
+void setupText(Qt3DCore::QEntity *rootEntity){
+
+    QColor qColor = QColor(147, 147, 147, 147);
+    Qt3DExtras::QExtrudedTextMesh *textMesh1 = new Qt3DExtras::QExtrudedTextMesh();
+    textMesh1->setObjectName("Z+");
+    textMesh1->setText("Z+");
+    GeneralMeshModel *textModel1 = new GeneralMeshModel(rootEntity, textMesh1);
+    textModel1->translateMesh(QVector3D(0.0f, 0.0f, 5.0f));
+    textModel1->scaleMesh(QVector3D(1.0f, 1.0f, 0.2f));
+    textModel1->enablePickAll(false);
+    textModel1->setColor(qColor);
+
+    Qt3DExtras::QExtrudedTextMesh *textMesh2 = new Qt3DExtras::QExtrudedTextMesh();
+    textMesh2->setObjectName("Z-");
+    textMesh2->setText("Z-");
+    GeneralMeshModel *textModel2 = new GeneralMeshModel(rootEntity, textMesh2);
+    textModel2->translateMesh(QVector3D(0.0f, 0.0f, -5.0f));
+    textModel2->scaleMesh(QVector3D(1.0f, 1.0f, 0.2f));
+    textModel2->enablePickAll(false);
+    textModel2->setColor(qColor);
+
+
+    Qt3DExtras::QExtrudedTextMesh *textMesh3 = new Qt3DExtras::QExtrudedTextMesh();
+    textMesh3->setObjectName("Y+");
+    textMesh3->setText("Y+");
+    GeneralMeshModel *textModel3 = new GeneralMeshModel(rootEntity, textMesh3);
+    textModel3->translateMesh(QVector3D(0.0f, 5.0f, 0.0f));
+    textModel3->scaleMesh(QVector3D(1.0f, 1.0f, 0.2f));
+    textModel3->enablePickAll(false);
+    textModel3->setColor(qColor);
+
+    Qt3DExtras::QExtrudedTextMesh *textMesh4 = new Qt3DExtras::QExtrudedTextMesh();
+    textMesh4->setObjectName("Y-");
+    textMesh4->setText("Y-");
+    GeneralMeshModel *textModel4 = new GeneralMeshModel(rootEntity, textMesh4);
+    textModel4->translateMesh(QVector3D(0.0f, -5.0f, 0.0f));
+    textModel4->scaleMesh(QVector3D(1.0f, 1.0f, 0.2f));
+    textModel4->enablePickAll(false);
+    textModel4->setColor(qColor);
+
+
+    Qt3DExtras::QExtrudedTextMesh *textMesh5 = new Qt3DExtras::QExtrudedTextMesh();
+    textMesh5->setObjectName("X+");
+    textMesh5->setText("X+");
+    GeneralMeshModel *textModel5 = new GeneralMeshModel(rootEntity, textMesh5);
+    textModel5->translateMesh(QVector3D(5.0f, 0.0f, 0.0f));
+    textModel5->scaleMesh(QVector3D(1.0f, 1.0f, 0.2f));
+    textModel5->enablePickAll(false);
+    textModel5->setColor(qColor);
+
+    Qt3DExtras::QExtrudedTextMesh *textMesh6 = new Qt3DExtras::QExtrudedTextMesh();
+    textMesh6->setObjectName("X-");
+    textMesh6->setText("X-");
+    GeneralMeshModel *textModel6 = new GeneralMeshModel(rootEntity, textMesh6);
+    textModel6->translateMesh(QVector3D(-5.0f, 0.0f, 0.0f));
+    textModel6->scaleMesh(QVector3D(1.0f, 1.0f, 0.2f));
+    textModel6->enablePickAll(false);
+    textModel6->setColor(qColor);
 }
 
 int main(int argc, char **argv){
@@ -595,10 +647,12 @@ int main(int argc, char **argv){
     textModel2->scaleMesh(QVector3D(1.0f, 1.0f, 0.2f));
     textModel2->enablePickAll(false);*/
 
-    cylinerModel->add_subModel(cuboidModel1);
-    cylinerModel->add_subModel(cuboidModel2);
-    cuboidModel1->add_subModel(cuboidModel3);
-    cuboidModel2->add_subModel(sphereModel);
+    cylinerModel->addSubModel(cuboidModel1);
+    cylinerModel->addSubModel(cuboidModel2);
+    cuboidModel1->addSubModel(cuboidModel3);
+    cuboidModel2->addSubModel(sphereModel);
+
+    setupText(rootEntity);
     // Create detector mesh model
     // Mesh shape and properties
   /*  Qt3DRender::QMesh *mesh = new Qt3DRender::QMesh();

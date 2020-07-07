@@ -23,7 +23,7 @@ void CameraWrapper::resetCameraView(){
     m_camera->setPosition(QVector3D(0, 0, init_distanceToOrigin));
     m_camera->setUpVector(QVector3D(0, 1, 0));
     m_camera->setViewCenter(QVector3D(0, 0, 0));
-    m_distanceToOrigin = init_distanceToOrigin;
+    m_radius = init_distanceToOrigin;
     m_latitude = 0;
     m_longitude = 0;
     m_pitch = 0;
@@ -41,22 +41,33 @@ void CameraWrapper::setCoordinateCenter(int index){
 }
 
 void CameraWrapper::setCustomView(QVector4D dof4){
-    m_latitude = qDegreesToRadians((float)dof4[0]);
-    m_longitude = qDegreesToRadians((float)dof4[1]);
-    m_pitch = qDegreesToRadians((float)dof4[2]);
-    m_yaw = qDegreesToRadians((float)dof4[3]);
-    m_roll = 0.0f;
+    m_radius = dof4[0];
+    m_latitude = qDegreesToRadians((float)dof4[1]);
+    m_longitude = qDegreesToRadians((float)dof4[2]);
+    m_pitch = -m_latitude;
+    m_yaw = m_longitude + M_PI;
+    m_roll = qDegreesToRadians((float)dof4[3]);
     sphericalToPosition();
     sphericalToDirection();
 }
 
 const QVector4D CameraWrapper::customView(){
-     return QVector4D(int(qRadiansToDegrees(m_latitude)), int(qRadiansToDegrees(m_longitude)),
-                      int(qRadiansToDegrees(m_pitch)), int(qRadiansToDegrees(m_yaw)));
+     return QVector4D(m_radius, int(qRadiansToDegrees(m_latitude)), int(qRadiansToDegrees(m_longitude)),
+                      int(qRadiansToDegrees(m_roll)));
+}
+
+void CameraWrapper::setFullCustomView(const QVector<float> fullView){
+    m_radius = int(fullView[0]);
+    m_latitude = fullView[1];
+    m_longitude = fullView[2];
+    m_pitch = fullView[3];
+    m_yaw = fullView[4];
+    m_roll = fullView[5];
+    m_bias = QVector3D(fullView[6], fullView[7], fullView[8]);
 }
 
 const QVector<float> CameraWrapper::fullCustomView(){
-     return QVector<float>{float(m_distanceToOrigin), qRadiansToDegrees(m_latitude), qRadiansToDegrees(m_longitude),
+     return QVector<float>{float(m_radius), qRadiansToDegrees(m_latitude), qRadiansToDegrees(m_longitude),
                       qRadiansToDegrees(m_pitch), qRadiansToDegrees(m_yaw), qRadiansToDegrees(m_roll),
                       m_bias[0], m_bias[1], m_bias[2]};
 }
@@ -101,15 +112,15 @@ void CameraWrapper::translatePosRad(int radius){
     // prevent divided by zero later
     //QVector3D position = m_camera -> position();
     //m_camera->setPosition(position * radius / m_distanceToOrigin);
-    m_distanceToOrigin = radius;
+    m_radius = radius;
     sphericalToPosition();
 }
 
 void CameraWrapper::translateView(QVector3D bias, int scale){
     m_bias = bias;
     if(scale != 0 && m_camera->projectionType() == Qt3DRender::QCameraLens::PerspectiveProjection){
-        m_distanceToOrigin = 10 * scale;
-        QVector3D endPos = m_distanceToOrigin*(-m_camera->viewVector()).normalized() + bias;
+        m_radius = 10 * scale;
+        QVector3D endPos = m_radius*(-m_camera->viewVector()).normalized() + bias;
         QPropertyAnimation *smoothMove = new QPropertyAnimation(this, "position");
         smoothMove->setDuration(500);
         smoothMove->setStartValue(m_camera->position());
@@ -129,7 +140,7 @@ void CameraWrapper::setViewCenter(QVector3D viewCenter){
 }
 
 void CameraWrapper::setPosition(QVector3D pos){
-    m_distanceToOrigin = (m_camera->position() - m_camera->viewCenter()).length();
+    m_radius = (m_camera->position() - m_camera->viewCenter()).length();
     m_camera->setPosition(pos);
 }
 
@@ -159,9 +170,9 @@ void CameraWrapper::rotateViewPitch(int pitch){
 }
 
 void CameraWrapper::sphericalToPosition(){
-    float y = m_distanceToOrigin * qSin(m_latitude);
-    float x = m_distanceToOrigin * qCos(m_latitude) * qSin(m_longitude);
-    float z = m_distanceToOrigin * qCos(m_latitude) * qCos(m_longitude);
+    float y = m_radius * qSin(m_latitude);
+    float x = m_radius * qCos(m_latitude) * qSin(m_longitude);
+    float z = m_radius * qCos(m_latitude) * qCos(m_longitude);
     if(m_center == LOCAL_CENTER)
         m_camera -> setPosition(m_bias + QVector3D(x, y, z));
     else{
@@ -181,7 +192,7 @@ void CameraWrapper::sphericalToDirection(){
     float x = qCos(m_pitch) * qSin(m_yaw);
     float z = qCos(m_pitch) * qCos(m_yaw);
     QVector3D viewDirection = QVector3D(x, y, z);
-    QVector3D viewCenter = m_camera->position() + m_distanceToOrigin * viewDirection;
+    QVector3D viewCenter = m_camera->position() + m_radius * viewDirection;
     m_camera->setViewCenter(viewCenter);
 
     x = qCos(m_roll);

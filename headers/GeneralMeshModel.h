@@ -26,9 +26,9 @@ class GeneralMeshModel: public QObject{
 public:
     explicit GeneralMeshModel(Qt3DCore::QEntity *rootEntity, Qt3DRender::QGeometryRenderer *mesh);
     ~GeneralMeshModel();
-    void add_subModel(GeneralMeshModel *subModel);
-    void add_parentModel(GeneralMeshModel *parentModel);
-
+    void addSubModel(GeneralMeshModel *subModel);
+    void addParentModel(GeneralMeshModel *parentModel);
+    void setColor(QColor color);
 signals:
     void mouseEnter(QString tip);
 

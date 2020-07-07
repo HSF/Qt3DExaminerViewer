@@ -40,12 +40,16 @@ GeneralMeshModel::GeneralMeshModel(Qt3DCore::QEntity *rootEntity, Qt3DRender::QG
 GeneralMeshModel::~GeneralMeshModel(){
 }
 
-void GeneralMeshModel::add_subModel(GeneralMeshModel *subModel){
+void GeneralMeshModel::setColor(QColor color){
+    m_meshMaterial->setDiffuse(color);
+};
+
+void GeneralMeshModel::addSubModel(GeneralMeshModel *subModel){
     m_subModels.push_back(subModel);
-    subModel->add_parentModel(this);
+    subModel->addParentModel(this);
 }
 
-void GeneralMeshModel::add_parentModel(GeneralMeshModel *parentModel){
+void GeneralMeshModel::addParentModel(GeneralMeshModel *parentModel){
     m_parentModel = parentModel;
 }
 
