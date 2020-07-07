@@ -7,7 +7,9 @@
 
 MainWindow::MainWindow(): Qt3DExtras::Qt3DWindow(){
 }
-
+MainWindow::~MainWindow(){
+   qInfo()<<"windows is closed";
+}
 void MainWindow::resizeEvent(QResizeEvent* event)
 {
    Qt3DExtras::Qt3DWindow::resizeEvent(event);
@@ -23,8 +25,7 @@ void MainWindow::mousePressEvent(QMouseEvent *event){
     Qt3DExtras::Qt3DWindow::mousePressEvent(event);
 }
 
-void MainWindow::keyPressEvent(QKeyEvent *event)
-{
+void MainWindow::keyPressEvent(QKeyEvent *event){
     switch (event->key()) {
     case Qt::Key_X:
         qInfo()<<"Key X is pressed";
@@ -33,3 +34,4 @@ void MainWindow::keyPressEvent(QKeyEvent *event)
         break;
     }
 }
+
