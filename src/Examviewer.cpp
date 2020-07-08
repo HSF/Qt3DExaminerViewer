@@ -95,7 +95,7 @@ QSequentialAnimationGroup *ExamViewer::getRoute1Tour(){
 
     QVector4D initialView = m_cameraWrapper->customView();
     QPropertyAnimation *smoothMove1 = new QPropertyAnimation(m_cameraWrapper, "dof4");
-    smoothMove1->setDuration(2000);
+    smoothMove1->setDuration(1000);
     smoothMove1->setStartValue(QVariant::fromValue(initialView));
     smoothMove1->setEndValue(QVariant::fromValue(dof1));
 
@@ -110,7 +110,7 @@ QSequentialAnimationGroup *ExamViewer::getRoute1Tour(){
     smoothMove2->setKeyValueAt(1, dof1);
 
     QPropertyAnimation *smoothMove3 = new QPropertyAnimation(m_cameraWrapper, "dof4");
-    smoothMove3->setDuration(2000);
+    smoothMove3->setDuration(1000);
     smoothMove3->setStartValue(QVariant::fromValue(dof1));
     smoothMove3->setEndValue(QVariant::fromValue(initialView));
     if((initialView - dof1).length() > 1e-1)
@@ -261,15 +261,15 @@ void ExamViewer::setupControlPanel(QVBoxLayout *vLayout, QWidget *mainWindow){
     labelRollTicks->setMaximumHeight(8);
 
     QVBoxLayout *directionControlLayout = new QVBoxLayout(mainWindow);
+    directionControlLayout->addLayout(hLayoutRoll);
+    directionControlLayout->addWidget(sliderRoll);
+    directionControlLayout->addWidget(labelRollTicks);
     directionControlLayout->addLayout(hLayoutYaw);
     directionControlLayout->addWidget(sliderYaw);
     directionControlLayout->addWidget(labelYawTicks);
     directionControlLayout->addLayout(hLayoutPitch);
     directionControlLayout->addWidget(sliderPitch);
     directionControlLayout->addWidget(labelPitchTicks);
-    directionControlLayout->addLayout(hLayoutRoll);
-    directionControlLayout->addWidget(sliderRoll);
-    directionControlLayout->addWidget(labelRollTicks);
     QWidget *directionControl = new QWidget(mainWindow);
     directionControl->setLayout(directionControlLayout);
     directionControl->setFixedSize(230, 260);
@@ -324,7 +324,7 @@ void ExamViewer::setupControlPanel(QVBoxLayout *vLayout, QWidget *mainWindow){
 
     // Predefined view
     QGridLayout *hLayoutPredefinedView = new QGridLayout(mainWindow);
-    QLabel *tipView = new QLabel("Quick visit", mainWindow);
+    QLabel *tipView = new QLabel("Predef View", mainWindow);
     QPushButton *initialViewBtn = new QPushButton("initial", mainWindow);
     initialViewBtn->setMaximumSize(QSize(70, 25));
     QPushButton *viewAllBtn = new QPushButton("view all", mainWindow);
@@ -435,19 +435,17 @@ void ExamViewer::setupControlPanel(QVBoxLayout *vLayout, QWidget *mainWindow){
             qInfo() << "clicked";
         });
     QObject::connect(bookmarkedView, QOverload<int>::of(&QComboBox::currentIndexChanged),
-    [this, sliderScale, sliderYaw, sliderPitch, sliderRoll, sliderLat, sliderLng](int index)
+    [this, sliderScale, sliderRoll, sliderLat, sliderLng](int index)
     {
     if(index==0) return;
     QVector<float> dof6 = bookmarkedViewls.at(index-1);
-    QVector4D dof4 = QVector4D(dof6[1], dof6[2], dof6[3], dof6[4]);
+    QVector4D dof4 = QVector4D(dof6[0], dof6[1], dof6[2], dof6[5]);
     QVector3D bias = QVector3D(dof6[6], dof6[7], dof6[8]);
     m_cameraWrapper->setViewCenter(bias);
     m_cameraWrapper->setCustomView(dof4);
     sliderScale->setValue(dof6[0]);
     sliderLat->setValue(dof6[1]);
     sliderLng->setValue(dof6[2]);
-    sliderPitch->setValue(dof6[3]);
-    sliderYaw->setValue(dof6[4]);
     sliderRoll->setValue(dof6[5]);
     });
     /*

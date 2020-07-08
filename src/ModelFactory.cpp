@@ -76,33 +76,33 @@ GeneralMeshModel *ModelFactory::buildVolume(){
     GeneralMeshModel *cylinderModel = new GeneralMeshModel(m_rootEntity, meshCyliner);
     cylinderModel->translateMesh(QVector3D(0.0f, 0.0f, 0.0f));
     cylinderModel->rotateMesh(Qt3DCore::QTransform::fromEulerAngles(90.0,0,0));
-    cylinderModel->scaleMesh(QVector3D(2,4,2));
+    cylinderModel->scaleMesh(QVector3D(2,5,2));
 
     Qt3DExtras::QCuboidMesh *meshBox1 = new Qt3DExtras::QCuboidMesh();
     meshBox1->setObjectName(QString("Muon \n"));
     meshBox1->setProperty("maxLength", 2);
     GeneralMeshModel *cuboidModel1 = new GeneralMeshModel(m_rootEntity, meshBox1);
-    cuboidModel1->translateMesh(QVector3D(0.0f, 0.0f, 1.0f));
+    cuboidModel1->translateMesh(QVector3D(0.0f, 0.0f, 1.5f));
     cuboidModel1->scaleMesh(QVector3D(2,2,2));
 
     Qt3DExtras::QCuboidMesh *meshBox2 = new Qt3DExtras::QCuboidMesh();
     meshBox2->setObjectName(QString("Calorimeter \n"));
     meshBox2->setProperty("maxLength", 2);
     GeneralMeshModel *cuboidModel2 = new GeneralMeshModel(m_rootEntity, meshBox2);
-    cuboidModel2->translateMesh(QVector3D(0.0f, 0.0f, -1.0f));
+    cuboidModel2->translateMesh(QVector3D(0.0f, 0.0f, -1.5f));
     cuboidModel2->scaleMesh(QVector3D(2,2,2));
 
     Qt3DExtras::QCuboidMesh *meshBox3 = new Qt3DExtras::QCuboidMesh();
     meshBox3->setObjectName(QString("one daughter of Muon"));
     meshBox3->setProperty("maxLength", 1);
     GeneralMeshModel *cuboidModel3 = new GeneralMeshModel(m_rootEntity, meshBox3);
-    cuboidModel3->translateMesh(QVector3D(0.0f, 0.0f, 1.0f));
+    cuboidModel3->translateMesh(QVector3D(0.0f, 0.0f, 1.5f));
 
     Qt3DExtras::QSphereMesh *meshSphere = new Qt3DExtras::QSphereMesh();
     meshSphere->setObjectName(QString("one daughter of Calorimeter"));
     meshSphere->setProperty("maxLength", 1);
     GeneralMeshModel *sphereModel = new GeneralMeshModel(m_rootEntity, meshSphere);
-    sphereModel->translateMesh(QVector3D(0.0f, 0.0f, -1.0f));
+    sphereModel->translateMesh(QVector3D(0.0f, 0.0f, -1.5f));
 
     cylinderModel->addSubModel(cuboidModel1);
     cylinderModel->addSubModel(cuboidModel2);
