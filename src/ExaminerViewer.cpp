@@ -1,4 +1,4 @@
-#include "headers/Examviewer.h"
+#include "headers/ExaminerViewer.h"
 #include <QSettings>
 #include <QVector4D>
 #include <QPropertyAnimation>
@@ -16,11 +16,11 @@ QCommandLinkButton *info;
 QComboBox *bookmarkedView;
 QVector<QVector<float>> bookmarkedViewls;
 
-ExamViewer::ExamViewer(GeneralMeshModel *cylinderModel, CameraWrapper *m_cameraWrapper)
+ExaminerViewer::ExaminerViewer(GeneralMeshModel *cylinderModel, CameraWrapper *m_cameraWrapper)
     : m_cylinderModel(cylinderModel),  m_cameraWrapper(m_cameraWrapper){
 }
 
-void ExamViewer::setUpSliderController(QLabel *label, QSlider *slider, QString tip, int initalPos){
+void ExaminerViewer::setUpSliderController(QLabel *label, QSlider *slider, QString tip, int initalPos){
     //Setup a label
     label->setText(tip);
     label->setGeometry(10, 120, 210, 15);
@@ -37,7 +37,7 @@ void ExamViewer::setUpSliderController(QLabel *label, QSlider *slider, QString t
     slider->setTickInterval(10);
 }
 
-void ExamViewer::setUpInfoWindow(){
+void ExaminerViewer::setUpInfoWindow(){
     info = new QCommandLinkButton();
     info->setText(QStringLiteral("Info windows:"));
     info->setDescription(TIPS);
@@ -47,7 +47,7 @@ void ExamViewer::setUpInfoWindow(){
     info->setFont(QFont ("Courier", 12));
 }
 
-void ExamViewer::setUpVolumePanel(QVBoxLayout *vLayout, QWidget *mainWindow){
+void ExaminerViewer::setUpVolumePanel(QVBoxLayout *vLayout, QWidget *mainWindow){
     // Control visibility of Volume
     QGroupBox *volBox = new QGroupBox("Volume Control", mainWindow);
     QVBoxLayout *volLy = new QVBoxLayout(mainWindow);
@@ -83,7 +83,7 @@ void ExamViewer::setUpVolumePanel(QVBoxLayout *vLayout, QWidget *mainWindow){
                       m_cylinderModel->enablePickAll(!clicked); });
 }
 
-QSequentialAnimationGroup *ExamViewer::getRoute1Tour(){
+QSequentialAnimationGroup *ExaminerViewer::getRoute1Tour(){
     QSequentialAnimationGroup *tour1 = new QSequentialAnimationGroup();
     int radius = m_cameraWrapper->init_distanceToOrigin-5;
     QVector4D dof1 = QVector4D(m_cameraWrapper->init_distanceToOrigin-5, 0, 0, 0);
@@ -121,7 +121,7 @@ QSequentialAnimationGroup *ExamViewer::getRoute1Tour(){
     return tour1;
 }
 
-void ExamViewer::setupControlPanel(QVBoxLayout *vLayout, QWidget *mainWindow){
+void ExaminerViewer::setupControlPanel(QVBoxLayout *vLayout, QWidget *mainWindow){
     /************ Info window ******************/
     // Create a info window to display mesh properties
     setUpInfoWindow();

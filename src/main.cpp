@@ -1,8 +1,8 @@
 #include "headers/CameraWrapper.h"
 #include "headers/GeneralMeshModel.h"
-#include "headers/Mainwindow.h"
+#include "headers/MainWindow.h"
 #include "headers/ModelFactory.h"
-#include "headers/ExamViewer.h"
+#include "headers/ExaminerViewer.h"
 
 #include <QtMath>
 #include <QApplication>
@@ -75,10 +75,6 @@ int main(int argc, char **argv){
     // Light source
     Qt3DCore::QEntity *lightEntity = new Qt3DCore::QEntity(rootEntity);
     setUpLight(lightEntity, cameraEntity->position());
-    QObject::connect(cameraEntity, &Qt3DRender::QCamera::positionChanged, lightEntity, [lightEntity,cameraEntity](){
-        Qt3DCore::QTransform* transform = (Qt3DCore::QTransform*)lightEntity->componentsOfType<Qt3DCore::QTransform>()[0];
-        transform -> setTranslation(cameraEntity->position());
-    });
 
     // volume picking setting
     Qt3DRender::QPickingSettings *settings = new Qt3DRender::QPickingSettings();
@@ -86,10 +82,19 @@ int main(int argc, char **argv){
 
     // Create mesh model
     ModelFactory *builder = new ModelFactory(rootEntity);
-    builder->build3DText();
+    GeneralMeshModel** textList = builder->build3DText();
     GeneralMeshModel *cylinderModel = builder->buildVolume();
 
-    ExamViewer *viewer = new ExamViewer(cylinderModel, cameraWrapper);
+    QObject::connect(cameraEntity, &Qt3DRender::QCamera::positionChanged, lightEntity, [lightEntity,cameraEntity,textList](){
+        Qt3DCore::QTransform* transform = (Qt3DCore::QTransform*)lightEntity->componentsOfType<Qt3DCore::QTransform>()[0];
+        transform -> setTranslation(cameraEntity->position());
+        QQuaternion viewDir = cameraEntity->transform()->rotation();
+        for(int i = 0; i < 6; i++){
+            textList[i]->rotateMesh(viewDir);
+        }
+    });
+
+    ExaminerViewer *viewer = new ExaminerViewer(cylinderModel, cameraWrapper);
     viewer->setupControlPanel(vLayout, mainWindow);
 
     // Show window
