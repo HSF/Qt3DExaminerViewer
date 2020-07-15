@@ -8,7 +8,7 @@
 ModelFactory::ModelFactory(Qt3DCore::QEntity *rootEntity): m_rootEntity(rootEntity){
 }
 
-void ModelFactory::build3DText(){
+GeneralMeshModel **ModelFactory::build3DText(){
 
     QColor qColor = QColor(147, 147, 147, 147);
     Qt3DExtras::QExtrudedTextMesh *textMesh1 = new Qt3DExtras::QExtrudedTextMesh();
@@ -66,6 +66,14 @@ void ModelFactory::build3DText(){
     textModel6->scaleMesh(QVector3D(1.0f, 1.0f, 0.2f));
     textModel6->enablePickAll(false);
     textModel6->setColor(qColor);
+    GeneralMeshModel **textList = new GeneralMeshModel*[6];
+    textList[0] = textModel1;
+    textList[1] = textModel2;
+    textList[2] = textModel3;
+    textList[3] = textModel4;
+    textList[4] = textModel5;
+    textList[5] = textModel6;
+    return textList;
 }
 
 GeneralMeshModel *ModelFactory::buildVolume(){
@@ -108,7 +116,7 @@ GeneralMeshModel *ModelFactory::buildVolume(){
     cylinderModel->addSubModel(cuboidModel2);
     cuboidModel1->addSubModel(cuboidModel3);
     cuboidModel2->addSubModel(sphereModel);
-    /*  Qt3DRender::QMesh *mesh = new Qt3DRender::QMesh();
+    /*Qt3DRender::QMesh *mesh = new Qt3DRender::QMesh();
       mesh->setSource(QUrl("qrc:/mesh/TrackML-PixelDetector.obj"));
       mesh->setObjectName(QString("ATLAS detector volume"));
       mesh->setProperty("Vertices", QVariant(37216));

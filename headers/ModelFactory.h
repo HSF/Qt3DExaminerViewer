@@ -7,7 +7,7 @@ class ModelFactory
 {
 public:
     ModelFactory(Qt3DCore::QEntity *rootEntity);
-    void build3DText();
+    GeneralMeshModel **build3DText();
     GeneralMeshModel *buildVolume();
 private:
     Qt3DCore::QEntity *m_rootEntity;

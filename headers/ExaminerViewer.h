@@ -7,9 +7,9 @@
 #include <QtWidgets/QSlider>
 #include <QtWidgets/QLabel>
 
-class ExamViewer{
+class ExaminerViewer{
 public:
-    ExamViewer(GeneralMeshModel *cylinerModel, CameraWrapper *cameraWrapper);
+    ExaminerViewer(GeneralMeshModel *cylinerModel, CameraWrapper *cameraWrapper);
     void setupControlPanel(QVBoxLayout *vLayout, QWidget *mainWindow);
 
 private:
