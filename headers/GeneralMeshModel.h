@@ -16,7 +16,10 @@
            "2) CMD/Ctrl + left click to open volume\n" \
            "3) Option/Alt + left click to close volume\n" \
            "4) Shift + left click to focus on clicked surface point\n" \
-           "5) Shift + right click to focus on clicked object volume center")
+           "5) Shift + right click to focus on clicked object volume center\n" \
+           "view mode\n" \
+           "6) Control(Mac) + left click to rotate\n" \
+           "7) Left click to translate view\n")
 
 extern QCommandLinkButton *info;
 extern CameraWrapper *camera;
