@@ -5,6 +5,8 @@
 # Qt-generated Makefiles
 Makefile
 .qmake.stash
+moc_predefs.h
+qrc_resources.cpp
 
 # Prerequisites
 *.d

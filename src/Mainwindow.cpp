@@ -1,4 +1,4 @@
-#include "headers/Mainwindow.h"
+#include "headers/MainWindow.h"
 #include <QDebug>
 #include <QKeyEvent>
 #include <Qt3DInput/QAnalogAxisInput>
