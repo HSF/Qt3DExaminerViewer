@@ -69,7 +69,7 @@ int main(int argc, char **argv){
     CameraWrapper *cameraWrapper = new CameraWrapper(rootEntity, cameraEntity);
     Qt3DExtras::QOrbitCameraController *camController = new Qt3DExtras::QOrbitCameraController(rootEntity);
     cameraWrapper->addCameraController(camController);
-    camController->setCamera(nullptr);
+    //camController->setCamera(nullptr);
     camera = cameraWrapper;
 
     // Light source
@@ -84,14 +84,20 @@ int main(int argc, char **argv){
     ModelFactory *builder = new ModelFactory(rootEntity);
     GeneralMeshModel** textList = builder->build3DText();
     GeneralMeshModel *cylinderModel = builder->buildVolume();
+    cylinderModel->enablePickAll(false);
 
-    QObject::connect(cameraEntity, &Qt3DRender::QCamera::positionChanged, lightEntity, [lightEntity,cameraEntity,textList](){
+    QObject::connect(cameraEntity, &Qt3DRender::QCamera::positionChanged, [lightEntity,cameraEntity,textList](){
         Qt3DCore::QTransform* transform = (Qt3DCore::QTransform*)lightEntity->componentsOfType<Qt3DCore::QTransform>()[0];
         transform -> setTranslation(cameraEntity->position());
-        QQuaternion viewDir = cameraEntity->transform()->rotation();
-        for(int i = 0; i < 6; i++){
-            textList[i]->rotateMesh(viewDir);
-        }
+        //QQuaternion viewDir = cameraEntity->transform()->rotation();
+        //for(int i = 0; i < 6; i++){
+        //    textList[i]->rotateMesh(viewDir);
+        //}
+        qInfo() << "changed camera position";
+    });
+
+    QObject::connect(cameraEntity, &Qt3DRender::QCamera::viewCenterChanged, [cameraWrapper, cameraEntity](){
+        cameraWrapper->setViewCenter(cameraEntity->viewCenter());
     });
 
     ExaminerViewer *viewer = new ExaminerViewer(cylinderModel, cameraWrapper);

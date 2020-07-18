@@ -66,10 +66,8 @@ void CameraWrapper::setFullCustomView(const QVector<float> fullView){
     m_bias = QVector3D(fullView[6], fullView[7], fullView[8]);
 }
 
-const QVector<float> CameraWrapper::fullCustomView(){
-     return QVector<float>{float(m_radius), qRadiansToDegrees(m_latitude), qRadiansToDegrees(m_longitude),
-                      qRadiansToDegrees(m_pitch), qRadiansToDegrees(m_yaw), qRadiansToDegrees(m_roll),
-                      m_bias[0], m_bias[1], m_bias[2]};
+const QVector<QVector3D> CameraWrapper::fullCustomView(){
+     return QVector<QVector3D>{m_camera->upVector(), m_camera->viewCenter(), m_camera->position()};
 }
 
 void CameraWrapper::setProjectiveMode(bool isPerspective){
@@ -173,12 +171,7 @@ void CameraWrapper::sphericalToPosition(){
     float y = m_radius * qSin(m_latitude);
     float x = m_radius * qCos(m_latitude) * qSin(m_longitude);
     float z = m_radius * qCos(m_latitude) * qCos(m_longitude);
-    if(m_center == LOCAL_CENTER)
-        m_camera -> setPosition(m_bias + QVector3D(x, y, z));
-    else{
-        m_camera -> setPosition(QVector3D(x, y, z));
-        m_camera -> setViewCenter(QVector3D(0, 0, 0));
-    }
+    m_camera -> setPosition(m_bias + QVector3D(x, y, z));
 
    /* m_camera -> setViewCenter(QVector3D(0, 0, 0));
     float upVectorY, upVectorX, upVectorZ;
@@ -213,8 +206,8 @@ void CameraWrapper::sphericalToDirection(){
     }
     QVector3D newUpVector = x * extraAxisX + y * extraAxisY;
     m_camera -> setUpVector(newUpVector);
-    qInfo() << "position: " << m_camera -> position();
+    /*qInfo() << "position: " << m_camera -> position();
     qInfo() << "upvector: " << m_camera -> upVector();
     qInfo() << "viewCenter: " << m_camera -> viewCenter();
-    qInfo() << "radius: " << m_radius;
+    qInfo() << "radius: " << m_radius;*/
 }

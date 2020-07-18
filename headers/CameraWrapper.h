@@ -27,7 +27,7 @@ public:
     void addCameraController(Qt3DExtras::QAbstractCameraController *camController);
     void setCustomView(QVector4D dof4);
     const QVector4D customView();
-    const QVector<float> fullCustomView();
+    const QVector<QVector3D> fullCustomView();
     void setFullCustomView(const QVector<float> fullView);
     void setViewCenter(QVector3D viewCenter);
     void setPosition(QVector3D pos);
