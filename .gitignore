@@ -2,6 +2,12 @@
 *.DS_Store
 *.autosave
 
+# Qt-generated Makefiles
+Makefile
+.qmake.stash
+moc_predefs.h
+qrc_resources.cpp
+
 # Prerequisites
 *.d
 
@@ -13,6 +19,9 @@
 # Precompiled Headers
 *.gch
 *.pch
+
+# Qt MOCs
+moc_*.cpp
 
 # Compiled Dynamic libraries
 *.so
