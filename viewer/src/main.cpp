@@ -82,18 +82,17 @@ int main(int argc, char **argv){
 
     // Create mesh model
     ModelFactory *builder = new ModelFactory(rootEntity);
-    GeneralMeshModel** textList = builder->build3DText();
+    builder->build3DText();
     GeneralMeshModel *cylinderModel = builder->buildVolume();
     cylinderModel->enablePickAll(false);
 
-    QObject::connect(cameraEntity, &Qt3DRender::QCamera::positionChanged, [lightEntity,cameraEntity,textList](){
+    QObject::connect(cameraEntity, &Qt3DRender::QCamera::positionChanged, [lightEntity,cameraEntity](){
         Qt3DCore::QTransform* transform = (Qt3DCore::QTransform*)lightEntity->componentsOfType<Qt3DCore::QTransform>()[0];
         transform -> setTranslation(cameraEntity->position());
         //QQuaternion viewDir = cameraEntity->transform()->rotation();
         //for(int i = 0; i < 6; i++){
         //    textList[i]->rotateMesh(viewDir);
         //}
-        qInfo() << "changed camera position";
     });
 
     QObject::connect(cameraEntity, &Qt3DRender::QCamera::viewCenterChanged, [cameraWrapper, cameraEntity](){
