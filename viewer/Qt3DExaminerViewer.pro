@@ -9,6 +9,7 @@ SOURCES += src/main.cpp \
     src/MainWindow.cpp \
     src/ModelFactory.cpp \
     src/ExaminerViewer.cpp
+    ../
 
 HEADERS += \
     headers/CameraWrapper.h \

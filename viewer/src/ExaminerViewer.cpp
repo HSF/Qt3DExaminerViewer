@@ -1,4 +1,4 @@
-#include "headers/ExaminerViewer.h"
+#include "../headers/ExaminerViewer.h"
 #include <QSettings>
 #include <QVector4D>
 #include <QPropertyAnimation>

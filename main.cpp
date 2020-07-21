@@ -1,8 +1,8 @@
-#include "headers/CameraWrapper.h"
-#include "headers/GeneralMeshModel.h"
-#include "headers/MainWindow.h"
-#include "headers/ModelFactory.h"
-#include "headers/ExaminerViewer.h"
+#include "viewer/headers/CameraWrapper.h"
+#include "viewer/headers/GeneralMeshModel.h"
+#include "viewer/headers/MainWindow.h"
+#include "viewer/headers/ModelFactory.h"
+#include "viewer/headers/ExaminerViewer.h"
 
 #include <QtMath>
 #include <QApplication>

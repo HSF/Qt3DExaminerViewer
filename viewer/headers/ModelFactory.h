@@ -1,6 +1,6 @@
 #ifndef MODOLFACTORY_H
 #define MODOLFACTORY_H
-#include "headers/GeneralMeshModel.h"
+#include "GeneralMeshModel.h"
 #include <QEntity>
 
 class ModelFactory

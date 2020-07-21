@@ -1,7 +1,7 @@
 *.user
 *.DS_Store
 *.autosave
-
+build/*
 # Qt-generated Makefiles
 Makefile
 .qmake.stash

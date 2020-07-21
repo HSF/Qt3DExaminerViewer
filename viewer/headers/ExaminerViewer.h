@@ -1,7 +1,7 @@
 #ifndef EXAMVIEWER_H
 #define EXAMVIEWER_H
-#include "headers/CameraWrapper.h"
-#include "headers/GeneralMeshModel.h"
+#include "CameraWrapper.h"
+#include "GeneralMeshModel.h"
 #include <QtWidgets/QVBoxLayout>
 #include <QSequentialAnimationGroup>
 #include <QtWidgets/QSlider>

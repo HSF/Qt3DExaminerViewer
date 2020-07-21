@@ -1,4 +1,4 @@
-#include "headers/GeneralMeshModel.h"
+#include "../headers/GeneralMeshModel.h"
 #include <QGuiApplication>
 #include <QtCore/QDebug>
 #include <QtWidgets/QCommandLinkButton>

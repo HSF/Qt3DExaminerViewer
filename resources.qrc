@@ -1,0 +1,8 @@
+<RCC>
+    <qresource prefix="/mesh">
+        <file>resources/TrackML-PixelDetector.obj</file>
+        <file>resources/left_part.obj</file>
+        <file>resources/middle_part.obj</file>
+        <file>resources/right_part.obj</file>
+    </qresource>
+</RCC>

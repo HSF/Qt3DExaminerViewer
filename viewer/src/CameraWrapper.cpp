@@ -1,4 +1,4 @@
-#include "headers/CameraWrapper.h"
+#include "viewer/headers/CameraWrapper.h"
 #include <QCoreApplication>
 #include <QTime>
 #include <Qt3DCore/qtransform.h>

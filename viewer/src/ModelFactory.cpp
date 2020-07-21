@@ -1,4 +1,4 @@
-#include "headers/ModelFactory.h"
+#include "../headers/ModelFactory.h"
 #include <QColor>
 #include <Qt3DExtras/QCylinderMesh>
 #include <Qt3DExtras/QCuboidMesh>
