@@ -11,6 +11,7 @@ project(GeoLoader)
 
 find_package( GeoModelCore REQUIRED )
 find_package( GeoModelIO REQUIRED )
+find_package (Eigen3 3.3 REQUIRED)
 
 # Set default build options.
 set( CMAKE_BUILD_TYPE "Release" CACHE STRING "CMake build mode to use" )
@@ -29,4 +30,4 @@ set(SRCS geoloader.cpp )
 add_executable( geoloader ${SRCS} )
 
 # Link all needed libraries
-target_link_libraries( geoloader GeoModelDBManager GeoModelRead GeoModelKernel)
+target_link_libraries( geoloader GeoModelDBManager GeoModelRead GeoModelKernel Eigen3)

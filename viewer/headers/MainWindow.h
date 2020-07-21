@@ -3,7 +3,7 @@
 #include <Qt3DRender/QCamera>
 #include <Qt3DExtras/Qt3DWindow>
 #include <Qt3DInput/QLogicalDevice>
-#include <QCloseEvent>
+
 class MainWindow : public Qt3DExtras::Qt3DWindow{
     Q_OBJECT
 public:
