@@ -28,5 +28,7 @@ LIBS += -I$(INSTALL_PATH)/libGeoModelRead.3.2.0.dylib \
         -I$(INSTALL_PATH)/libGeoModelKernel.3.2.0.dylib \
         -I$(INSTALL_PATH)/libGeoGenericFunctions.3.2.0.dylib
 
-INCLUDEPATH += $(EIGEN_PATH) \
+INCLUDEPATH += /usr/local/include/ \
+               /usr/local/include/eigen3
+
 

@@ -26,6 +26,22 @@
 #include <Qt3DExtras/qfirstpersoncameracontroller.h>
 #include <Qt3DExtras/qorbitcameracontroller.h>
 
+// GeoModel includes
+#include <GeoModelDBManager/GMDBManager.h>
+#include <GeoModelRead/ReadGeoModel.h>
+#include <GeoModelKernel/GeoPhysVol.h>
+#include <GeoModelKernel/GeoFullPhysVol.h>
+// GeoModel shapes
+#include <GeoModelKernel/GeoBox.h>
+#include <GeoModelKernel/GeoTube.h>
+#include <GeoModelKernel/GeoTubs.h>
+#include <GeoModelKernel/GeoPcon.h>
+
+// C++ includes
+#include <iostream>
+#include <fstream>
+#include <cstdlib> // EXIT_FAILUR
+
 CameraWrapper *camera;
 
 void setUpLight(Qt3DCore::QEntity *lightEntity, QVector3D position){
