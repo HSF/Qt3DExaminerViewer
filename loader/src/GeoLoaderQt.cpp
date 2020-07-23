@@ -27,12 +27,13 @@ GeoLoaderQt::GeoLoaderQt(Qt3DCore::QEntity *rootEntity): m_rootEntity(rootEntity
 }
 
 GMDBManager* GeoLoaderQt::checkPath(QString path){
+  Q_INIT_RESOURCE(resources);
   std::string pathStd = path.toStdString();
   // check if DB file exists. If not, return.
   std::ifstream infile(path.toStdString().c_str());
   if ( ! infile.good() ) {
       std::cout << "\n\tERROR!! A '" << pathStd << "' file does not exist!! Please, check the path of the input file before running this program. Exiting...";
-      exit(EXIT_FAILURE);
+      //exit(EXIT_FAILURE);
   }
   infile.close();
 

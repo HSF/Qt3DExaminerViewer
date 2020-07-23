@@ -9,6 +9,7 @@
 #include <QApplication>
 #include <QGuiApplication>
 
+#include <QFileDialog>
 #include <QtGui/QScreen>
 #include <QtWidgets/QApplication>
 #include <QtWidgets/QWidget>
@@ -27,21 +28,7 @@
 #include <Qt3DExtras/qfirstpersoncameracontroller.h>
 #include <Qt3DExtras/qorbitcameracontroller.h>
 
-// GeoModel includes
-#include <GeoModelDBManager/GMDBManager.h>
-#include <GeoModelRead/ReadGeoModel.h>
-#include <GeoModelKernel/GeoPhysVol.h>
-#include <GeoModelKernel/GeoFullPhysVol.h>
-// GeoModel shapes
-#include <GeoModelKernel/GeoBox.h>
-#include <GeoModelKernel/GeoTube.h>
-#include <GeoModelKernel/GeoTubs.h>
-#include <GeoModelKernel/GeoPcon.h>
-
-// C++ includes
-#include <iostream>
-#include <fstream>
-#include <cstdlib> // EXIT_FAILUR
+#define DEFAULT_FOLDER "../../../../resources/db/"
 
 CameraWrapper *camera;
 
@@ -59,7 +46,7 @@ void setUpLight(Qt3DCore::QEntity *lightEntity, QVector3D position){
 int main(int argc, char **argv){
 
     QApplication app(argc, argv);
-
+    Q_INIT_RESOURCE(resources);
     // Root entity
     Qt3DCore::QEntity *rootEntity = new Qt3DCore::QEntity();
 
@@ -103,10 +90,14 @@ int main(int argc, char **argv){
     GeneralMeshModel *cylinderModel = builder->buildVolume();
     cylinderModel->enablePickAll(false);
 
-    QString boxPath = QString("/Users/huajian/Qt3DExaminerViewer/loader/data/Step1_Box_Pixel_Brl1926A_BeamExtension.db");
+    QString fileName;
+    fileName = QFileDialog::getOpenFileName(mainWindow, "Open database file", "~/", "Database Files (*.db)");
+    qInfo() << fileName;
+
+    QString boxPath = QString(fileName);
     GeoLoaderQt *loader = new GeoLoaderQt(rootEntity);
     GeneralMeshModel *boxModel = loader->loadCreate(boxPath);
-    //boxModel->enablePickAll(false);
+    boxModel->enablePickAll(false);
 
     QObject::connect(cameraEntity, &Qt3DRender::QCamera::positionChanged, [lightEntity,cameraEntity](){
         Qt3DCore::QTransform* transform = (Qt3DCore::QTransform*)lightEntity->componentsOfType<Qt3DCore::QTransform>()[0];
@@ -127,5 +118,7 @@ int main(int argc, char **argv){
     // Show window
     mainWindow->show();
     mainWindow->resize(1200, 800);
+    cameraEntity->viewAll();
+
     return app.exec();
 }

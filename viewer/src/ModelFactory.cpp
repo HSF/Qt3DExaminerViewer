@@ -117,40 +117,40 @@ GeneralMeshModel *ModelFactory::buildVolume(){
     cuboidModel1->addSubModel(cuboidModel3);
     cuboidModel2->addSubModel(sphereModel);
     /*Qt3DRender::QMesh *mesh = new Qt3DRender::QMesh();
-      mesh->setSource(QUrl("qrc:/mesh/TrackML-PixelDetector.obj"));
-      mesh->setObjectName(QString("ATLAS detector volume"));
-      mesh->setProperty("Vertices", QVariant(37216));
-      mesh->setProperty("Edges", QVariant(58416));
-      mesh->setProperty("Faces", QVariant(29208));
-      GeneralMeshModel *detectorModel = new GeneralMeshModel(rootEntity, mesh);
-      detectorModel->scaleMesh(QVector3D(0.006f, 0.006f, 0.006f));
-        Qt3DRender::QMesh *meshLeft = new Qt3DRender::QMesh();
-         meshLeft->setSource(QUrl("qrc:/mesh/left_part.obj"));
-         meshLeft->setProperty("Vertices", QVariant(3));
-         meshLeft->setProperty("Edges", QVariant(5));
-         meshLeft->setProperty("Faces", QVariant(29));
-         MeshModel *subModelLeft = new MeshModel(rootEntity, meshLeft);
-         subModelLeft->scaleMesh(QVector3D(0.006f, 0.006f, 0.006f));
+    mesh->setSource(QUrl("qrc:///mesh/Detector.obj"));
+    mesh->setObjectName(QString("ATLAS detector volume"));
+    mesh->setProperty("Vertices", QVariant(37216));
+    mesh->setProperty("Edges", QVariant(58416));
+    mesh->setProperty("Faces", QVariant(29208));
+    GeneralMeshModel *detectorModel = new GeneralMeshModel(rootEntity, mesh);
+    detectorModel->scaleMesh(QVector3D(0.006f, 0.006f, 0.006f));
+    Qt3DRender::QMesh *meshLeft = new Qt3DRender::QMesh();
+    meshLeft->setSource(QUrl("qrc:///mesh/left_part.obj"));
+    meshLeft->setProperty("Vertices", QVariant(3));
+    meshLeft->setProperty("Edges", QVariant(5));
+    meshLeft->setProperty("Faces", QVariant(29));
+    MeshModel *subModelLeft = new MeshModel(rootEntity, meshLeft);
+    subModelLeft->scaleMesh(QVector3D(0.006f, 0.006f, 0.006f));
 
-         Qt3DRender::QMesh *meshRight = new Qt3DRender::QMesh();
-         meshRight->setSource(QUrl("qrc:/mesh/right_part.obj"));
-         meshRight->setProperty("Vertices", QVariant(32));
-         meshRight->setProperty("Edges", QVariant(58));
-         meshRight->setProperty("Faces", QVariant(2));
-         MeshModel *subModelRight = new MeshModel(rootEntity, meshRight);
-         subModelRight->scaleMesh(QVector3D(0.006f, 0.006f, 0.006f));
+    Qt3DRender::QMesh *meshRight = new Qt3DRender::QMesh();
+    meshRight->setSource(QUrl("qrc:///mesh/right_part.obj"));
+    meshRight->setProperty("Vertices", QVariant(32));
+    meshRight->setProperty("Edges", QVariant(58));
+    meshRight->setProperty("Faces", QVariant(2));
+    MeshModel *subModelRight = new MeshModel(rootEntity, meshRight);
+    subModelRight->scaleMesh(QVector3D(0.006f, 0.006f, 0.006f));
 
-         Qt3DRender::QMesh *meshMiddle = new Qt3DRender::QMesh();
-         meshMiddle->setSource(QUrl("qrc:/mesh/middle_part.obj"));
-         meshMiddle->setProperty("Vertices", QVariant(16));
-         meshMiddle->setProperty("Edges", QVariant(56));
-         meshMiddle->setProperty("Faces", QVariant(8));
-         MeshModel *subModelMiddle = new MeshModel(rootEntity, meshMiddle);
-         subModelMiddle->scaleMesh(QVector3D(0.006f, 0.006f, 0.006f));
+    Qt3DRender::QMesh *meshMiddle = new Qt3DRender::QMesh();
+    meshMiddle->setSource(QUrl("qrc:///mesh/middle_part.obj"));
+    meshMiddle->setProperty("Vertices", QVariant(16));
+    meshMiddle->setProperty("Edges", QVariant(56));
+    meshMiddle->setProperty("Faces", QVariant(8));
+    MeshModel *subModelMiddle = new MeshModel(rootEntity, meshMiddle);
+    subModelMiddle->scaleMesh(QVector3D(0.006f, 0.006f, 0.006f));
 
-         detectorModel->add_subModel(subModelLeft);
-         detectorModel->add_subModel(subModelRight);
-         //detectorModel->add_subModel(subModelMiddle);
-     */
+    detectorModel->add_subModel(subModelLeft);
+    detectorModel->add_subModel(subModelRight);
+    detectorModel->add_subModel(subModelMiddle);
+    */
     return cylinderModel;
 }

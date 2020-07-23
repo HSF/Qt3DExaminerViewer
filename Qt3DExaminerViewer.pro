@@ -24,8 +24,6 @@ RESOURCES += \
 
 CONFIG += c++17 release
 
-DESTDIR = build/
-
 VERSION = 1.0.0
 
 GMEX_PATH = ~/install/lib
