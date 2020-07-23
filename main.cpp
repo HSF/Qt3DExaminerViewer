@@ -28,6 +28,8 @@
 #include <Qt3DExtras/qfirstpersoncameracontroller.h>
 #include <Qt3DExtras/qorbitcameracontroller.h>
 
+// Please change it according to where you put binary files
+// This path works if you put the "build" folder inside upper level of source
 #define DEFAULT_FOLDER "../../../../resources/db/"
 
 CameraWrapper *camera;
@@ -87,11 +89,11 @@ int main(int argc, char **argv){
     // Create mesh model
     ModelFactory *builder = new ModelFactory(rootEntity);
     builder->build3DText();
-    GeneralMeshModel *cylinderModel = builder->buildVolume();
-    cylinderModel->enablePickAll(false);
+    //GeneralMeshModel *cylinderModel = builder->buildVolume();
+    //cylinderModel->enablePickAll(false);
 
     QString fileName;
-    fileName = QFileDialog::getOpenFileName(mainWindow, "Open database file", "~/", "Database Files (*.db)");
+    fileName = QFileDialog::getOpenFileName(mainWindow, "Open database file", DEFAULT_FOLDER, "Database Files (*.db)");
     qInfo() << fileName;
 
     QString boxPath = QString(fileName);
@@ -99,7 +101,9 @@ int main(int argc, char **argv){
     GeneralMeshModel *boxModel = loader->loadCreate(boxPath);
     boxModel->enablePickAll(false);
 
-    QObject::connect(cameraEntity, &Qt3DRender::QCamera::positionChanged, [lightEntity,cameraEntity](){
+
+    QObject::connect(cameraEntity, &Qt3DRender::QCamera::positionChanged,
+                     [lightEntity,cameraEntity](){
         Qt3DCore::QTransform* transform = (Qt3DCore::QTransform*)lightEntity->componentsOfType<Qt3DCore::QTransform>()[0];
         transform -> setTranslation(cameraEntity->position());
         //QQuaternion viewDir = cameraEntity->transform()->rotation();
@@ -108,17 +112,14 @@ int main(int argc, char **argv){
         //}
     });
 
-    QObject::connect(cameraEntity, &Qt3DRender::QCamera::viewCenterChanged, [cameraWrapper, cameraEntity](){
-        cameraWrapper->setViewCenter(cameraEntity->viewCenter());
-    });
-
-    ExaminerViewer *viewer = new ExaminerViewer(cylinderModel, cameraWrapper);
+    ExaminerViewer *viewer = new ExaminerViewer(boxModel, cameraWrapper);
     viewer->setupControlPanel(vLayout, mainWindow);
 
     // Show window
     mainWindow->show();
     mainWindow->resize(1200, 800);
-    cameraEntity->viewAll();
 
+    cameraEntity->viewAll();
+    cameraWrapper->init_distanceToOrigin = cameraEntity->position()[2];
     return app.exec();
 }

@@ -10,7 +10,7 @@ class CameraWrapper : public QObject{
     Q_PROPERTY(QVector3D position WRITE setPosition)
     Q_PROPERTY(QVector4D dof4 WRITE setCustomView READ customView)
 public:
-    const int init_distanceToOrigin = 20;
+    int init_distanceToOrigin = 20;
     const int GLOBAL_CENTER = 0, LOCAL_CENTER = 1;
 private:
     int m_radius;

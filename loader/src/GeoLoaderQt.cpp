@@ -179,6 +179,7 @@ GeneralMeshModel *GeoLoaderQt::createBox(const GeoShape* shapeIn){
   meshBox->setXExtent(float(2*xHalf));
   meshBox->setYExtent(float(2*yHalf));
   meshBox->setZExtent(float(2*zHalf));
+  meshBox->setObjectName(QString("GeoBox with xHalf:%1, yHalf:%2, zHalf:%3").arg(xHalf).arg(yHalf).arg(zHalf));
   GeneralMeshModel *cuboidModel = new GeneralMeshModel(m_rootEntity, meshBox);
   return cuboidModel;
 }
@@ -193,7 +194,7 @@ GeneralMeshModel *GeoLoaderQt::createTube(const GeoShape* shapeIn){
   const double rMax = shape->getRMax();
   //  Tube half-length in the z direction.
   const double zHalf = shape->getZHalfLength();
-  std::cout << "rMNin: " << rMin << " , rMax: " << rMax << " , zHalf: " << zHalf << std::endl;
+  std::cout << "rMin: " << rMin << " , rMax: " << rMax << " , zHalf: " << zHalf << std::endl;
 
 
   return nullptr;

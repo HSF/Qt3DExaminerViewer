@@ -1,6 +1,7 @@
 #include "../headers/ExaminerViewer.h"
 #include <QSettings>
 #include <QVector4D>
+#include <QtMath>
 #include <QPropertyAnimation>
 #include <QtWidgets/QHBoxLayout>
 #include <QtWidgets/QCheckBox>
@@ -15,6 +16,7 @@
 QCommandLinkButton *info;
 QComboBox *bookmarkedView;
 QVector<QVector<QVector3D>> bookmarkedViewls;
+
 
 ExaminerViewer::ExaminerViewer(GeneralMeshModel *cylinderModel, CameraWrapper *m_cameraWrapper)
     : m_cylinderModel(cylinderModel),  m_cameraWrapper(m_cameraWrapper){
@@ -325,8 +327,8 @@ void ExaminerViewer::setupControlPanel(QVBoxLayout *vLayout, QWidget *mainWindow
     // Predefined view
     QGridLayout *hLayoutPredefinedView = new QGridLayout(mainWindow);
     QLabel *tipView = new QLabel("Predef View", mainWindow);
-    QPushButton *initialViewBtn = new QPushButton("initial", mainWindow);
-    initialViewBtn->setMaximumSize(QSize(70, 25));
+    //QPushButton *initialViewBtn = new QPushButton("initial", mainWindow);
+    //initialViewBtn->setMaximumSize(QSize(70, 25));
     QPushButton *viewAllBtn = new QPushButton("view all", mainWindow);
     viewAllBtn->setMaximumSize(QSize(70, 25));
     QPushButton *frontViewBtn = new QPushButton("front", mainWindow);
@@ -359,7 +361,7 @@ void ExaminerViewer::setupControlPanel(QVBoxLayout *vLayout, QWidget *mainWindow
     QPushButton *tourBtn = new QPushButton("route 1", mainWindow);
     tourBtn->setMaximumSize(70, 25);
     hLayoutPredefinedView -> addWidget(tipView, 0, 0);
-    hLayoutPredefinedView -> addWidget(initialViewBtn, 0, 2);
+    //hLayoutPredefinedView -> addWidget(initialViewBtn, 0, 2);
     hLayoutPredefinedView -> addWidget(viewAllBtn, 0, 1);
     hLayoutPredefinedView -> addWidget(frontViewBtn, 1, 0);
     hLayoutPredefinedView -> addWidget(leftViewBtn, 1, 1);
@@ -374,48 +376,63 @@ void ExaminerViewer::setupControlPanel(QVBoxLayout *vLayout, QWidget *mainWindow
     vLayout->addWidget(quickVisitBox);
 
     QObject::connect(viewAllBtn, &QPushButton::clicked, m_cameraWrapper, &CameraWrapper::viewAll);
-    QObject::connect(initialViewBtn, &QPushButton::clicked, [this]{
-        /*sliderRoll->setValue(0);
+   /* QObject::connect(initialViewBtn, &QPushButton::clicked, [this]{
+        sliderRoll->setValue(0);
         sliderLat->setValue(0);
         sliderLng->setValue(0);
-        sliderScale->setValue(m_cameraWrapper->init_distanceToOrigin);*/
+        sliderScale->setValue(m_cameraWrapper->init_distanceToOrigin);
         m_cameraWrapper->resetCameraView();
-    });
+    });*/
     QObject::connect(frontViewBtn, &QPushButton::clicked, m_cameraWrapper,
                      [this](){
-        QVector4D dof4 = QVector4D(m_cameraWrapper->camera()->viewVector().length(), 0, 0, 0);
+        QVector4D dof4end = QVector4D(m_cameraWrapper->camera()->viewVector().length(), 0, 0, 0);
+        QVector3D pos = camera->camera()->viewVector();
+        int radius = (int)(pos.length());
+        int longitude = (int)qRadiansToDegrees(qAtan2(pos[0], pos[2]));
+        int latitude = (int)qRadiansToDegrees(qAtan2(pos[1], sqrt(pow(pos[0], 2) + pow(pos[2], 2))));
+        QVector4D dof4start = QVector4D(radius, latitude, longitude, 0);
         QPropertyAnimation *smoothMove = new QPropertyAnimation(m_cameraWrapper, "dof4");
         smoothMove->setDuration(500);
-        smoothMove->setStartValue(QVariant::fromValue(m_cameraWrapper->customView()));
-        smoothMove->setEndValue(QVariant::fromValue(dof4));
+        smoothMove->setStartValue(QVariant::fromValue(dof4start));
+        smoothMove->setEndValue(QVariant::fromValue(dof4end));
         smoothMove->start();
-        m_cameraWrapper->setCustomView(dof4);
+        //m_cameraWrapper->setCustomView(dof4);
         /*sliderLat->setValue(0);
         sliderLng->setValue(0);
         sliderRoll->setValue(0);*/
     });
     QObject::connect(leftViewBtn, &QPushButton::clicked,
                      [this](){
-        QVector4D dof4 = QVector4D(m_cameraWrapper->camera()->viewVector().length(), 0, -90, 0);
+        QVector4D dof4end = QVector4D(m_cameraWrapper->camera()->viewVector().length(), 0, -90, 0);
+        QVector3D pos = camera->camera()->viewVector();
+        int radius = (int)(pos.length());
+        int longitude = (int)qRadiansToDegrees(qAtan2(pos[0], pos[2]));
+        int latitude = (int)qRadiansToDegrees(qAtan2(pos[1], sqrt(pow(pos[0], 2) + pow(pos[2], 2))));
+        QVector4D dof4start = QVector4D(radius, latitude, longitude, 0);
         QPropertyAnimation *smoothMove = new QPropertyAnimation(m_cameraWrapper, "dof4");
         smoothMove->setDuration(500);
-        smoothMove->setStartValue(QVariant::fromValue(m_cameraWrapper->customView()));
-        smoothMove->setEndValue(QVariant::fromValue(dof4));
+        smoothMove->setStartValue(QVariant::fromValue(dof4start));
+        smoothMove->setEndValue(QVariant::fromValue(dof4end));
         smoothMove->start();
-        m_cameraWrapper->setCustomView(dof4);
+        //m_cameraWrapper->setCustomView(dof4);
         /*sliderLat->setValue(0);
         sliderLng->setValue(270);
         sliderRoll->setValue(0);*/
     });
     QObject::connect(topViewBtn, &QPushButton::clicked,
                      [this](){
-        QVector4D dof4 = QVector4D(m_cameraWrapper->camera()->viewVector().length(), 90, 0, 0);
+        QVector4D dof4end = QVector4D(m_cameraWrapper->camera()->viewVector().length(), 90, 0, 0);
+        QVector3D pos = camera->camera()->viewVector();
+        int radius = (int)(pos.length());
+        int longitude = (int)qRadiansToDegrees(qAtan2(pos[0], pos[2]));
+        int latitude = (int)qRadiansToDegrees(qAtan2(pos[1], sqrt(pow(pos[0], 2) + pow(pos[2], 2))));
+        QVector4D dof4start = QVector4D(radius, latitude, longitude, 0);
         QPropertyAnimation *smoothMove = new QPropertyAnimation(m_cameraWrapper, "dof4");
         smoothMove->setDuration(500);
-        smoothMove->setStartValue(QVariant::fromValue(m_cameraWrapper->customView()));
-        smoothMove->setEndValue(QVariant::fromValue(dof4));
+        smoothMove->setStartValue(QVariant::fromValue(dof4start));
+        smoothMove->setEndValue(QVariant::fromValue(dof4end));
         smoothMove->start();
-        m_cameraWrapper->setCustomView(dof4);
+        //m_cameraWrapper->setCustomView(dof4);
         /*sliderLat->setValue(90);
         sliderLng->setValue(0);
         sliderRoll->setValue(0);*/
@@ -448,8 +465,7 @@ void ExaminerViewer::setupControlPanel(QVBoxLayout *vLayout, QWidget *mainWindow
 
         });
     QObject::connect(bookmarkedView, QOverload<int>::of(&QComboBox::currentIndexChanged),
-    [this](int index)
-    {
+    [this](int index){
     if(index==0) return;
     QVector<QVector3D> dof6 = bookmarkedViewls.at(index-1);
     m_cameraWrapper->setViewCenter(dof6[1]);

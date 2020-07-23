@@ -7,6 +7,8 @@
 #include <QtWidgets/QSlider>
 #include <QtWidgets/QLabel>
 
+extern CameraWrapper *camera;
+
 class ExaminerViewer{
 public:
     ExaminerViewer(GeneralMeshModel *cylinerModel, CameraWrapper *cameraWrapper);
