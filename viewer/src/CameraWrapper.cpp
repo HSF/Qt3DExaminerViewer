@@ -206,8 +206,8 @@ void CameraWrapper::sphericalToDirection(){
     }
     QVector3D newUpVector = x * extraAxisX + y * extraAxisY;
     m_camera -> setUpVector(newUpVector);
-    /*qInfo() << "position: " << m_camera -> position();
+    qInfo() << "position: " << m_camera -> position();
     qInfo() << "upvector: " << m_camera -> upVector();
     qInfo() << "viewCenter: " << m_camera -> viewCenter();
-    qInfo() << "radius: " << m_radius;*/
+    qInfo() << "radius: " << m_radius;
 }

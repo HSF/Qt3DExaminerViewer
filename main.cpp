@@ -96,9 +96,8 @@ int main(int argc, char **argv){
     fileName = QFileDialog::getOpenFileName(mainWindow, "Open database file", DEFAULT_FOLDER, "Database Files (*.db)");
     qInfo() << fileName;
 
-    QString boxPath = QString(fileName);
     GeoLoaderQt *loader = new GeoLoaderQt(rootEntity);
-    GeneralMeshModel *boxModel = loader->loadCreate(boxPath);
+    GeneralMeshModel *boxModel = loader->loadCreate(fileName);
     boxModel->enablePickAll(false);
 
 
@@ -121,5 +120,6 @@ int main(int argc, char **argv){
 
     cameraEntity->viewAll();
     cameraWrapper->init_distanceToOrigin = cameraEntity->position()[2];
+    qInfo() << "position dfdf" << cameraEntity->position();
     return app.exec();
 }
