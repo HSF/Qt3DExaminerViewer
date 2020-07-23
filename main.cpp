@@ -3,6 +3,7 @@
 #include "viewer/headers/MainWindow.h"
 #include "viewer/headers/ModelFactory.h"
 #include "viewer/headers/ExaminerViewer.h"
+#include "loader/headers/GeoLoaderQt.h"
 
 #include <QtMath>
 #include <QApplication>
@@ -101,6 +102,11 @@ int main(int argc, char **argv){
     builder->build3DText();
     GeneralMeshModel *cylinderModel = builder->buildVolume();
     cylinderModel->enablePickAll(false);
+
+    QString boxPath = QString("/Users/huajian/Qt3DExaminerViewer/loader/data/Step1_Box_Pixel_Brl1926A_BeamExtension.db");
+    GeoLoaderQt *loader = new GeoLoaderQt(rootEntity);
+    GeneralMeshModel *boxModel = loader->loadCreate(boxPath);
+    //boxModel->enablePickAll(false);
 
     QObject::connect(cameraEntity, &Qt3DRender::QCamera::positionChanged, [lightEntity,cameraEntity](){
         Qt3DCore::QTransform* transform = (Qt3DCore::QTransform*)lightEntity->componentsOfType<Qt3DCore::QTransform>()[0];

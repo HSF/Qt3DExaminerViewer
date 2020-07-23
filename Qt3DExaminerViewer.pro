@@ -9,26 +9,35 @@ SOURCES += main.cpp \
     viewer/src/MainWindow.cpp \
     viewer/src/ModelFactory.cpp \
     viewer/src/ExaminerViewer.cpp \
+    loader/src/GeoLoaderQt.cpp \
 
 HEADERS += \
     viewer/headers/CameraWrapper.h \
     viewer/headers/GeneralMeshModel.h \
     viewer/headers/MainWindow.h \
     viewer/headers/ModelFactory.h \
-    viewer/headers/ExaminerViewer.h
+    viewer/headers/ExaminerViewer.h \
+    loader/headers/GeoLoaderQt.h \
 
 RESOURCES += \
     resources.qrc
 
-INSTALL_PATH=~/install/lib
-EIGEN_PATH=/usr/local/include/eigen3
+CONFIG += c++17 release
 
-LIBS += -I$(INSTALL_PATH)/libGeoModelRead.3.2.0.dylib \
-        -I$(INSTALL_PATH)/libGeoModelDBManager.3.2.0.dylib \
-        -I$(INSTALL_PATH)/libGeoModelKernel.3.2.0.dylib \
-        -I$(INSTALL_PATH)/libGeoGenericFunctions.3.2.0.dylib
+DESTDIR = build/
 
-INCLUDEPATH += /usr/local/include/ \
-               /usr/local/include/eigen3
+VERSION = 1.0.0
+
+GMEX_PATH = ~/install/lib
+EIGEN_PATH = /usr/local/include/eigen3
+
+LIBS += $${GMEX_PATH}/libGeoModelRead.3.2.0.dylib \
+        $${GMEX_PATH}/libGeoModelDBManager.3.2.0.dylib \
+        $${GMEX_PATH}/libGeoModelKernel.3.2.0.dylib \
+        $${GMEX_PATH}/libGeoGenericFunctions.3.2.0.dylib \
+
+
+INCLUDEPATH += /usr/local/include/  \
+        $${EIGEN_PATH}
 
 

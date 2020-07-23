@@ -7,22 +7,14 @@
  *  Created on: Jul, 2020
  *
  */
-
-// GeoModel includes
-#include "GeoModelDBManager/GMDBManager.h"
-#include "GeoModelRead/ReadGeoModel.h"
-#include "GeoModelKernel/GeoPhysVol.h"
-#include "GeoModelKernel/GeoFullPhysVol.h"
-// GeoModel shapes
-#include "GeoModelKernel/GeoBox.h"
-#include "GeoModelKernel/GeoTube.h"
-#include "GeoModelKernel/GeoTubs.h"
-#include "GeoModelKernel/GeoPcon.h"
-
+#include <Qt3DExtras/QCuboidMesh>
+#include <loader/headers/GeoLoaderQt.h>
 // C++ includes
 #include <iostream>
 #include <fstream>
 #include <cstdlib> // EXIT_FAILURE
+#include <string>
+
 
 
 // Units
@@ -31,23 +23,22 @@
 
 
 
-GeoLoaderQt::GeoLoaderQt(Qt3DCore::QEntity *rootEntity){
-
+GeoLoaderQt::GeoLoaderQt(Qt3DCore::QEntity *rootEntity): m_rootEntity(rootEntity){
 }
 
 GMDBManager* GeoLoaderQt::checkPath(QString path){
-
+  std::string pathStd = path.toStdString();
   // check if DB file exists. If not, return.
   std::ifstream infile(path.toStdString().c_str());
   if ( ! infile.good() ) {
-      std::cout << "\n\tERROR!! A '" << path << "' file does not exist!! Please, check the path of the input file before running this program. Exiting...";
+      std::cout << "\n\tERROR!! A '" << pathStd << "' file does not exist!! Please, check the path of the input file before running this program. Exiting...";
       exit(EXIT_FAILURE);
   }
   infile.close();
 
   // open the DB
-  GMDBManager* db = new GMDBManager(path);
-  /* Open database */
+  GMDBManager* db = new GMDBManager(pathStd);
+  // Open database
   if (db->checkIsDBOpen()) {
     std::cout << "OK! Database is open!\n";
   }
@@ -56,16 +47,16 @@ GMDBManager* GeoLoaderQt::checkPath(QString path){
     // return;
     throw;
   }
-  return db
+  return db;
 }
 
 
 GeoPhysVol *GeoLoaderQt::introWorld(GMDBManager *db){
-  /* setup the GeoModel reader */
+  // setup the GeoModel reader
   GeoModelIO::ReadGeoModel readInGeo = GeoModelIO::ReadGeoModel(db);
   std::cout << "OK! ReadGeoModel is set." << std::endl;
   
-  /* build the GeoModel geometry */
+  // build the GeoModel geometry
   GeoPhysVol* dbPhys = readInGeo.buildGeoModel(); // builds the whole GeoModel tree in memory
   std::cout << "ReadGeoModel::buildGeoModel() done." << std::endl;
 
@@ -80,7 +71,7 @@ GeoPhysVol *GeoLoaderQt::introWorld(GMDBManager *db){
   return world;
 } 
 
-GeoVPhysVol *GeoLoaderQt::introChild(PVConstLink nodeLink){
+const GeoVPhysVol *GeoLoaderQt::introChild(PVConstLink nodeLink){
   const GeoVPhysVol *childVolV = &(*( nodeLink ));
   if ( dynamic_cast<const GeoPhysVol*>(childVolV) ) {
     const GeoPhysVol *childVol = dynamic_cast<const GeoPhysVol*>(childVolV);
@@ -92,23 +83,22 @@ GeoVPhysVol *GeoLoaderQt::introChild(PVConstLink nodeLink){
     std::cout << "is a GeoFullPhysVol, whose GeoLogVol name is: " << childVol->getLogVol()->getName();
     std::cout<< " and it has  "<<childVol->getNChildVols()<<" child volumes" << std::endl;
   }
-  return childVol;
+  return childVolV;
 }
 
 
 GeneralMeshModel *GeoLoaderQt::loadCreate(QString path){
 
-  std::cout << "Using this DB file:" << path << std::endl;
-  GMDBManager *db = checkPath(path)
+  std::cout << "Using this DB file:" << path.toStdString() << std::endl;
+  GMDBManager *db = checkPath(path);
 
   // -- testing the input database
-//  std::cout << "Printing the list of all GeoMaterial nodes" << std::endl;
-//  db->printAllMaterials();
-//  std::cout << "Printing the list of all GeoElement nodes" << std::endl;
-//  db->printAllElements();
+  //std::cout << "Printing the list of all GeoMaterial nodes" << std::endl;
+  //db->printAllMaterials();
+  //std::cout << "Printing the list of all GeoElement nodes" << std::endl;
+  //db->printAllElements();
   GeoPhysVol *world = introWorld(db);
-
-
+  GeneralMeshModel *model = nullptr;
   // --- testing the imported Geometry
   // get number of children volumes
   unsigned int nChil = world->getNChildVols();
@@ -120,34 +110,25 @@ GeneralMeshModel *GeoLoaderQt::loadCreate(QString path){
 
     if ( dynamic_cast<const GeoVPhysVol*>( &(*( nodeLink ))) ) {
       std::cout << "\t" << "the child n. " << idx << " ";
-      GeoVPhysVol *childVol = introChild(nodeLink);
-
+      const GeoVPhysVol *childVolV = introChild(nodeLink);
       // Get shape type
       const GeoShape* shapeIn = childVolV->getLogVol()->getShape();
       std::cout << "the shape used by the VPhysVol is of type: " << shapeIn->type() << std::endl;
-      GeneralMeshModel *model;
-      switch (shapeIn->type()){
-        case "Box":
+      if(shapeIn->type() == "Box")
           model = createBox(shapeIn);
-          break;
-        case "Tube":
+      else if(shapeIn->type() == "Tube")
           model = createTube(shapeIn);
-          break;
-        case "Tubs":
+      else if(shapeIn->type() == "Tubs")
           model = createTubs(shapeIn);
-          break;
-        case "Pcon":
+      else if(shapeIn->type() == "Pcon")
           model = createPcon(shapeIn);
-          break;
-        default:
+      else
           std::cout << "Unknown shape";
-      }
     }
   }
   std::cout << "Everything done." << std::endl;
   return model;
 }
-
 
 GeoPhysVol* GeoLoaderQt::createTheWorld(GeoPhysVol* world){
   if (world == nullptr){
@@ -193,8 +174,12 @@ GeneralMeshModel *GeoLoaderQt::createBox(const GeoShape* shapeIn){
   //  Half-length in the z direction.
   const double zHalf = shape->getZHalfLength();
   std::cout << "xHalf: " << xHalf << " , yHalf: " << yHalf << " , zHalf: " << zHalf << std::endl;
-
-  return ;
+  Qt3DExtras::QCuboidMesh *meshBox = new Qt3DExtras::QCuboidMesh();
+  meshBox->setXExtent(float(2*xHalf));
+  meshBox->setYExtent(float(2*yHalf));
+  meshBox->setZExtent(float(2*zHalf));
+  GeneralMeshModel *cuboidModel = new GeneralMeshModel(m_rootEntity, meshBox);
+  return cuboidModel;
 }
 
 GeneralMeshModel *GeoLoaderQt::createTube(const GeoShape* shapeIn){
@@ -202,13 +187,15 @@ GeneralMeshModel *GeoLoaderQt::createTube(const GeoShape* shapeIn){
   std::cout << "Tube parameters:\n";
   const GeoTube* shape = dynamic_cast<const GeoTube*>(shapeIn);
   //  Minimum (inner) tube radius.
-  const double rMNin = shape->getRMin();
+  const double rMin = shape->getRMin();
   //  Maximum (outer) tube radius.
   const double rMax = shape->getRMax();
   //  Tube half-length in the z direction.
   const double zHalf = shape->getZHalfLength();
-  std::cout << "rMNin: " << rMNin << " , rMax: " << rMax << " , zHalf: " << zHalf << std::endl;
-  return ;
+  std::cout << "rMNin: " << rMin << " , rMax: " << rMax << " , zHalf: " << zHalf << std::endl;
+
+
+  return nullptr;
 }
 
 GeneralMeshModel *GeoLoaderQt::createTubs(const GeoShape* shapeIn){
@@ -225,7 +212,8 @@ GeneralMeshModel *GeoLoaderQt::createTubs(const GeoShape* shapeIn){
   //  Delta angle of the tube section in radians.
   const double DPhi = shape->getDPhi();
   std::cout << "rMin: " << rMin << " , rMax: " << rMax << " , zHalf: " << zHalf << " , SPhi: " << SPhi << " , DPhi: " << DPhi << std::endl;
-  return ;
+  
+  return nullptr;
 }
 
 GeneralMeshModel *GeoLoaderQt::createPcon(const GeoShape* shapeIn){
@@ -238,7 +226,7 @@ GeneralMeshModel *GeoLoaderQt::createPcon(const GeoShape* shapeIn){
   //  Returns the number of planes that have been created for the polycone.
   unsigned int nPlanes = shape->getNPlanes();
   std::cout << "SPhi: " << SPhi << " , DPhi: " << DPhi << " , nPlanes: " << nPlanes << std::endl;
-  for (int iP=0; iP < nPlanes; ++iP) {
+  for (uint iP=0; iP < nPlanes; ++iP) {
     //  Get the Z Position of the specified plane.
     const double nZP = shape->getZPlane(iP);
     //  Get the RMin of the specified plane.
@@ -250,6 +238,7 @@ GeneralMeshModel *GeoLoaderQt::createPcon(const GeoShape* shapeIn){
   //  True if the polycone has at least two planes.  False otherwise.
   bool isValid = shape->isValid();
   std::cout << "Is this GeoPcon shape valid? " << isValid << std::endl;
-  return ;
+  
+  return nullptr;
 }
 
