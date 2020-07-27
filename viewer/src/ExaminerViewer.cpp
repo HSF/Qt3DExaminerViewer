@@ -15,7 +15,7 @@
 
 QCommandLinkButton *info;
 QComboBox *bookmarkedView;
-QVector<QVector<QVector3D>> bookmarkedViewls;
+QVector<QVector4D> bookmarkedViewls;
 
 
 ExaminerViewer::ExaminerViewer(GeneralMeshModel *cylinderModel, CameraWrapper *m_cameraWrapper)
@@ -95,10 +95,15 @@ QSequentialAnimationGroup *ExaminerViewer::getRoute1Tour(){
     QVector4D dof5 = QVector4D(radius, -90, 90, 0);
     QVector4D dof6 = QVector4D(radius, -90, 0, 0);
 
-    QVector4D initialView = m_cameraWrapper->customView();
+    QVector3D pos = camera->camera()->position();
+    int radius0 = (int)(pos.length());
+    int longitude = (int)qRadiansToDegrees(qAtan2(pos[0], pos[2]));
+    int latitude = (int)qRadiansToDegrees(qAtan2(pos[1], sqrt(pow(pos[0], 2) + pow(pos[2], 2))));
+    QVector4D dof4start = QVector4D(radius0, latitude, longitude, 0);
+
     QPropertyAnimation *smoothMove1 = new QPropertyAnimation(m_cameraWrapper, "dof4");
     smoothMove1->setDuration(1000);
-    smoothMove1->setStartValue(QVariant::fromValue(initialView));
+    smoothMove1->setStartValue(QVariant::fromValue(dof4start));
     smoothMove1->setEndValue(QVariant::fromValue(dof1));
 
     QPropertyAnimation *smoothMove2 = new QPropertyAnimation(m_cameraWrapper, "dof4");
@@ -114,11 +119,11 @@ QSequentialAnimationGroup *ExaminerViewer::getRoute1Tour(){
     QPropertyAnimation *smoothMove3 = new QPropertyAnimation(m_cameraWrapper, "dof4");
     smoothMove3->setDuration(1000);
     smoothMove3->setStartValue(QVariant::fromValue(dof1));
-    smoothMove3->setEndValue(QVariant::fromValue(initialView));
-    if((initialView - dof1).length() > 1e-1)
+    smoothMove3->setEndValue(QVariant::fromValue(dof4start));
+    if((dof4start - dof1).length() > 1e-1)
         tour1->addAnimation(smoothMove1);
     tour1->addAnimation(smoothMove2);
-    if((initialView - dof1).length() > 1e-1)
+    if((dof4start - dof1).length() > 1e-1)
         tour1->addAnimation(smoothMove3);
     return tour1;
 }
@@ -442,35 +447,46 @@ void ExaminerViewer::setupControlPanel(QVBoxLayout *vLayout, QWidget *mainWindow
         aniGroup->start();
     });
     QObject::connect(addViewBtn, &QPushButton::clicked, [this](){
-        QVector<QVector3D> currentView = m_cameraWrapper->fullCustomView();
-        if((!(bookmarkedViewls.empty()) && currentView[2] != bookmarkedViewls.last()[2]
-            && currentView[1] != bookmarkedViewls.last()[1]
-            && currentView[0] != bookmarkedViewls.last()[0]
-            ) || (bookmarkedViewls.empty())){
+        QVector3D pos = -camera->camera()->viewVector();
+        int radius = (int)(pos.length());
+        int latitude = (int)qRadiansToDegrees(qAtan2(pos[1], sqrt(pow(pos[0], 2) + pow(pos[2], 2))));
+        int longitude = (int)qRadiansToDegrees(qAtan2(pos[0], pos[2]));
+        QVector4D dof4current = QVector4D(radius, latitude, longitude, 0);
+
+        if((!(bookmarkedViewls.empty()) && ( radius != bookmarkedViewls.last()[0]
+            || latitude != bookmarkedViewls.last()[1]
+            || longitude != bookmarkedViewls.last()[2]) ) || (bookmarkedViewls.empty())){
             bookmarkedView->addItem(QString("view") + QString::number(bookmarkedViewls.size()));
-            bookmarkedViewls.push_back(currentView);
+            bookmarkedViewls.push_back(dof4current);
             qInfo() << "clicked "  + QString::number(bookmarkedViewls.size()) + " "
                        + QString::number(bookmarkedView->count()) ;
-            bookmarkedView->maxCount();
-        } else {
             qInfo() << bookmarkedViewls.empty();
+        } else {
+            qInfo() << "empty? " << bookmarkedViewls.empty();
             qInfo() << QString::number(bookmarkedView->count());
             qInfo() << bookmarkedViewls.size();
-            qInfo() << bookmarkedViewls.last()[1];
-            qInfo() << currentView[1];
-            qInfo() <<  (currentView[3] != bookmarkedViewls.last()[3]);
-            qInfo() <<  (currentView[0] != bookmarkedViewls.last()[0]);
-            qInfo() <<  (currentView[1] != bookmarkedViewls.last()[1]);
+            qInfo() << "radius: " << bookmarkedViewls.last()[0] << " vs " << radius;
+            qInfo() << "latitude: " << bookmarkedViewls.last()[1] << " vs " << latitude;
+            qInfo() << "longitude: " << bookmarkedViewls.last()[2] << " vs " << longitude;
         }
 
         });
     QObject::connect(bookmarkedView, QOverload<int>::of(&QComboBox::currentIndexChanged),
     [this](int index){
+
     if(index==0) return;
-    QVector<QVector3D> dof6 = bookmarkedViewls.at(index-1);
-    m_cameraWrapper->setViewCenter(dof6[1]);
-    m_cameraWrapper->camera()->setUpVector(dof6[0]);
-    m_cameraWrapper->camera()->setPosition(dof6[2]);
+    QVector4D dof4end = bookmarkedViewls.at(index-1);
+    QVector3D pos = -camera->camera()->viewVector();
+    int radius = (int)(pos.length());
+    int latitude = (int)qRadiansToDegrees(qAtan2(pos[1], sqrt(pow(pos[0], 2) + pow(pos[2], 2))));
+    int longitude = (int)qRadiansToDegrees(qAtan2(pos[0], pos[2]));
+    QVector4D dof4current = QVector4D(radius, latitude, longitude, 0);
+    QPropertyAnimation *smoothMove = new QPropertyAnimation(m_cameraWrapper, "dof4");
+    smoothMove->setDuration(500);
+    smoothMove->setStartValue(QVariant::fromValue(dof4current));
+    smoothMove->setEndValue(QVariant::fromValue(dof4end));
+    smoothMove->start();
+
     /*sliderScale->setValue(dof6[0]);
     sliderLat->setValue(dof6[1]);
     sliderLng->setValue(dof6[2]);

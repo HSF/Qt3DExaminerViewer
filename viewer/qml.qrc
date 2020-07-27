@@ -1,0 +1,7 @@
+<RCC>
+    <qresource prefix="/qml">
+        <file alias="main.qml">qml/main.qml</file>
+        <file alias="Win3D.qml">qml/Win3D.qml</file>
+        <file alias="Scene.qml">qml/Scene.qml</file>
+    </qresource>
+</RCC>

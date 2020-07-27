@@ -8,6 +8,7 @@
 #include <QtMath>
 #include <QApplication>
 #include <QGuiApplication>
+#include <QQmlApplicationEngine>
 
 #include <QFileDialog>
 #include <QtGui/QScreen>
@@ -114,12 +115,17 @@ int main(int argc, char **argv){
     ExaminerViewer *viewer = new ExaminerViewer(boxModel, cameraWrapper);
     viewer->setupControlPanel(vLayout, mainWindow);
 
+    QQmlApplicationEngine engine;
+    engine.load(QUrl("qrc:/qml/main.qml"));
+
     // Show window
     mainWindow->show();
     mainWindow->resize(1200, 800);
 
     cameraEntity->viewAll();
     cameraWrapper->init_distanceToOrigin = cameraEntity->position()[2];
-    qInfo() << "position dfdf" << cameraEntity->position();
+    qInfo() << "position: " << cameraEntity -> position();
+    qInfo() << "upvector: " << cameraEntity -> upVector();
+    qInfo() << "viewCenter: " << cameraEntity -> viewCenter();
     return app.exec();
 }

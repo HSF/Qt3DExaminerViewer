@@ -15,7 +15,7 @@ GeneralMeshModel **ModelFactory::build3DText(){
     textMesh1->setObjectName("Z+");
     textMesh1->setText("Z+");
     GeneralMeshModel *textModel1 = new GeneralMeshModel(m_rootEntity, textMesh1);
-    textModel1->translateMesh(QVector3D(0.0f, 0.0f, 200.0f));
+    textModel1->translateMesh(QVector3D(0.0f, 0.0f, 100.0f));
     textModel1->scaleMesh(QVector3D(1.0f, 1.0f, 0.2f));
     textModel1->enablePickAll(false);
     textModel1->setColor(qColor);
@@ -24,7 +24,7 @@ GeneralMeshModel **ModelFactory::build3DText(){
     textMesh2->setObjectName("Z-");
     textMesh2->setText("Z-");
     GeneralMeshModel *textModel2 = new GeneralMeshModel(m_rootEntity, textMesh2);
-    textModel2->translateMesh(QVector3D(0.0f, 0.0f, -200.0f));
+    textModel2->translateMesh(QVector3D(0.0f, 0.0f, -100.0f));
     textModel2->scaleMesh(QVector3D(1.0f, 1.0f, 0.2f));
     textModel2->enablePickAll(false);
     textModel2->setColor(qColor);
@@ -34,7 +34,7 @@ GeneralMeshModel **ModelFactory::build3DText(){
     textMesh3->setObjectName("Y+");
     textMesh3->setText("Y+");
     GeneralMeshModel *textModel3 = new GeneralMeshModel(m_rootEntity, textMesh3);
-    textModel3->translateMesh(QVector3D(0.0f, 200.0f, 0.0f));
+    textModel3->translateMesh(QVector3D(0.0f, 100.0f, 0.0f));
     textModel3->scaleMesh(QVector3D(1.0f, 1.0f, 0.2f));
     textModel3->enablePickAll(false);
     textModel3->setColor(qColor);
@@ -43,7 +43,7 @@ GeneralMeshModel **ModelFactory::build3DText(){
     textMesh4->setObjectName("Y-");
     textMesh4->setText("Y-");
     GeneralMeshModel *textModel4 = new GeneralMeshModel(m_rootEntity, textMesh4);
-    textModel4->translateMesh(QVector3D(0.0f, -200.0f, 0.0f));
+    textModel4->translateMesh(QVector3D(0.0f, -100.0f, 0.0f));
     textModel4->scaleMesh(QVector3D(1.0f, 1.0f, 0.2f));
     textModel4->enablePickAll(false);
     textModel4->setColor(qColor);
@@ -53,7 +53,7 @@ GeneralMeshModel **ModelFactory::build3DText(){
     textMesh5->setObjectName("X+");
     textMesh5->setText("X+");
     GeneralMeshModel *textModel5 = new GeneralMeshModel(m_rootEntity, textMesh5);
-    textModel5->translateMesh(QVector3D(200.0f, 0.0f, 0.0f));
+    textModel5->translateMesh(QVector3D(100.0f, 0.0f, 0.0f));
     textModel5->scaleMesh(QVector3D(1.0f, 1.0f, 0.2f));
     textModel5->enablePickAll(false);
     textModel5->setColor(qColor);
@@ -62,7 +62,7 @@ GeneralMeshModel **ModelFactory::build3DText(){
     textMesh6->setObjectName("X-");
     textMesh6->setText("X-");
     GeneralMeshModel *textModel6 = new GeneralMeshModel(m_rootEntity, textMesh6);
-    textModel6->translateMesh(QVector3D(-200.0f, 0.0f, 0.0f));
+    textModel6->translateMesh(QVector3D(-100.0f, 0.0f, 0.0f));
     textModel6->scaleMesh(QVector3D(1.0f, 1.0f, 0.2f));
     textModel6->enablePickAll(false);
     textModel6->setColor(qColor);

@@ -1,7 +1,7 @@
 message(Qt $$QT_VERSION is used.)
 
 QT += 3dcore 3drender 3dinput 3dextras core 3danimation
-QT += widgets
+QT += widgets quick
 
 SOURCES += main.cpp \
     viewer/src/CameraWrapper.cpp \
@@ -20,7 +20,8 @@ HEADERS += \
     loader/headers/GeoLoaderQt.h \
 
 RESOURCES += \
-    resources.qrc
+    resources.qrc \
+    viewer/qml.qrc
 
 CONFIG += c++17 release
 
