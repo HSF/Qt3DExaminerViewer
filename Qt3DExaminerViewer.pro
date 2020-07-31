@@ -1,4 +1,5 @@
 message(Qt $$QT_VERSION is used.)
+message($$_PRO_FILE_PWD_)
 
 QT += 3dcore 3drender 3dinput 3dextras core 3danimation
 QT += widgets quick
@@ -27,7 +28,7 @@ CONFIG += c++17 release
 
 VERSION = 1.0.0
 
-GMEX_PATH = ~/install/lib
+GMEX_PATH = $${_PRO_FILE_PWD_}/loader/lib
 EIGEN_PATH = /usr/local/include/eigen3
 
 LIBS += $${GMEX_PATH}/libGeoModelRead.3.2.0.dylib \

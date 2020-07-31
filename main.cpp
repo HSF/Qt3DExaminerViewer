@@ -14,6 +14,7 @@
 #include <QtGui/QScreen>
 #include <QtWidgets/QApplication>
 #include <QtWidgets/QWidget>
+#include <QRenderSettings>
 
 #include <Qt3DCore/qtransform.h>
 #include <Qt3DCore/qaspectengine.h>
@@ -86,6 +87,12 @@ int main(int argc, char **argv){
     // volume picking setting
     Qt3DRender::QPickingSettings *settings = new Qt3DRender::QPickingSettings();
     settings->setPickMethod(Qt3DRender::QPickingSettings::PickMethod::TrianglePicking);
+    settings->setWorldSpaceTolerance(0.1);
+    settings->setPickResultMode(Qt3DRender::QPickingSettings::NearestPick);
+    settings->setFaceOrientationPickingMode(Qt3DRender::QPickingSettings::FrontFace);
+    Qt3DRender::QRenderSettings *mRenderSettings = new Qt3DRender::QRenderSettings;
+    mRenderSettings->setActiveFrameGraph(view->defaultFrameGraph());
+
 
     // Create mesh model
     ModelFactory *builder = new ModelFactory(rootEntity);
