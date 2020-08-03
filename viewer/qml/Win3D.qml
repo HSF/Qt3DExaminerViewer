@@ -8,7 +8,7 @@ Entity {
         // output, camera
         RenderSettings {
             activeFrameGraph: ForwardRenderer {
-                clearColor: "black"
+                clearColor: "white"
                 camera: Camera {
                     id: camera
                     projectionType: CameraLens.PerspectiveProjection

@@ -7,9 +7,13 @@ Entity{
     id: scenceRoot
     Entity{
         components: [
-            CuboidMesh {},
+            //CuboidMesh {},
+            Mesh {
+                id: logoMesh
+                source: "qrc:/mesh/left_part.obj"
+            },
             DiffuseSpecularMaterial { ambient: "#444"; shininess: 100;},
-            Transform { scale: 10 },
+            Transform { scale: 2 },
             ObjectPicker {
                 hoverEnabled: true
                 onClicked: {
@@ -32,23 +36,6 @@ Entity{
                 ]
                 onValueChanged: {
                     console.log("mouse axis value: ", value);
-                }
-            },
-            Axis {
-                inputs: [
-                    ButtonAxisInput {
-                        sourceDevice: keyboardDevice
-                        buttons: [Qt.Key_Left]
-                        scale: -1.0
-                    },
-                    ButtonAxisInput {
-                        sourceDevice: keyboardDevice
-                        buttons: [Qt.Key_Right]
-                        scale: 1.0
-                    }
-                ]
-                onValueChanged: {
-                    console.log("keyboard axis value", value);
                 }
             }
         ]

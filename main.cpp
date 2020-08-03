@@ -53,6 +53,19 @@ int main(int argc, char **argv){
     Q_INIT_RESOURCE(resources);
     // Root entity
     Qt3DCore::QEntity *rootEntity = new Qt3DCore::QEntity();
+    // FrameGraph
+     Qt3DExtras::QForwardRenderer *forwardRenderer = new Qt3DExtras::QForwardRenderer();
+     //forwardRenderer->setClearColor(QColor::fromRgbF(0.0, 0.5, 1.0, 1.0));
+     // volume picking setting
+     Qt3DRender::QPickingSettings *settings = new Qt3DRender::QPickingSettings();
+     settings->setPickMethod(Qt3DRender::QPickingSettings::PickMethod::TrianglePicking);
+     settings->setWorldSpaceTolerance(0.1);
+    //settings->setPickResultMode(Qt3DRender::QPickingSettings::NearestPick);
+    settings->setPickResultMode(Qt3DRender::QPickingSettings::AllPicks);
+    settings->setFaceOrientationPickingMode(Qt3DRender::QPickingSettings::FrontFace);
+    Qt3DRender::QRenderSettings *mRenderSettings = new Qt3DRender::QRenderSettings;
+    //mRenderSettings->setActiveFrameGraph(forwardRenderer);
+    mRenderSettings->pickingSettings()->setPickMethod(Qt3DRender::QPickingSettings::PickMethod::TrianglePicking);
 
     // view and container
     MainWindow *view = new MainWindow();
@@ -83,16 +96,6 @@ int main(int argc, char **argv){
     // Light source
     Qt3DCore::QEntity *lightEntity = new Qt3DCore::QEntity(rootEntity);
     setUpLight(lightEntity, cameraEntity->position());
-
-    // volume picking setting
-    Qt3DRender::QPickingSettings *settings = new Qt3DRender::QPickingSettings();
-    settings->setPickMethod(Qt3DRender::QPickingSettings::PickMethod::TrianglePicking);
-    settings->setWorldSpaceTolerance(0.1);
-    settings->setPickResultMode(Qt3DRender::QPickingSettings::NearestPick);
-    settings->setFaceOrientationPickingMode(Qt3DRender::QPickingSettings::FrontFace);
-    Qt3DRender::QRenderSettings *mRenderSettings = new Qt3DRender::QRenderSettings;
-    mRenderSettings->setActiveFrameGraph(view->defaultFrameGraph());
-
 
     // Create mesh model
     ModelFactory *builder = new ModelFactory(rootEntity);
