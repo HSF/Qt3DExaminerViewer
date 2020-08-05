@@ -29,11 +29,21 @@ GeoLoaderQt::GeoLoaderQt(Qt3DCore::QEntity *rootEntity): m_rootEntity(rootEntity
 GMDBManager* GeoLoaderQt::checkPath(QString path){
   Q_INIT_RESOURCE(resources);
   std::string pathStd = path.toStdString();
+
+  std::size_t botDirPos = pathStd.find_last_of("/");
+  // get file
+  std::string file = pathStd.substr(botDirPos, path.length());
+  if(file != "Step1_Box_Pixel_Brl1926A_BeamExtension.db"){
+      std::cout << "Creating other geometries except Box is not supported, returning..." << std::endl;
+      return nullptr;
+  }
+
   // check if DB file exists. If not, return.
   std::ifstream infile(path.toStdString().c_str());
   if ( ! infile.good() ) {
       std::cout << "\n\tERROR!! A '" << pathStd << "' file does not exist!! Please, check the path of the input file before running this program. Exiting...";
       //exit(EXIT_FAILURE);
+      return nullptr;
   }
   infile.close();
 
@@ -45,8 +55,7 @@ GMDBManager* GeoLoaderQt::checkPath(QString path){
   }
   else {
     std::cout << "Database is not open!\n";
-    // return;
-    throw;
+    return nullptr;
   }
   return db;
 }
@@ -91,8 +100,10 @@ const GeoVPhysVol *GeoLoaderQt::introChild(PVConstLink nodeLink){
 GeneralMeshModel *GeoLoaderQt::loadCreate(QString path){
 
   std::cout << "Using this DB file:" << path.toStdString() << std::endl;
-  GMDBManager *db = checkPath(path);
 
+  GMDBManager *db = checkPath(path);
+  if(db == nullptr)
+      return nullptr;
   // -- testing the input database
   //std::cout << "Printing the list of all GeoMaterial nodes" << std::endl;
   //db->printAllMaterials();

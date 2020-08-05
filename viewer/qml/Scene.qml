@@ -25,19 +25,4 @@ Entity{
             }
         ]
     }
-    LogicalDevice {
-        axes: [
-            Axis {
-                inputs: [
-                    AnalogAxisInput {
-                        sourceDevice: MouseDevice
-                        axis: MouseDevice.X
-                    }
-                ]
-                onValueChanged: {
-                    console.log("mouse axis value: ", value);
-                }
-            }
-        ]
-    }
 }

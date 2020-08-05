@@ -100,7 +100,10 @@ int main(int argc, char **argv){
     // Create mesh model
     ModelFactory *builder = new ModelFactory(rootEntity);
     builder->build3DText();
-    //GeneralMeshModel *cylinderModel = builder->buildVolume();
+    builder->buildLineOne();
+    builder->buildLineTwo();
+    builder->buildTetrahedra();
+    //GeneralMeshModel *cylinderModel = builder->buildTestVolume();
     //cylinderModel->enablePickAll(false);
 
     QString fileName;
@@ -109,7 +112,8 @@ int main(int argc, char **argv){
 
     GeoLoaderQt *loader = new GeoLoaderQt(rootEntity);
     GeneralMeshModel *boxModel = loader->loadCreate(fileName);
-    boxModel->enablePickAll(false);
+    if(boxModel != nullptr)
+        boxModel->enablePickAll(false);
 
 
     QObject::connect(cameraEntity, &Qt3DRender::QCamera::positionChanged,
@@ -134,8 +138,5 @@ int main(int argc, char **argv){
 
     cameraEntity->viewAll();
     cameraWrapper->init_distanceToOrigin = cameraEntity->position()[2];
-    qInfo() << "position: " << cameraEntity -> position();
-    qInfo() << "upvector: " << cameraEntity -> upVector();
-    qInfo() << "viewCenter: " << cameraEntity -> viewCenter();
     return app.exec();
 }
