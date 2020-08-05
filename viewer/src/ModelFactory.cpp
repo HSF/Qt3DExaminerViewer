@@ -452,7 +452,7 @@ GeneralMeshModel *ModelFactory::buildTetrahedra(){
 
     customMeshRenderer->setGeometry(customGeometry);
 
-    GeneralMeshModel *tetra = new GeneralMeshModel(m_rootEntity, customMeshRenderer);
+    GeneralMeshModel *tetra = new GeneralMeshModel(m_rootEntity, customMeshRenderer, material);
     tetra->translateMesh(QVector3D(0, 50, 0));
     tetra->scaleMesh(QVector3D(20,20,20));
 

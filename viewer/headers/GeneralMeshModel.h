@@ -27,7 +27,7 @@ extern CameraWrapper *camera;
 class GeneralMeshModel: public QObject{
     Q_OBJECT
 public:
-    explicit GeneralMeshModel(Qt3DCore::QEntity *rootEntity, Qt3DRender::QGeometryRenderer *mesh);
+    explicit GeneralMeshModel(Qt3DCore::QEntity *rootEntity, Qt3DRender::QGeometryRenderer *mesh, Qt3DRender::QMaterial* mat = nullptr /*if null, a default material will be used*/);
     ~GeneralMeshModel();
     void addSubModel(GeneralMeshModel *subModel);
     void addParentModel(GeneralMeshModel *parentModel);
@@ -54,7 +54,8 @@ private:
     Qt3DCore::QEntity *m_meshEntity;
     Qt3DRender::QGeometryRenderer *m_mesh;
     Qt3DCore::QTransform *m_meshTransform;
-    Qt3DExtras::QPhongMaterial *m_meshMaterial;
+    //Qt3DExtras::QPhongMaterial *m_meshMaterial;
+    Qt3DRender::QMaterial *m_meshMaterial;
     Qt3DRender::QObjectPicker *m_picker;
     QVector<GeneralMeshModel*> m_subModels;
     GeneralMeshModel *m_parentModel;

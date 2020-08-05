@@ -5,9 +5,9 @@
 #include <QtWidgets/QLabel>
 #include <Qt3DRender/qpickevent.h>
 
-GeneralMeshModel::GeneralMeshModel(Qt3DCore::QEntity *rootEntity, Qt3DRender::QGeometryRenderer *mesh)
-    : m_mesh(mesh), m_isSelectMode(true), m_isVisiable(true){
-
+GeneralMeshModel::GeneralMeshModel(Qt3DCore::QEntity *rootEntity, Qt3DRender::QGeometryRenderer *mesh, Qt3DRender::QMaterial* mat)
+    : m_mesh(mesh), m_isSelectMode(true), m_isVisiable(true) 
+{
     // Build Mesh Entity
     m_meshEntity = new Qt3DCore::QEntity(rootEntity);
 
@@ -18,8 +18,13 @@ GeneralMeshModel::GeneralMeshModel(Qt3DCore::QEntity *rootEntity, Qt3DRender::QG
     m_meshTransform->setTranslation(QVector3D(0.0f, 0.0f, 0.0f));
 
     // Mesh material
-    m_meshMaterial = new Qt3DExtras::QPhongMaterial();
-    m_meshMaterial->setDiffuse(QColor(QRgb(0xbeb32b)));
+    if(mat) { // use the material defined by the client
+	m_meshMaterial = mat;
+    } else {  // use a default material
+    	Qt3DExtras::QPhongMaterial* defaultMat = new Qt3DExtras::QPhongMaterial();
+    	defaultMat->setDiffuse(QColor(QRgb(0xbeb32b)));
+	m_meshMaterial = defaultMat;
+    }
 
     // Mesh picker
     m_picker = new Qt3DRender::QObjectPicker(m_meshEntity);
@@ -41,7 +46,10 @@ GeneralMeshModel::~GeneralMeshModel(){
 }
 
 void GeneralMeshModel::setColor(QColor color){
-    m_meshMaterial->setDiffuse(color);
+    Qt3DExtras::QPhongMaterial* mat = dynamic_cast<Qt3DExtras::QPhongMaterial*>(m_meshMaterial);
+    if(mat) {
+    	mat->setDiffuse(color);
+    }
 };
 
 void GeneralMeshModel::addSubModel(GeneralMeshModel *subModel){
@@ -65,7 +73,8 @@ void GeneralMeshModel::onMoveCamera(Qt3DRender::QPickEvent *event){
 
 void GeneralMeshModel::changeState(Qt3DRender::QPickEvent *event){
     if(event->button() == Qt3DRender::QPickEvent::LeftButton && event->modifiers() == Qt::NoModifier){
-        m_meshMaterial->setDiffuse(QColor(255, 0, 0, 127));
+        //m_meshMaterial->setDiffuse(QColor(255, 0, 0, 127));
+        setColor(QColor(255, 0, 0, 127));
         info->setDescription(QString("This is ") + m_mesh->objectName());
     }
 }
@@ -91,7 +100,8 @@ void GeneralMeshModel::restoreState(bool checked){
     for(GeneralMeshModel *subModel:m_subModels){
         subModel->restoreState(checked);
     }
-    m_meshMaterial->setDiffuse(QColor(QRgb(0xbeb32b)));
+    //m_meshMaterial->setDiffuse(QColor(QRgb(0xbeb32b)));
+    setColor(QColor(QRgb(0xbeb32b)));
     showMesh(true);
     if(m_isSelectMode) enablePick(true);
 }
