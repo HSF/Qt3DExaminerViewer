@@ -2,6 +2,7 @@
 *.DS_Store
 *.autosave
 build/*
+
 # Qt-generated temp files and Makefiles
 Makefile
 .qmake.stash
@@ -43,3 +44,6 @@ moc_*.cpp
 *.exe
 *.out
 *.app
+
+# VI temp files
+*.swp
