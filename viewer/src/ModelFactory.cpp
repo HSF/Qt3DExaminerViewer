@@ -208,8 +208,8 @@ GeneralMeshModel *ModelFactory::buildLineOne()
     Qt3DRender::QAttribute *positionAttribute = new Qt3DRender::QAttribute();
     positionAttribute->setAttributeType(Qt3DRender::QAttribute::VertexAttribute);
     positionAttribute->setBuffer(vertexDataBuffer);
-    //positionAttribute->setDataType(Qt3DRender::QAttribute::Float);
-    //positionAttribute->setDataSize(3);
+    positionAttribute->setDataType(Qt3DRender::QAttribute::Float);
+    positionAttribute->setDataSize(3);
     positionAttribute->setByteOffset(0);
     positionAttribute->setByteStride(stride);
     positionAttribute->setCount(vertexNum / 2);
@@ -219,8 +219,8 @@ GeneralMeshModel *ModelFactory::buildLineOne()
     Qt3DRender::QAttribute *colorAttribute = new Qt3DRender::QAttribute();
     colorAttribute->setAttributeType(Qt3DRender::QAttribute::VertexAttribute);
     colorAttribute->setBuffer(vertexDataBuffer);
-    //colorAttribute->setDataType(Qt3DRender::QAttribute::Float);
-    //colorAttribute->setDataSize(3);
+    colorAttribute->setDataType(Qt3DRender::QAttribute::Float);
+    colorAttribute->setDataSize(3);
     colorAttribute->setByteOffset(3 * sizeof(float));
     colorAttribute->setByteStride(stride);
     colorAttribute->setCount(vertexNum / 2);
@@ -236,8 +236,8 @@ GeneralMeshModel *ModelFactory::buildLineOne()
     meshRenderer->setGeometry(geometry);
     //meshRenderer->setVertexCount(vertexNum / 2);
     GeneralMeshModel *lineOne = new GeneralMeshModel(m_rootEntity, meshRenderer);
-    lineOne->translateMesh(QVector3D(0, 500, 0));
-    lineOne->scaleMesh(QVector3D(1000,1000,1000));
+    lineOne->translateMesh(QVector3D(50, 0, 0));
+    lineOne->scaleMesh(QVector3D(10,10,10));
     return lineOne;
 }
 
@@ -306,19 +306,15 @@ GeneralMeshModel *ModelFactory::buildLineTwo()
     mesh->setPrimitiveType(QGeometryRenderer::Lines);
 
     GeneralMeshModel *lineTwo = new GeneralMeshModel(m_rootEntity, mesh);
-    lineTwo->translateMesh(QVector3D(0, 500, 0));
-    lineTwo->scaleMesh(QVector3D(1000,1000,1000));
+    lineTwo->translateMesh(QVector3D(0, 0, 50));
+    lineTwo->scaleMesh(QVector3D(10,10,10));
     return lineTwo;
 }
 
 GeneralMeshModel *ModelFactory::buildTetrahedra(){
 
     // Material
-    //QMaterial *material = new Qt3DExtras::QPhongMaterial(rootEntity);
     Qt3DRender::QMaterial *material = new Qt3DExtras::QPerVertexColorMaterial(m_rootEntity);
-
-    // The Entity container for the custom mesh
-    //Qt3DCore::QEntity *customMeshEntity = new Qt3DCore::QEntity(m_rootEntity);
 
     // Custom Mesh (TetraHedron)
     QGeometryRenderer *customMeshRenderer = new QGeometryRenderer;
