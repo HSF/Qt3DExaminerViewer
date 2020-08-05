@@ -313,6 +313,13 @@ GeneralMeshModel *ModelFactory::buildLineTwo()
 
 GeneralMeshModel *ModelFactory::buildTetrahedra(){
 
+    // Material
+    //QMaterial *material = new Qt3DExtras::QPhongMaterial(rootEntity);
+    Qt3DRender::QMaterial *material = new Qt3DExtras::QPerVertexColorMaterial(m_rootEntity);
+
+    // The Entity container for the custom mesh
+    //Qt3DCore::QEntity *customMeshEntity = new Qt3DCore::QEntity(m_rootEntity);
+
     // Custom Mesh (TetraHedron)
     QGeometryRenderer *customMeshRenderer = new QGeometryRenderer;
     QGeometry *customGeometry = new QGeometry(customMeshRenderer);
@@ -358,7 +365,6 @@ GeneralMeshModel *ModelFactory::buildTetrahedra(){
     QVector3D green(0.0f, 1.0f, 0.0f);
     QVector3D blue(0.0f, 0.0f, 1.0f);
     QVector3D white(1.0f, 1.0f, 1.0f);
-
     QVector<QVector3D> vertices = QVector<QVector3D>()
             << v0 << n0 << red
             << v1 << n1 << blue
@@ -403,6 +409,8 @@ GeneralMeshModel *ModelFactory::buildTetrahedra(){
     QAttribute *positionAttribute = new QAttribute();
     positionAttribute->setAttributeType(QAttribute::VertexAttribute);
     positionAttribute->setBuffer(vertexDataBuffer);
+    positionAttribute->setVertexBaseType(Qt3DRender::QAttribute::Float);
+    positionAttribute->setVertexSize(3);
     positionAttribute->setByteOffset(0);
     positionAttribute->setByteStride(9 * sizeof(float));
     positionAttribute->setCount(4);
@@ -411,6 +419,8 @@ GeneralMeshModel *ModelFactory::buildTetrahedra(){
     QAttribute *normalAttribute = new QAttribute();
     normalAttribute->setAttributeType(QAttribute::VertexAttribute);
     normalAttribute->setBuffer(vertexDataBuffer);
+    normalAttribute->setVertexBaseType(Qt3DRender::QAttribute::Float);
+    normalAttribute->setVertexSize(3);
     normalAttribute->setByteOffset(3 * sizeof(float));
     normalAttribute->setByteStride(9 * sizeof(float));
     normalAttribute->setCount(4);
@@ -419,6 +429,8 @@ GeneralMeshModel *ModelFactory::buildTetrahedra(){
     QAttribute *colorAttribute = new QAttribute();
     colorAttribute->setAttributeType(QAttribute::VertexAttribute);
     colorAttribute->setBuffer(vertexDataBuffer);
+    colorAttribute->setVertexBaseType(Qt3DRender::QAttribute::Float);
+    colorAttribute->setVertexSize(3);
     colorAttribute->setByteOffset(6 * sizeof(float));
     colorAttribute->setByteStride(9 * sizeof(float));
     colorAttribute->setCount(4);
@@ -427,10 +439,11 @@ GeneralMeshModel *ModelFactory::buildTetrahedra(){
     QAttribute *indexAttribute = new QAttribute();
     indexAttribute->setAttributeType(QAttribute::IndexAttribute);
     indexAttribute->setBuffer(indexDataBuffer);
-    colorAttribute->setDataType(QAttribute::UnsignedInt);
-    colorAttribute->setByteOffset(0);
-    colorAttribute->setByteStride(0);
-    colorAttribute->setCount(12);
+    indexAttribute->setVertexBaseType(Qt3DRender::QAttribute::UnsignedShort);
+    indexAttribute->setVertexSize(1);
+    indexAttribute->setByteOffset(0);
+    indexAttribute->setByteStride(0);
+    indexAttribute->setCount(12);
 
     customGeometry->addAttribute(positionAttribute);
     customGeometry->addAttribute(normalAttribute);
@@ -440,7 +453,8 @@ GeneralMeshModel *ModelFactory::buildTetrahedra(){
     customMeshRenderer->setGeometry(customGeometry);
 
     GeneralMeshModel *tetra = new GeneralMeshModel(m_rootEntity, customMeshRenderer);
-    tetra->translateMesh(QVector3D(0, 500, 0));
-    tetra->scaleMesh(QVector3D(1000,1000,1000));
+    tetra->translateMesh(QVector3D(0, 50, 0));
+    tetra->scaleMesh(QVector3D(20,20,20));
+
     return tetra;
 }
