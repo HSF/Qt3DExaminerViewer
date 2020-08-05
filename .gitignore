@@ -2,11 +2,12 @@
 *.DS_Store
 *.autosave
 build/*
-# Qt-generated Makefiles
+# Qt-generated temp files and Makefiles
 Makefile
 .qmake.stash
 moc_predefs.h
 qrc_resources.cpp
+qrc_qml.cpp
 
 # Prerequisites
 *.d
