@@ -241,6 +241,7 @@ GeneralMeshModel *ModelFactory::buildLineOne()
     GeneralMeshModel *lineOne = new GeneralMeshModel(m_rootEntity, meshRenderer, material);
     lineOne->translateMesh(QVector3D(-50, 0, -50));
     lineOne->scaleMesh(QVector3D(100,100,100));
+    lineOne->enablePickAll(false);
     return lineOne;
 }
 
@@ -311,6 +312,7 @@ GeneralMeshModel *ModelFactory::buildLineTwo()
     Qt3DExtras::QPerVertexColorMaterial *material = new Qt3DExtras::QPerVertexColorMaterial(m_rootEntity);
     GeneralMeshModel *lineTwo = new GeneralMeshModel(m_rootEntity, mesh, material);
     lineTwo->scaleMesh(QVector3D(10,10,10));
+    lineTwo->enablePickAll(false);
     return lineTwo;
 }
 
@@ -459,7 +461,7 @@ GeneralMeshModel *ModelFactory::buildTetrahedra(){
     GeneralMeshModel *tetra = new GeneralMeshModel(m_rootEntity, customMeshRenderer, material);
     tetra->translateMesh(QVector3D(0, 50, 0));
     tetra->scaleMesh(QVector3D(20,20,20));
-
+    tetra->enablePickAll(false);
     return tetra;
 }
 

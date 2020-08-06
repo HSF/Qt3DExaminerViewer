@@ -6,7 +6,7 @@
 #include <Qt3DRender/qpickevent.h>
 
 GeneralMeshModel::GeneralMeshModel(Qt3DCore::QEntity *rootEntity, Qt3DRender::QGeometryRenderer *mesh, Qt3DRender::QMaterial* mat)
-    : m_mesh(mesh), m_isSelectMode(true), m_isVisiable(true) 
+    : m_mesh(mesh), m_parentModel(nullptr), m_isSelectMode(true), m_isVisiable(true)
 {
     // Build Mesh Entity
     m_meshEntity = new Qt3DCore::QEntity(rootEntity);
@@ -124,9 +124,11 @@ void GeneralMeshModel::unpackSubMesh(Qt3DRender::QPickEvent* event){
 void GeneralMeshModel::packMesh(Qt3DRender::QPickEvent* event){
     if(event->modifiers() == Qt::AltModifier && event->button() == Qt3DRender::QPickEvent::LeftButton){
         if(m_parentModel == nullptr){
+            qInfo() << "has not parent";
             info->setDescription(QString("This volume has no parent"));
             return;
         }
+        qInfo() << "has parent";
         /*showMesh(false);
         enablePick(false);*/
         m_parentModel->showMesh(true);

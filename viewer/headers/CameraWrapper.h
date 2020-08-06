@@ -38,12 +38,12 @@ signals:
     void positionChanged(const QVector3D &position);
 public slots:
     void resetCameraView();
+    void updateCameraPos();
     void viewAll();
     void setProjectiveMode(bool isPerspective);
     void setCoordinateCenter(int index);
     void disableCameraController(bool disEnble);
 
-    void zoomInOut(int extent);
     void translatePosLat(int latitude);
     void translatePosLng(int longitude);
 

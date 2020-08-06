@@ -139,7 +139,7 @@ void ExaminerViewer::setupControlPanel(QVBoxLayout *vLayout, QWidget *mainWindow
 
 
     /************ Camera control ******************/
-    /*QGroupBox *cameraBox = new QGroupBox("Viewport Control", mainWindow);
+    QGroupBox *cameraBox = new QGroupBox("Viewport Control", mainWindow);
     QVBoxLayout *cameraLy = new QVBoxLayout(mainWindow);
     //position control
     // Switch between Ortho and Perspective
@@ -153,7 +153,13 @@ void ExaminerViewer::setupControlPanel(QVBoxLayout *vLayout, QWidget *mainWindow
     hLayoutSwitch->addWidget(orthoBtn, 0, 2);
 
     cameraLy->addLayout(hLayoutSwitch);
-
+    cameraBox->setLayout(cameraLy);
+    vLayout->addWidget(cameraBox);
+    QObject::connect(perspBtn, &QRadioButton::clicked, [this](bool clicked){
+                      m_cameraWrapper->setProjectiveMode(clicked); });
+    QObject::connect(orthoBtn, &QRadioButton::clicked, [this](bool clicked){
+                      m_cameraWrapper->setProjectiveMode(!clicked); });
+    /*
     QTabWidget *posTab = new QTabWidget(mainWindow);
     posTab->setMaximumSize(QSize(240, 280));
     QComboBox *focusCenter = new QComboBox(mainWindow);

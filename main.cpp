@@ -111,8 +111,8 @@ int main(int argc, char **argv){
 
     GeoLoaderQt *loader = new GeoLoaderQt(rootEntity);
     GeneralMeshModel *boxModel = loader->loadCreate(fileName);
-    if(boxModel != nullptr)
-        boxModel->enablePickAll(false);
+    //if(boxModel != nullptr)
+    //   boxModel->enablePickAll(false);
 
 
     QObject::connect(cameraEntity, &Qt3DRender::QCamera::positionChanged,

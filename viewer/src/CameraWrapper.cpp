@@ -71,10 +71,13 @@ const QVector<QVector3D> CameraWrapper::fullCustomView(){
 }
 
 void CameraWrapper::setProjectiveMode(bool isPerspective){
-    if(!isPerspective)
+    if(!isPerspective){
         m_camera->setProjectionType(Qt3DRender::QCameraLens::OrthographicProjection);
-    else
+        zoomOrth(m_radius);
+    }
+    else{
         m_camera->setProjectionType(Qt3DRender::QCameraLens::PerspectiveProjection);
+    }
 }
 
 void CameraWrapper::addCameraController(Qt3DExtras::QAbstractCameraController *camController){
@@ -87,15 +90,6 @@ void CameraWrapper::disableCameraController(bool disEnble){
         m_camController ->setCamera(nullptr);
     else
         m_camController ->setCamera(m_camera);
-}
-
-void CameraWrapper::zoomInOut(int extent){
-    if(m_camera->projectionType() == Qt3DRender::QCameraLens::PerspectiveProjection){
-        translatePosRad(extent);
-    }
-    else{
-        zoomOrth(extent);
-    }
 }
 
 void CameraWrapper::zoomOrth(int edge){
@@ -165,6 +159,13 @@ void CameraWrapper::rotateViewYaw(int yaw){
 void CameraWrapper::rotateViewPitch(int pitch){
     m_pitch = qDegreesToRadians((float)pitch);
     sphericalToDirection();
+}
+
+void CameraWrapper::updateCameraPos(){
+    QVector3D pos = -m_camera->viewVector();
+    m_radius = (int)(pos.length());
+    m_longitude = (int)qRadiansToDegrees(qAtan2(pos[0], pos[2]));
+    m_latitude = (int)qRadiansToDegrees(qAtan2(pos[1], sqrt(pow(pos[0], 2) + pow(pos[2], 2))));
 }
 
 void CameraWrapper::sphericalToPosition(){
