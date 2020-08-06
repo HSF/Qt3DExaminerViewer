@@ -9,6 +9,7 @@
 #include <Qt3DRender/QMesh>
 #include <QGeometry>
 #include <QAttribute>
+#include <QtMath>
 
 using namespace Qt3DRender;
 
@@ -162,7 +163,7 @@ GeneralMeshModel *ModelFactory::buildTestVolume(){
     return cylinderModel;
 }
 
-GeneralMeshModel *ModelFactory::buildLineOne()
+GeneralMeshModel *ModelFactory::buildCoordinatePlane()
 {
     Qt3DRender::QGeometryRenderer *meshRenderer = new Qt3DRender::QGeometryRenderer();
     Qt3DRender::QGeometry *geometry = new Qt3DRender::QGeometry(meshRenderer);
@@ -230,12 +231,12 @@ GeneralMeshModel *ModelFactory::buildLineOne()
     geometry->addAttribute(positionAttribute);
     geometry->addAttribute(colorAttribute);
 
-    meshRenderer->setInstanceCount(1);
-    meshRenderer->setIndexOffset(0);
-    meshRenderer->setFirstInstance(0);
+   // meshRenderer->setInstanceCount(1);
+   // meshRenderer->setIndexOffset(0);
+    //meshRenderer->setFirstInstance(0);
     meshRenderer->setPrimitiveType(Qt3DRender::QGeometryRenderer::Lines);
     meshRenderer->setGeometry(geometry);
-    meshRenderer->setVertexCount(vertexNum / 2);
+    //meshRenderer->setVertexCount(vertexNum / 2);
 
     Qt3DExtras::QPerVertexColorMaterial *material = new Qt3DExtras::QPerVertexColorMaterial(m_rootEntity);
     GeneralMeshModel *lineOne = new GeneralMeshModel(m_rootEntity, meshRenderer, material);
@@ -246,7 +247,7 @@ GeneralMeshModel *ModelFactory::buildLineOne()
 }
 
 
-GeneralMeshModel *ModelFactory::buildLineTwo()
+GeneralMeshModel *ModelFactory::buildCoordinateLine()
 {
     Qt3DRender::QGeometryRenderer *mesh = new Qt3DRender::QGeometryRenderer();
 
@@ -456,9 +457,9 @@ GeneralMeshModel *ModelFactory::buildTetrahedra(){
     customGeometry->addAttribute(colorAttribute);
     customGeometry->addAttribute(indexAttribute);
 
-    customMeshRenderer->setGeometry(customGeometry);
+    //customMeshRenderer->setGeometry(customGeometry);
 
-    GeneralMeshModel *tetra = new GeneralMeshModel(m_rootEntity, customMeshRenderer, material);
+    GeneralMeshModel *tetra = new GeneralMeshModel(m_rootEntity, customMeshRenderer);
     tetra->translateMesh(QVector3D(0, 50, 0));
     tetra->scaleMesh(QVector3D(20,20,20));
     tetra->enablePickAll(false);
@@ -466,12 +467,86 @@ GeneralMeshModel *ModelFactory::buildTetrahedra(){
 }
 
 GeneralMeshModel *ModelFactory::buildTube(double rMin, double rMax, double zHalf){
+    int numPerCircle = 4;
+    float delta = 2 * M_PI / numPerCircle;
+    float vertex[numPerCircle * 4 * 3];
+    int floatPerCircle = numPerCircle * 3;
+    for(int j = 0; j < numPerCircle; j++){
+        int i = j * 3;
+        vertex[i] = rMin * qCos(delta*j);         vertex[i+1] = rMin * qSin(delta*j);           vertex[i+2] = zHalf;
+        vertex[i+floatPerCircle] = vertex[i]/rMin*rMax; vertex[i+floatPerCircle+1] = vertex[i+1]/rMin*rMax; vertex[i+floatPerCircle+2] = zHalf;
 
-    return nullptr;
+        vertex[i+2*floatPerCircle] = vertex[i];              vertex[i+2*floatPerCircle+1] = vertex[i+1];         vertex[i+2*floatPerCircle+2] = -zHalf;
+        vertex[i+3*floatPerCircle] = vertex[i+floatPerCircle];     vertex[i+3*floatPerCircle+1] = vertex[i+floatPerCircle+1];  vertex[i+3*floatPerCircle+2] = -zHalf;
+    }
+    for(int i = 0; i < numPerCircle*4*3; i+=3){
+        qInfo() << i/3 << ") x:" << vertex[i] << "y:" << vertex[i+1] << "z:" << vertex[i+2];
+    }
+    QByteArray bufferBytes;
+    bufferBytes.resize(4 * numPerCircle * 3 * sizeof(float));
+
+    memcpy(bufferBytes.data(), reinterpret_cast<const char*>(vertex), bufferBytes.size());
+
+    Qt3DRender::QBuffer *buf = (new Qt3DRender::QBuffer());
+    buf->setData(bufferBytes);
+    Qt3DRender::QAttribute *positionAttribute = new Qt3DRender::QAttribute();
+    positionAttribute->setName(QAttribute::defaultPositionAttributeName());
+    positionAttribute->setAttributeType(QAttribute::VertexAttribute);
+    positionAttribute->setVertexBaseType(QAttribute::Float);
+    positionAttribute->setVertexSize(3);
+    positionAttribute->setBuffer(buf);
+    positionAttribute->setByteOffset(0);
+    positionAttribute->setByteStride(3 * sizeof(float));
+    positionAttribute->setCount(numPerCircle * 3 * 4);
+
+    unsigned int index[numPerCircle * 8 * 3];
+    int num = numPerCircle * 6;
+    for(int j = 0; j < numPerCircle; j++){
+        int i = j * 6;
+        index[i] = j;                            index[i+1] = (j+1)%numPerCircle;       index[i+2] = j+numPerCircle;
+        index[i+3] = (j+1)%numPerCircle;         index[i+4] = j+numPerCircle;           index[i+5] = (j+1)%numPerCircle + numPerCircle;
+
+        index[i+num] = j+numPerCircle;                       index[i+num+1] = (j+1)%numPerCircle + numPerCircle;      index[i+num+2] = j+3*numPerCircle;
+        index[i+num+3] = (j+1)%numPerCircle + numPerCircle;  index[i+num+4] = j+3*numPerCircle;                       index[i+num+5] = (j+1)%numPerCircle + 3*numPerCircle;
+
+        index[i+2*num] = j+3*numPerCircle;       index[i+2*num+1] = (j+1)%numPerCircle + 3*numPerCircle;  index[i+2*num+2] = j+2*numPerCircle;
+        index[i+2*num+3] = (j+1)%numPerCircle + 3*numPerCircle;   index[i+2*num+4] = j+2*numPerCircle;    index[i+2*num+5] = (j+1)%numPerCircle + 2*numPerCircle;
+
+        index[i+3*num] = j+2*numPerCircle;       index[i+3*num+1] = (j+1)%numPerCircle + 2*numPerCircle;  index[i+3*num+2] = j;
+        index[i+3*num+3] = (j+1)%numPerCircle + 2*numPerCircle;   index[i+3*num+4] = j;                   index[i+3*num+5] = (j+1)%numPerCircle;
+    }
+    for(int i= 0; i < numPerCircle * 8 * 3; i+=3){
+        qInfo() << i/3 <<" 1)"<< index[i] << " 2) " << index[i+1] << " 3) "<< index[i+2];
+    }
+    QByteArray indexBytes;
+    indexBytes.resize(8 * numPerCircle * 3 * sizeof(quint32));
+
+    memcpy(indexBytes.data(), reinterpret_cast<const char*>(index), indexBytes.size());
+    Qt3DRender::QBuffer *indexBuffer(new QBuffer());
+    indexBuffer->setData(indexBytes);
+
+    QAttribute *indexAttribute = new QAttribute();
+    indexAttribute->setAttributeType(QAttribute::IndexAttribute);
+    indexAttribute->setBuffer(indexBuffer);
+    indexAttribute->setVertexBaseType(QAttribute::UnsignedInt);
+    indexAttribute->setVertexSize(3);
+    indexAttribute->setByteOffset(0);
+    indexAttribute->setByteStride(3 * sizeof(unsigned int));
+    indexAttribute->setCount(8 * 3 * numPerCircle);
+    QGeometryRenderer *mesh = new QGeometryRenderer;
+    Qt3DRender::QGeometry *geometry = new Qt3DRender::QGeometry(mesh);
+    geometry->addAttribute(positionAttribute);
+    geometry->addAttribute(indexAttribute);
+    mesh->setGeometry(geometry);
+    //mesh->setPrimitiveType(Qt3DRender::QGeometryRenderer::Lines);
+    GeneralMeshModel *tube = new GeneralMeshModel(m_rootEntity, mesh);
+    return tube;
 }
 GeneralMeshModel *ModelFactory::buildTubs(double rMin, double rMax, double zHalf, double SPhi, double DPhi){
+    // TODO: ask the diff between tubs and tube, define Tubs
     return nullptr;
 }
 GeneralMeshModel *ModelFactory::buildPcon(double SPhi, double DPhi, unsigned int nPlanes, Pcon *planes){
+    // TODO: make sure what is Pcon
     return nullptr;
 }

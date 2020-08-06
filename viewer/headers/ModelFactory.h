@@ -14,8 +14,8 @@ public:
     ModelFactory(Qt3DCore::QEntity *rootEntity);
     GeneralMeshModel **build3DText();
     GeneralMeshModel *buildTestVolume();
-    GeneralMeshModel *buildLineOne();
-    GeneralMeshModel *buildLineTwo();
+    GeneralMeshModel *buildCoordinatePlane();
+    GeneralMeshModel *buildCoordinateLine();
     GeneralMeshModel *buildTetrahedra();
     GeneralMeshModel *buildTube(double rMin, double rMax, double zHalf);
     GeneralMeshModel *buildTubs(double rMin, double rMax, double zHalf, double SPhi, double DPhi);

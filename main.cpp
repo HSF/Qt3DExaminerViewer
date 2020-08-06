@@ -100,8 +100,8 @@ int main(int argc, char **argv){
     // Create mesh model
     ModelFactory *builder = new ModelFactory(rootEntity);
     GeneralMeshModel **textList = builder->build3DText();
-    builder->buildLineOne();
-    builder->buildLineTwo();
+    builder->buildCoordinateLine();
+    builder->buildCoordinatePlane();
     builder->buildTetrahedra();
     //GeneralMeshModel *cylinderModel = builder->buildTestVolume();
     //cylinderModel->enablePickAll(false);
@@ -113,7 +113,6 @@ int main(int argc, char **argv){
     GeneralMeshModel *boxModel = loader->loadCreate(fileName);
     //if(boxModel != nullptr)
     //   boxModel->enablePickAll(false);
-
 
     QObject::connect(cameraEntity, &Qt3DRender::QCamera::positionChanged,
                      [lightEntity,cameraEntity, textList](){
@@ -134,7 +133,6 @@ int main(int argc, char **argv){
     // Show window
     mainWindow->show();
     mainWindow->resize(1200, 800);
-
     cameraEntity->viewAll();
     cameraWrapper->init_distanceToOrigin = cameraEntity->position()[2];
     return app.exec();

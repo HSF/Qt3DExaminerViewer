@@ -26,7 +26,7 @@
 
 
 GeoLoaderQt::GeoLoaderQt(Qt3DCore::QEntity *rootEntity): m_rootEntity(rootEntity){
-    ModelFactory *m_builder = new ModelFactory(rootEntity);
+    m_builder = new ModelFactory(rootEntity);
 }
 
 GMDBManager* GeoLoaderQt::checkPath(QString path){
@@ -210,7 +210,7 @@ GeneralMeshModel *GeoLoaderQt::createTube(const GeoShape* shapeIn){
   //  Tube half-length in the z direction.
   const double zHalf = shape->getZHalfLength();
   std::cout << "rMin: " << rMin << " , rMax: " << rMax << " , zHalf: " << zHalf << std::endl;
-  return  m_builder->buildTube(rMin, rMax, zHalf);
+  return m_builder->buildTube(rMin/5, rMax/3, zHalf/3);
 }
 
 GeneralMeshModel *GeoLoaderQt::createTubs(const GeoShape* shapeIn){

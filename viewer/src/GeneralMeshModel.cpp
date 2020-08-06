@@ -19,13 +19,12 @@ GeneralMeshModel::GeneralMeshModel(Qt3DCore::QEntity *rootEntity, Qt3DRender::QG
 
     // Mesh material
     if(mat) { // use the material defined by the client
-	m_meshMaterial = mat;
+        m_meshMaterial = mat;
     } else {  // use a default material
-    	Qt3DExtras::QPhongMaterial* defaultMat = new Qt3DExtras::QPhongMaterial();
+        Qt3DExtras::QPhongMaterial* defaultMat = new Qt3DExtras::QPhongMaterial();
     	defaultMat->setDiffuse(QColor(QRgb(0xbeb32b)));
-	m_meshMaterial = defaultMat;
+        m_meshMaterial = defaultMat;
     }
-
     // Mesh picker
     m_picker = new Qt3DRender::QObjectPicker(m_meshEntity);
     m_picker->setEnabled(true);
