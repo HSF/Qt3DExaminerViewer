@@ -7,8 +7,8 @@
  *  Created on: Jul, 2020
  *
  */
+#include "loader/headers/GeoLoaderQt.h"
 #include <Qt3DExtras/QCuboidMesh>
-#include <loader/headers/GeoLoaderQt.h>
 // C++ includes
 #include <iostream>
 #include <fstream>
@@ -17,13 +17,16 @@
 
 
 
+
+
 // Units
-#include "GeoModelKernel/Units.h"
+#include <GeoModelKernel/Units.h>
 #define SYSTEM_OF_UNITS GeoModelKernelUnits // so we will get, e.g., 'GeoModelKernelUnits::cm'
 
 
 
 GeoLoaderQt::GeoLoaderQt(Qt3DCore::QEntity *rootEntity): m_rootEntity(rootEntity){
+    ModelFactory *m_builder = new ModelFactory(rootEntity);
 }
 
 GMDBManager* GeoLoaderQt::checkPath(QString path){
@@ -33,10 +36,10 @@ GMDBManager* GeoLoaderQt::checkPath(QString path){
   std::size_t botDirPos = pathStd.find_last_of("/");
   // get file
   std::string file = pathStd.substr(botDirPos, path.length());
-  std::cout << "reading current file: " << file;
+  std::cout << "reading current file: " << file << std::endl;
   if(file != "/Step1_Box_Pixel_Brl1926A_BeamExtension.db"){
       std::cout << "Creating other geometries except Box is not supported, returning..." << std::endl;
-      return nullptr;
+      //return nullptr;
   }
 
   // check if DB file exists. If not, return.
@@ -207,9 +210,7 @@ GeneralMeshModel *GeoLoaderQt::createTube(const GeoShape* shapeIn){
   //  Tube half-length in the z direction.
   const double zHalf = shape->getZHalfLength();
   std::cout << "rMin: " << rMin << " , rMax: " << rMax << " , zHalf: " << zHalf << std::endl;
-
-
-  return nullptr;
+  return  m_builder->buildTube(rMin, rMax, zHalf);
 }
 
 GeneralMeshModel *GeoLoaderQt::createTubs(const GeoShape* shapeIn){
@@ -226,8 +227,7 @@ GeneralMeshModel *GeoLoaderQt::createTubs(const GeoShape* shapeIn){
   //  Delta angle of the tube section in radians.
   const double DPhi = shape->getDPhi();
   std::cout << "rMin: " << rMin << " , rMax: " << rMax << " , zHalf: " << zHalf << " , SPhi: " << SPhi << " , DPhi: " << DPhi << std::endl;
-  
-  return nullptr;
+  return m_builder->buildTubs(rMin, rMax, zHalf, SPhi, DPhi);
 }
 
 GeneralMeshModel *GeoLoaderQt::createPcon(const GeoShape* shapeIn){
@@ -240,19 +240,25 @@ GeneralMeshModel *GeoLoaderQt::createPcon(const GeoShape* shapeIn){
   //  Returns the number of planes that have been created for the polycone.
   unsigned int nPlanes = shape->getNPlanes();
   std::cout << "SPhi: " << SPhi << " , DPhi: " << DPhi << " , nPlanes: " << nPlanes << std::endl;
+  Pcon planes[nPlanes];
   for (uint iP=0; iP < nPlanes; ++iP) {
     //  Get the Z Position of the specified plane.
     const double nZP = shape->getZPlane(iP);
+    planes[iP].ZPlane = nZP;
     //  Get the RMin of the specified plane.
     const double nRmin = shape->getRMinPlane(iP);
+    planes[iP].RMinPlane = nRmin;
     //  Get the Z Position of the specified plane.
     const double nRmax = shape->getRMaxPlane(iP);
+    planes[iP].RMaxPlane = nRmax;
     std::cout << "Plane # " << iP << " -- z: " << nZP << " , rMin: " << nRmin << " , rMax: " << nRmax << std::endl;
   }
   //  True if the polycone has at least two planes.  False otherwise.
   bool isValid = shape->isValid();
   std::cout << "Is this GeoPcon shape valid? " << isValid << std::endl;
-  
-  return nullptr;
+  if(isValid)
+    return m_builder->buildPcon(SPhi, DPhi, nPlanes, planes);
+  else
+    return nullptr;
 }
 

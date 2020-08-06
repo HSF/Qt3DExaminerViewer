@@ -462,3 +462,14 @@ GeneralMeshModel *ModelFactory::buildTetrahedra(){
 
     return tetra;
 }
+
+GeneralMeshModel *ModelFactory::buildTube(double rMin, double rMax, double zHalf){
+
+    return nullptr;
+}
+GeneralMeshModel *ModelFactory::buildTubs(double rMin, double rMax, double zHalf, double SPhi, double DPhi){
+    return nullptr;
+}
+GeneralMeshModel *ModelFactory::buildPcon(double SPhi, double DPhi, unsigned int nPlanes, Pcon *planes){
+    return nullptr;
+}

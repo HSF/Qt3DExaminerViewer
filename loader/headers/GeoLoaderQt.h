@@ -1,17 +1,19 @@
 #ifndef GEOLOADERQT_H
 #define GEOLOADERQT_H
-#include <viewer/headers/GeneralMeshModel.h>
+
+#include "viewer/headers/GeneralMeshModel.h"
+#include "viewer/headers/ModelFactory.h"
 
 // GeoModel includes
-#include "GeoModelDBManager/GMDBManager.h"
-#include "GeoModelRead/ReadGeoModel.h"
-#include "GeoModelKernel/GeoPhysVol.h"
-#include "GeoModelKernel/GeoFullPhysVol.h"
+#include <GeoModelDBManager/GMDBManager.h>
+#include <GeoModelRead/ReadGeoModel.h>
+#include <GeoModelKernel/GeoPhysVol.h>
+#include <GeoModelKernel/GeoFullPhysVol.h>
 // GeoModel shapes
-#include "GeoModelKernel/GeoBox.h"
-#include "GeoModelKernel/GeoTube.h"
-#include "GeoModelKernel/GeoTubs.h"
-#include "GeoModelKernel/GeoPcon.h"
+#include <GeoModelKernel/GeoBox.h>
+#include <GeoModelKernel/GeoTube.h>
+#include <GeoModelKernel/GeoTubs.h>
+#include <GeoModelKernel/GeoPcon.h>
 
 class GeoLoaderQt{
 public:
@@ -28,6 +30,7 @@ private:
 	GeneralMeshModel *createTubs(const GeoShape* shapeIn);
     GeneralMeshModel *createPcon(const GeoShape* shapeIn);
     Qt3DCore::QEntity *m_rootEntity;
+    ModelFactory *m_builder;
 };
 
 
