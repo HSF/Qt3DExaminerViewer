@@ -99,7 +99,7 @@ int main(int argc, char **argv){
 
     // Create mesh model
     ModelFactory *builder = new ModelFactory(rootEntity);
-    builder->build3DText();
+    GeneralMeshModel **textList = builder->build3DText();
     builder->buildLineOne();
     builder->buildLineTwo();
     builder->buildTetrahedra();
@@ -108,7 +108,6 @@ int main(int argc, char **argv){
 
     QString fileName;
     fileName = QFileDialog::getOpenFileName(mainWindow, "Open database file", DEFAULT_FOLDER, "Database Files (*.db)");
-    qInfo() << fileName;
 
     GeoLoaderQt *loader = new GeoLoaderQt(rootEntity);
     GeneralMeshModel *boxModel = loader->loadCreate(fileName);
@@ -117,20 +116,20 @@ int main(int argc, char **argv){
 
 
     QObject::connect(cameraEntity, &Qt3DRender::QCamera::positionChanged,
-                     [lightEntity,cameraEntity](){
+                     [lightEntity,cameraEntity, textList](){
         Qt3DCore::QTransform* transform = (Qt3DCore::QTransform*)lightEntity->componentsOfType<Qt3DCore::QTransform>()[0];
         transform -> setTranslation(cameraEntity->position());
-        //QQuaternion viewDir = cameraEntity->transform()->rotation();
-        //for(int i = 0; i < 6; i++){
-        //    textList[i]->rotateMesh(viewDir);
-        //}
+        QQuaternion viewDir = cameraEntity->transform()->rotation();
+        for(int i = 0; i < 6; i++){
+            textList[i]->rotateMesh(viewDir);
+        }
     });
 
     ExaminerViewer *viewer = new ExaminerViewer(boxModel, cameraWrapper);
     viewer->setupControlPanel(vLayout, mainWindow);
 
-    QQmlApplicationEngine engine;
-    engine.load(QUrl("qrc:/qml/main.qml"));
+    //QQmlApplicationEngine engine;
+    //engine.load(QUrl("qrc:/qml/main.qml"));
 
     // Show window
     mainWindow->show();

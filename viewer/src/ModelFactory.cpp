@@ -168,9 +168,9 @@ GeneralMeshModel *ModelFactory::buildLineOne()
     Qt3DRender::QGeometry *geometry = new Qt3DRender::QGeometry(meshRenderer);
 
     Qt3DRender::QBuffer *vertexDataBuffer = new Qt3DRender::QBuffer(Qt3DRender::QBuffer::VertexBuffer, geometry);
-    Qt3DRender::QBuffer *indexDataBuffer = new Qt3DRender::QBuffer(Qt3DRender::QBuffer::IndexBuffer, geometry);
+    //Qt3DRender::QBuffer *indexDataBuffer = new Qt3DRender::QBuffer(Qt3DRender::QBuffer::IndexBuffer, geometry);
 
-    int netX1 = 1, netX0 = 0, netZ1 = 1, netZ0 = 0, netY = 1;
+    float netX1 = 1.0f, netX0 = 0.0f, netZ1 = 1.0f, netZ0 = 0.0f, netY = 0.0f;
     float netMajorStep = 0.1;
     int lineSize = 4;
     int hLineSize = ((qAbs(netX1 - netX0) / netMajorStep) + 1) * lineSize * 3;
@@ -180,20 +180,21 @@ GeneralMeshModel *ModelFactory::buildLineOne()
     float* vertexRawData = new float[vertexNum];
     int idx = 0;
     QColor majorColor = QColor(220,220,220);
-    for(float x = netX0; x <= netX1; x += netMajorStep)
+    QColor minorColor = QColor(243,243,243);
+    for(float x = netX0; x < netX1 + netMajorStep; x += netMajorStep)
     {
         vertexRawData[idx++] = x; vertexRawData[idx++] = netY; vertexRawData[idx++] = netZ0;
         vertexRawData[idx++] = majorColor.redF(); vertexRawData[idx++] = majorColor.greenF(); vertexRawData[idx++] = majorColor.blueF();
         vertexRawData[idx++] = x; vertexRawData[idx++] = netY; vertexRawData[idx++] = netZ1;
-        vertexRawData[idx++] = majorColor.redF(); vertexRawData[idx++] = majorColor.greenF(); vertexRawData[idx++] = majorColor.blueF();
+        vertexRawData[idx++] = minorColor.redF(); vertexRawData[idx++] = minorColor.greenF(); vertexRawData[idx++] = minorColor.blueF();
     }
 
-    for(float z = netZ0; z <= netZ1; z += netMajorStep)
+    for(float z = netZ0; z < netZ1 + netMajorStep; z += netMajorStep)
     {
         vertexRawData[idx++] = netX0; vertexRawData[idx++] = netY; vertexRawData[idx++] = z;
         vertexRawData[idx++] = majorColor.redF(); vertexRawData[idx++] = majorColor.greenF(); vertexRawData[idx++] = majorColor.blueF();
         vertexRawData[idx++] = netX1; vertexRawData[idx++] = netY; vertexRawData[idx++] = z;
-        vertexRawData[idx++] = majorColor.redF(); vertexRawData[idx++] = majorColor.greenF(); vertexRawData[idx++] = majorColor.blueF();
+        vertexRawData[idx++] = minorColor.redF(); vertexRawData[idx++] = minorColor.greenF(); vertexRawData[idx++] = minorColor.blueF();
     }
 
     QByteArray ba;
@@ -208,36 +209,38 @@ GeneralMeshModel *ModelFactory::buildLineOne()
     Qt3DRender::QAttribute *positionAttribute = new Qt3DRender::QAttribute();
     positionAttribute->setAttributeType(Qt3DRender::QAttribute::VertexAttribute);
     positionAttribute->setBuffer(vertexDataBuffer);
-    positionAttribute->setDataType(Qt3DRender::QAttribute::Float);
-    positionAttribute->setDataSize(3);
+    positionAttribute->setVertexBaseType(Qt3DRender::QAttribute::Float);
+    positionAttribute->setVertexSize(3);
     positionAttribute->setByteOffset(0);
     positionAttribute->setByteStride(stride);
-    positionAttribute->setCount(vertexNum / 2);
+    positionAttribute->setCount(vertexNum);
     positionAttribute->setName(Qt3DRender::QAttribute::defaultPositionAttributeName());
 
 
     Qt3DRender::QAttribute *colorAttribute = new Qt3DRender::QAttribute();
     colorAttribute->setAttributeType(Qt3DRender::QAttribute::VertexAttribute);
     colorAttribute->setBuffer(vertexDataBuffer);
-    colorAttribute->setDataType(Qt3DRender::QAttribute::Float);
-    colorAttribute->setDataSize(3);
+    colorAttribute->setVertexBaseType(Qt3DRender::QAttribute::Float);
+    colorAttribute->setVertexSize(3);
     colorAttribute->setByteOffset(3 * sizeof(float));
     colorAttribute->setByteStride(stride);
-    colorAttribute->setCount(vertexNum / 2);
+    colorAttribute->setCount(vertexNum);
     colorAttribute->setName(Qt3DRender::QAttribute::defaultColorAttributeName());
 
     geometry->addAttribute(positionAttribute);
     geometry->addAttribute(colorAttribute);
 
-    //meshRenderer->setInstanceCount(1);
-    //meshRenderer->setIndexOffset(0);
-    //meshRenderer->setFirstInstance(0);
-    //meshRenderer->setPrimitiveType(Qt3DRender::QGeometryRenderer::Lines);
+    meshRenderer->setInstanceCount(1);
+    meshRenderer->setIndexOffset(0);
+    meshRenderer->setFirstInstance(0);
+    meshRenderer->setPrimitiveType(Qt3DRender::QGeometryRenderer::Lines);
     meshRenderer->setGeometry(geometry);
-    //meshRenderer->setVertexCount(vertexNum / 2);
-    GeneralMeshModel *lineOne = new GeneralMeshModel(m_rootEntity, meshRenderer);
-    lineOne->translateMesh(QVector3D(50, 0, 0));
-    lineOne->scaleMesh(QVector3D(10,10,10));
+    meshRenderer->setVertexCount(vertexNum / 2);
+
+    Qt3DExtras::QPerVertexColorMaterial *material = new Qt3DExtras::QPerVertexColorMaterial(m_rootEntity);
+    GeneralMeshModel *lineOne = new GeneralMeshModel(m_rootEntity, meshRenderer, material);
+    lineOne->translateMesh(QVector3D(-50, 0, -50));
+    lineOne->scaleMesh(QVector3D(100,100,100));
     return lineOne;
 }
 
@@ -246,28 +249,42 @@ GeneralMeshModel *ModelFactory::buildLineTwo()
 {
     Qt3DRender::QGeometryRenderer *mesh = new Qt3DRender::QGeometryRenderer();
 
-    float vertex_array[3 * 2];
+    float vertex_array[3 * 6];
 
     int ix = 0;
     vertex_array[ix++] = 0.0f;
+    vertex_array[ix++] = -10.0f;
+    vertex_array[ix++] = 0.0f;
+
+    vertex_array[ix++] = 0.0f;
+    vertex_array[ix++] = 10.0f;
+    vertex_array[ix++] = 0.0f;
+
+
+
+    vertex_array[ix++] = -10.0f;
+    vertex_array[ix++] = 0.0f;
+    vertex_array[ix++] = 0.0f;
+
+    vertex_array[ix++] = 10.0f;
     vertex_array[ix++] = 0.0f;
     vertex_array[ix++] = 0.0f;
 
 
-    vertex_array[ix++] = 100.0f;
-    vertex_array[ix++] = 100.0f;
-    vertex_array[ix++] = 2323.0f;
 
-    int index_array[2];
 
-    ix = 0;
-    index_array[ix++] = 0;
-    index_array[ix++] = 1;
+    vertex_array[ix++] = 0.0f;
+    vertex_array[ix++] = 0.0f;
+    vertex_array[ix++] = -10.0f;
 
-    Qt3DRender::QGeometry *geometry = new Qt3DRender::QGeometry(mesh);
+    vertex_array[ix++] = 0.0f;
+    vertex_array[ix++] = 0.0f;
+    vertex_array[ix++] = 10.0f;
+
+    Qt3DRender::QGeometry *geometry = new Qt3DRender::QGeometry();
 
     QByteArray bufferBytes;
-    const int num_vertices = 2;
+    const int num_vertices = 6;
     const quint32 elementsize = 3;
     const quint32 stride = elementsize * sizeof(float);
     bufferBytes.resize(stride * num_vertices);
@@ -277,36 +294,22 @@ GeneralMeshModel *ModelFactory::buildLineTwo()
     Qt3DRender::QBuffer *buf = (new Qt3DRender::QBuffer());
     buf->setData(bufferBytes);
     Qt3DRender::QAttribute *positionAttribute = new Qt3DRender::QAttribute();
+    positionAttribute->setName(QAttribute::defaultPositionAttributeName());
     positionAttribute->setAttributeType(QAttribute::VertexAttribute);
+    positionAttribute->setVertexBaseType(QAttribute::Float);
+    positionAttribute->setVertexSize(3);
     positionAttribute->setBuffer(buf);
     positionAttribute->setByteOffset(0);
-    positionAttribute->setByteStride(3 * sizeof(float));
-    positionAttribute->setCount(2);
+    positionAttribute->setByteStride(stride);
+    positionAttribute->setCount(18);
+
     geometry->addAttribute(positionAttribute);
-
-
-    const int num_indices = 2;
-    QByteArray indexBytes;
-    indexBytes.resize(num_indices * sizeof(quint32));
-
-    //reinterpret_cast<const char*>(index_array)
-    memcpy(indexBytes.data(), reinterpret_cast<const char*>(index_array), indexBytes.size());
-    Qt3DRender::QBuffer *indexBuffer(new QBuffer());
-    indexBuffer->setData(indexBytes);
-
-    QAttribute *indexAttribute = new QAttribute();
-    indexAttribute->setAttributeType(QAttribute::IndexAttribute);
-    indexAttribute->setBuffer(indexBuffer);
-    indexAttribute->setByteOffset(0);
-    indexAttribute->setByteStride(2 * sizeof(int));
-    indexAttribute->setCount(1);
-    geometry->addAttribute(indexAttribute);
 
     mesh->setGeometry(geometry);
     mesh->setPrimitiveType(QGeometryRenderer::Lines);
 
-    GeneralMeshModel *lineTwo = new GeneralMeshModel(m_rootEntity, mesh);
-    lineTwo->translateMesh(QVector3D(0, 0, 50));
+    Qt3DExtras::QPerVertexColorMaterial *material = new Qt3DExtras::QPerVertexColorMaterial(m_rootEntity);
+    GeneralMeshModel *lineTwo = new GeneralMeshModel(m_rootEntity, mesh, material);
     lineTwo->scaleMesh(QVector3D(10,10,10));
     return lineTwo;
 }
@@ -314,14 +317,13 @@ GeneralMeshModel *ModelFactory::buildLineTwo()
 GeneralMeshModel *ModelFactory::buildTetrahedra(){
 
     // Material
+    //Qt3DExtras::QPhongMaterial *material = new Qt3DExtras::QPhongMaterial(rootEntity);
+    //material->setDiffuse(QColor(QRgb(0xbeb32b)));
     Qt3DRender::QMaterial *material = new Qt3DExtras::QPerVertexColorMaterial(m_rootEntity);
 
     // Custom Mesh (TetraHedron)
     QGeometryRenderer *customMeshRenderer = new QGeometryRenderer;
     QGeometry *customGeometry = new QGeometry(customMeshRenderer);
-
-    QBuffer *vertexDataBuffer = new QBuffer(QBuffer::VertexBuffer, customGeometry);
-    QBuffer *indexDataBuffer = new QBuffer(QBuffer::IndexBuffer, customGeometry);
 
     // vec3 for position
     // vec3 for colors
@@ -333,10 +335,6 @@ GeneralMeshModel *ModelFactory::buildTetrahedra(){
              / /3\ \
              0/___\ 1
     */
-
-    // 4 distinct vertices
-    QByteArray vertexBufferData;
-    vertexBufferData.resize(4 * (3 + 3 + 3) * sizeof(float));
 
     // Vertices
     QVector3D v0(-1.0f, 0.0f, -1.0f);
@@ -361,12 +359,16 @@ GeneralMeshModel *ModelFactory::buildTetrahedra(){
     QVector3D green(0.0f, 1.0f, 0.0f);
     QVector3D blue(0.0f, 0.0f, 1.0f);
     QVector3D white(1.0f, 1.0f, 1.0f);
+
     QVector<QVector3D> vertices = QVector<QVector3D>()
             << v0 << n0 << red
             << v1 << n1 << blue
             << v2 << n2 << green
             << v3 << n3 << white;
 
+    // 4 distinct vertices
+    QByteArray vertexBufferData;
+    vertexBufferData.resize(4 * (3 + 3 + 3) * sizeof(float));
     float *rawVertexArray = reinterpret_cast<float *>(vertexBufferData.data());
     int idx = 0;
 
@@ -398,47 +400,53 @@ GeneralMeshModel *ModelFactory::buildTetrahedra(){
     rawIndexArray[10] = 3;
     rawIndexArray[11] = 2;
 
+
+    QBuffer *vertexDataBuffer = new QBuffer(QBuffer::VertexBuffer, customGeometry);
+    QBuffer *indexDataBuffer = new QBuffer(QBuffer::IndexBuffer, customGeometry);
+
     vertexDataBuffer->setData(vertexBufferData);
     indexDataBuffer->setData(indexBufferData);
 
     // Attributes
     QAttribute *positionAttribute = new QAttribute();
+    positionAttribute->setName(QAttribute::defaultPositionAttributeName());
     positionAttribute->setAttributeType(QAttribute::VertexAttribute);
-    positionAttribute->setBuffer(vertexDataBuffer);
     positionAttribute->setVertexBaseType(Qt3DRender::QAttribute::Float);
+    positionAttribute->setBuffer(vertexDataBuffer);
     positionAttribute->setVertexSize(3);
     positionAttribute->setByteOffset(0);
     positionAttribute->setByteStride(9 * sizeof(float));
-    positionAttribute->setCount(4);
-    positionAttribute->setName(QAttribute::defaultPositionAttributeName());
+    positionAttribute->setCount(36);
 
     QAttribute *normalAttribute = new QAttribute();
-    normalAttribute->setAttributeType(QAttribute::VertexAttribute);
     normalAttribute->setBuffer(vertexDataBuffer);
+    normalAttribute->setName(QAttribute::defaultNormalAttributeName());
+    normalAttribute->setAttributeType(QAttribute::VertexAttribute);
     normalAttribute->setVertexBaseType(Qt3DRender::QAttribute::Float);
     normalAttribute->setVertexSize(3);
     normalAttribute->setByteOffset(3 * sizeof(float));
     normalAttribute->setByteStride(9 * sizeof(float));
-    normalAttribute->setCount(4);
-    normalAttribute->setName(QAttribute::defaultNormalAttributeName());
+    normalAttribute->setCount(36);
+
 
     QAttribute *colorAttribute = new QAttribute();
-    colorAttribute->setAttributeType(QAttribute::VertexAttribute);
     colorAttribute->setBuffer(vertexDataBuffer);
+    colorAttribute->setName(QAttribute::defaultColorAttributeName());
+    colorAttribute->setAttributeType(QAttribute::VertexAttribute);
     colorAttribute->setVertexBaseType(Qt3DRender::QAttribute::Float);
     colorAttribute->setVertexSize(3);
     colorAttribute->setByteOffset(6 * sizeof(float));
     colorAttribute->setByteStride(9 * sizeof(float));
-    colorAttribute->setCount(4);
-    colorAttribute->setName(QAttribute::defaultColorAttributeName());
+    colorAttribute->setCount(36);
+
 
     QAttribute *indexAttribute = new QAttribute();
-    indexAttribute->setAttributeType(QAttribute::IndexAttribute);
     indexAttribute->setBuffer(indexDataBuffer);
+    indexAttribute->setAttributeType(QAttribute::IndexAttribute);
     indexAttribute->setVertexBaseType(Qt3DRender::QAttribute::UnsignedShort);
-    indexAttribute->setVertexSize(1);
+    indexAttribute->setVertexSize(3);
     indexAttribute->setByteOffset(0);
-    indexAttribute->setByteStride(0);
+    indexAttribute->setByteStride(3);
     indexAttribute->setCount(12);
 
     customGeometry->addAttribute(positionAttribute);

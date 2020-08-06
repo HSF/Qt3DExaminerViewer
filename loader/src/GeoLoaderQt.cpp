@@ -33,7 +33,8 @@ GMDBManager* GeoLoaderQt::checkPath(QString path){
   std::size_t botDirPos = pathStd.find_last_of("/");
   // get file
   std::string file = pathStd.substr(botDirPos, path.length());
-  if(file != "Step1_Box_Pixel_Brl1926A_BeamExtension.db"){
+  std::cout << "reading current file: " << file;
+  if(file != "/Step1_Box_Pixel_Brl1926A_BeamExtension.db"){
       std::cout << "Creating other geometries except Box is not supported, returning..." << std::endl;
       return nullptr;
   }
