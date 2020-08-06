@@ -3,8 +3,24 @@ A viewer module which offers manipulation and visualization functionalities and 
 
 
 ## How to build
+You need to firstly install [qt5.15, qmake](https://www.qt.io/download-open-source), [GeoModelIO, GeoModelCore](https://gitlab.cern.ch/GeoModelDev/GeoModel) as dependencies of this project.
+
+From IDE QtCreator:
+
 
 open `Qt3DExaminerViewer.pro` file with QtCreator, click `run` button on the left bottom corner then it will compile automatically cross platform.
+
+From terminal:
+
+```
+git clone https://github.com/HSF/Qt3DExaminerViewer.git
+cd Qt3DExaminerViewer
+qmake -o build/Makefile Qt3DExaminerViewer.pro
+cd build
+make -j4. 
+open Qt3DExaminerViewer.app
+```
+Then select one of the database file from resourse/db folder when OpenFileDialog appears.
 
 ## current functionalities
 
@@ -36,5 +52,5 @@ open `Qt3DExaminerViewer.pro` file with QtCreator, click `run` button on the lef
 ## current UI
 - control camera position and direction with slider/spinbox/keyboard arrow keys or touchpad/mouse(in view mode)
 
-![spinbox](https://firebasestorage.googleapis.com/v0/b/steam-key-269816.appspot.com/o/Screenshot%202020-07-03%20at%2023.59.31.png?alt=media&token=195f9f81-8f37-4560-9854-7f50f6e00a81)
+![spinbox](https://firebasestorage.googleapis.com/v0/b/steam-key-269816.appspot.com/o/Screenshot%202020-08-06%20at%2018.15.31.png?alt=media&token=f64f2bab-7f23-4028-8363-f30b631cf8b5)
 
