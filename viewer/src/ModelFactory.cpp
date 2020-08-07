@@ -467,7 +467,7 @@ GeneralMeshModel *ModelFactory::buildTetrahedra(){
 }
 
 GeneralMeshModel *ModelFactory::buildTube(double rMin, double rMax, double zHalf){
-    int numPerCircle = 4;
+    int numPerCircle = 50;
     float delta = 2 * M_PI / numPerCircle;
     float vertex[numPerCircle * 4 * 3];
     int floatPerCircle = numPerCircle * 3;
@@ -499,20 +499,49 @@ GeneralMeshModel *ModelFactory::buildTube(double rMin, double rMax, double zHalf
     positionAttribute->setByteStride(3 * sizeof(float));
     positionAttribute->setCount(numPerCircle * 3 * 4);
 
+
+    float normal[numPerCircle * 4 * 3];
+    for(int j = 0; j < numPerCircle; j++){
+        int i = j * 3;
+        normal[i] = -qCos(delta*j);         normal[i+1] = -qSin(delta*j);           normal[i+2] = 1;
+        normal[i+floatPerCircle] = normal[i]; normal[i+floatPerCircle+1] = normal[i+1]/1.4; normal[i+floatPerCircle+2] = 1;
+
+        normal[i+2*floatPerCircle] = normal[i];              normal[i+2*floatPerCircle+1] = normal[i+1];         normal[i+2*floatPerCircle+2] = -1;
+        normal[i+3*floatPerCircle] = normal[i+floatPerCircle];     normal[i+3*floatPerCircle+1] = normal[i+floatPerCircle+1];  normal[i+3*floatPerCircle+2] = -1;
+    }
+    for(int i = 0; i < numPerCircle*4*3; i+=3){
+        qInfo() << i/3 << ") x:" << normal[i] << "y:" << normal[i+1] << "z:" << normal[i+2];
+    }
+    QByteArray normalBytes;
+    normalBytes.resize(4 * numPerCircle * 3 * sizeof(float));
+    memcpy(normalBytes.data(), reinterpret_cast<const char*>(normal), normalBytes.size());
+    Qt3DRender::QBuffer *normalBuf = (new Qt3DRender::QBuffer());
+    normalBuf->setData(bufferBytes);
+    Qt3DRender::QAttribute *normalAttribute = new Qt3DRender::QAttribute();
+    normalAttribute->setName(QAttribute::defaultNormalAttributeName());
+    normalAttribute->setAttributeType(QAttribute::VertexAttribute);
+    normalAttribute->setVertexBaseType(QAttribute::Float);
+    normalAttribute->setVertexSize(3);
+    normalAttribute->setBuffer(buf);
+    normalAttribute->setByteOffset(0);
+    normalAttribute->setByteStride(3 * sizeof(float));
+    normalAttribute->setCount(numPerCircle * 3 * 4);
+
+
     unsigned int index[numPerCircle * 8 * 3];
     int num = numPerCircle * 6;
     for(int j = 0; j < numPerCircle; j++){
         int i = j * 6;
-        index[i] = j;                            index[i+1] = (j+1)%numPerCircle;       index[i+2] = j+numPerCircle;
+        index[i] = j;                            index[i+2] = (j+1)%numPerCircle;       index[i+1] = j+numPerCircle;
         index[i+3] = (j+1)%numPerCircle;         index[i+4] = j+numPerCircle;           index[i+5] = (j+1)%numPerCircle + numPerCircle;
 
-        index[i+num] = j+numPerCircle;                       index[i+num+1] = (j+1)%numPerCircle + numPerCircle;      index[i+num+2] = j+3*numPerCircle;
+        index[i+num] = j+numPerCircle;                       index[i+num+2] = (j+1)%numPerCircle + numPerCircle;      index[i+num+1] = j+3*numPerCircle;
         index[i+num+3] = (j+1)%numPerCircle + numPerCircle;  index[i+num+4] = j+3*numPerCircle;                       index[i+num+5] = (j+1)%numPerCircle + 3*numPerCircle;
 
-        index[i+2*num] = j+3*numPerCircle;       index[i+2*num+1] = (j+1)%numPerCircle + 3*numPerCircle;  index[i+2*num+2] = j+2*numPerCircle;
+        index[i+2*num] = j+3*numPerCircle;       index[i+2*num+2] = (j+1)%numPerCircle + 3*numPerCircle;  index[i+2*num+1] = j+2*numPerCircle;
         index[i+2*num+3] = (j+1)%numPerCircle + 3*numPerCircle;   index[i+2*num+4] = j+2*numPerCircle;    index[i+2*num+5] = (j+1)%numPerCircle + 2*numPerCircle;
 
-        index[i+3*num] = j+2*numPerCircle;       index[i+3*num+1] = (j+1)%numPerCircle + 2*numPerCircle;  index[i+3*num+2] = j;
+        index[i+3*num] = j+2*numPerCircle;       index[i+3*num+2] = (j+1)%numPerCircle + 2*numPerCircle;  index[i+3*num+1] = j;
         index[i+3*num+3] = (j+1)%numPerCircle + 2*numPerCircle;   index[i+3*num+4] = j;                   index[i+3*num+5] = (j+1)%numPerCircle;
     }
     for(int i= 0; i < numPerCircle * 8 * 3; i+=3){
@@ -537,6 +566,7 @@ GeneralMeshModel *ModelFactory::buildTube(double rMin, double rMax, double zHalf
     Qt3DRender::QGeometry *geometry = new Qt3DRender::QGeometry(mesh);
     geometry->addAttribute(positionAttribute);
     geometry->addAttribute(indexAttribute);
+    geometry->addAttribute(normalAttribute);
     mesh->setGeometry(geometry);
     //mesh->setPrimitiveType(Qt3DRender::QGeometryRenderer::Lines);
     GeneralMeshModel *tube = new GeneralMeshModel(m_rootEntity, mesh);
