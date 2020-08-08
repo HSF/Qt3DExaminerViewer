@@ -558,14 +558,14 @@ GeneralMeshModel *ModelFactory::buildTube(double rMin, double rMax, double zHalf
     normalBytes.resize(4 * numPerCircle * 3 * sizeof(float));
     memcpy(normalBytes.data(), reinterpret_cast<const char*>(normal), normalBytes.size());
     Qt3DRender::QBuffer *normalBuf = (new Qt3DRender::QBuffer());
-    normalBuf->setData(bufferBytes);
+    normalBuf->setData(normalBytes);
     
     Qt3DRender::QAttribute *normalAttribute = new Qt3DRender::QAttribute();
+    normalAttribute->setBuffer(normalBuf);
     normalAttribute->setName(QAttribute::defaultNormalAttributeName());
     normalAttribute->setAttributeType(QAttribute::VertexAttribute);
     normalAttribute->setVertexBaseType(QAttribute::Float);
     normalAttribute->setVertexSize(3);
-    normalAttribute->setBuffer(buf);
     normalAttribute->setByteOffset(0);
     normalAttribute->setByteStride(3 * sizeof(float));
     normalAttribute->setCount(numPerCircle * 3 * 4);
