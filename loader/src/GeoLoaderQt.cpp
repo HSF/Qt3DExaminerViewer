@@ -210,7 +210,7 @@ GeneralMeshModel *GeoLoaderQt::createTube(const GeoShape* shapeIn){
   //  Tube half-length in the z direction.
   const double zHalf = shape->getZHalfLength();
   std::cout << "rMin: " << rMin << " , rMax: " << rMax << " , zHalf: " << zHalf << std::endl;
-  return m_builder->buildTube(rMin/5, rMax/3, zHalf/3);
+  return m_builder->buildTube(rMin, rMax, zHalf);
 }
 
 GeneralMeshModel *GeoLoaderQt::createTubs(const GeoShape* shapeIn){

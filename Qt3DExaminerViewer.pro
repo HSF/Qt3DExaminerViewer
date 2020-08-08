@@ -22,7 +22,7 @@ HEADERS += \
 
 RESOURCES += \
     resources.qrc \
-    viewer/qml.qrc
+    #viewer/qml.qrc
 
 CONFIG += c++17 release
 
