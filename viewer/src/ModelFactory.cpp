@@ -483,28 +483,28 @@ GeneralMeshModel *ModelFactory::buildTube(double rMin, double rMax, double zHalf
         int i = j * 3; // 3 coordinates per vertex: we set them by hand as i, i+1, i+2, so we use an offset of j*3 for each ietration over j
  
         // top inner
-	vertex[i]   = rMin * qCos(delta*j);         
+        vertex[i]   = rMin * qCos(delta*j);
         vertex[i+1] = rMin * qSin(delta*j);           
         vertex[i+2] = zHalf;
         
-	// top outer
-	vertex[i+floatPerCircle]   = vertex[i]/rMin*rMax; 
+        // top outer
+        vertex[i+floatPerCircle]   = vertex[i]/rMin*rMax;
         vertex[i+1+floatPerCircle] = vertex[i+1]/rMin*rMax; 
         vertex[i+2+floatPerCircle] = zHalf;
 
-	// bottom inner
+        // bottom inner
         vertex[i+2*floatPerCircle]   = vertex[i];              
         vertex[i+1+2*floatPerCircle] = vertex[i+1];         
-	vertex[i+2+2*floatPerCircle] = -zHalf;
+        vertex[i+2+2*floatPerCircle] = -zHalf;
 
-	// bottom outer
+        // bottom outer
         vertex[i+3*floatPerCircle]   = vertex[i+floatPerCircle];     
-	vertex[i+1+3*floatPerCircle] = vertex[i+floatPerCircle+1];  
+        vertex[i+1+3*floatPerCircle] = vertex[i+floatPerCircle+1];
         vertex[i+2+3*floatPerCircle] = -zHalf;
     }
-    for(int i = 0; i < numPerCircle*4*3; i+=3){
+    /*for(int i = 0; i < numPerCircle*4*3; i+=3){
         qInfo() << i/3 << ") x:" << vertex[i] << "y:" << vertex[i+1] << "z:" << vertex[i+2];
-    }
+    }*/
 
     // 4 vertexes per slice; each vertex has 3 'float' coordinates ==> 4 * nSlices * 3 * size(float) 
     QByteArray bufferBytes;
@@ -529,31 +529,31 @@ GeneralMeshModel *ModelFactory::buildTube(double rMin, double rMax, double zHalf
     float normal[numPerCircle * 4 * 3];
     for(int j = 0; j < numPerCircle; j++){
         
-	int i = j * 3; // 3 coordinates per vertex, so we use an offset of j*3 at the start of each iteration
+        int i = j * 3; // 3 coordinates per vertex, so we use an offset of j*3 at the start of each iteration
 	
         // top inner
         normal[i]   = -qCos(delta*j);         
         normal[i+1] = -qSin(delta*j);           
-	normal[i+2] = 1;
+        normal[i+2] = 1;
 
-	// top outer
-        normal[i+floatPerCircle]   = -normal[i]; 
-	normal[i+floatPerCircle+1] = -normal[i+1];///1.4; 
-	normal[i+floatPerCircle+2] = 1;
+        // top outer
+        normal[i+floatPerCircle]   = -normal[i];
+        normal[i+floatPerCircle+1] = -normal[i+1];
+        normal[i+floatPerCircle+2] = 1;
 
-	// bottom inner
+        // bottom inner
         normal[i+2*floatPerCircle]   = normal[i];              
-	normal[i+2*floatPerCircle+1] = normal[i+1];         
-	normal[i+2*floatPerCircle+2] = -1;
+        normal[i+2*floatPerCircle+1] = normal[i+1];
+        normal[i+2*floatPerCircle+2] = -1;
         
-	// bottom outer
-	normal[i+3*floatPerCircle]   = normal[i+floatPerCircle];     
-	normal[i+3*floatPerCircle+1] = normal[i+floatPerCircle+1];  
-	normal[i+3*floatPerCircle+2] = -1;
+        // bottom outer
+        normal[i+3*floatPerCircle]   = normal[i+floatPerCircle];
+        normal[i+3*floatPerCircle+1] = normal[i+floatPerCircle+1];
+        normal[i+3*floatPerCircle+2] = -1;
     }
-    for(int i = 0; i < numPerCircle*4*3; i+=3){
+    /*for(int i = 0; i < numPerCircle*4*3; i+=3){
         qInfo() << i/3 << ") x:" << normal[i] << "y:" << normal[i+1] << "z:" << normal[i+2];
-    }
+    }*/
     QByteArray normalBytes;
     normalBytes.resize(4 * numPerCircle * 3 * sizeof(float));
     memcpy(normalBytes.data(), reinterpret_cast<const char*>(normal), normalBytes.size());
@@ -577,35 +577,35 @@ GeneralMeshModel *ModelFactory::buildTube(double rMin, double rMax, double zHalf
         int i = j * 6;
         index[i] = j;                            
         index[i+2] = (j+1)%numPerCircle;       
-	index[i+1] = j+numPerCircle;
+        index[i+1] = j+numPerCircle;
         index[i+3] = (j+1)%numPerCircle;         
-	index[i+4] = j+numPerCircle;           
-	index[i+5] = (j+1)%numPerCircle + numPerCircle;
+        index[i+4] = j+numPerCircle;
+        index[i+5] = (j+1)%numPerCircle + numPerCircle;
 
         index[i+num] = j+numPerCircle;                       
-	index[i+num+2] = (j+1)%numPerCircle + numPerCircle;      
-	index[i+num+1] = j+3*numPerCircle;
+        index[i+num+2] = (j+1)%numPerCircle + numPerCircle;
+        index[i+num+1] = j+3*numPerCircle;
         index[i+num+3] = (j+1)%numPerCircle + numPerCircle;  
-	index[i+num+4] = j+3*numPerCircle;                       
-	index[i+num+5] = (j+1)%numPerCircle + 3*numPerCircle;
+        index[i+num+4] = j+3*numPerCircle;
+        index[i+num+5] = (j+1)%numPerCircle + 3*numPerCircle;
 
         index[i+2*num] = j+3*numPerCircle;       
-	index[i+2*num+2] = (j+1)%numPerCircle + 3*numPerCircle;  
-	index[i+2*num+1] = j+2*numPerCircle;
+        index[i+2*num+2] = (j+1)%numPerCircle + 3*numPerCircle;
+        index[i+2*num+1] = j+2*numPerCircle;
         index[i+2*num+3] = (j+1)%numPerCircle + 3*numPerCircle;   
-	index[i+2*num+4] = j+2*numPerCircle;    
-	index[i+2*num+5] = (j+1)%numPerCircle + 2*numPerCircle;
+        index[i+2*num+4] = j+2*numPerCircle;
+        index[i+2*num+5] = (j+1)%numPerCircle + 2*numPerCircle;
 
         index[i+3*num] = j+2*numPerCircle;       
-	index[i+3*num+2] = (j+1)%numPerCircle + 2*numPerCircle;  
-	index[i+3*num+1] = j;
+        index[i+3*num+2] = (j+1)%numPerCircle + 2*numPerCircle;
+        index[i+3*num+1] = j;
         index[i+3*num+3] = (j+1)%numPerCircle + 2*numPerCircle;   
-	index[i+3*num+4] = j;                   
-	index[i+3*num+5] = (j+1)%numPerCircle;
+        index[i+3*num+4] = j;
+        index[i+3*num+5] = (j+1)%numPerCircle;
     }
-    for(int i= 0; i < numPerCircle * 8 * 3; i+=3){
+    /*for(int i= 0; i < numPerCircle * 8 * 3; i+=3){
         qInfo() << i/3 <<" 1)"<< index[i] << " 2) " << index[i+1] << " 3) "<< index[i+2];
-    }
+    }*/
     QByteArray indexBytes;
     indexBytes.resize(8 * numPerCircle * 3 * sizeof(quint32));
 
