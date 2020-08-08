@@ -25,20 +25,22 @@ GeneralMeshModel::GeneralMeshModel(Qt3DCore::QEntity *rootEntity, Qt3DRender::QG
     	defaultMat->setDiffuse(QColor(QRgb(0xbeb32b)));
         m_meshMaterial = defaultMat;
     }
+    
     // Mesh picker
-    m_picker = new Qt3DRender::QObjectPicker(m_meshEntity);
+    m_picker = new Qt3DRender::QObjectPicker;
     m_picker->setEnabled(true);
     m_picker->setHoverEnabled(true);
-
-    m_meshEntity->addComponent(m_mesh);
-    m_meshEntity->addComponent(m_meshMaterial);
-    m_meshEntity->addComponent(m_meshTransform);
-    m_meshEntity->addComponent(m_picker);
     QObject::connect(m_picker, &Qt3DRender::QObjectPicker::clicked, this, &GeneralMeshModel::unpackSubMesh);
     QObject::connect(m_picker, &Qt3DRender::QObjectPicker::clicked, this, &GeneralMeshModel::changeState);
     QObject::connect(m_picker, &Qt3DRender::QObjectPicker::clicked, this, &GeneralMeshModel::onMoveCamera);
     QObject::connect(m_picker, &Qt3DRender::QObjectPicker::clicked, this, &GeneralMeshModel::packMesh);
     QObject::connect(m_picker, &Qt3DRender::QObjectPicker::exited, this, [](){ info->setDescription(TIPS);});
+    
+    // add components to the Entity
+    m_meshEntity->addComponent(m_mesh);
+    m_meshEntity->addComponent(m_meshMaterial);
+    m_meshEntity->addComponent(m_meshTransform);
+    m_meshEntity->addComponent(m_picker);
 }
 
 GeneralMeshModel::~GeneralMeshModel(){

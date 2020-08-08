@@ -44,6 +44,7 @@ void setUpLight(Qt3DCore::QEntity *lightEntity, QVector3D position){
 
     Qt3DCore::QTransform *lightTransform = new Qt3DCore::QTransform(lightEntity);
     lightTransform->setTranslation(position);
+    //lightTransform->setTranslation(QVector3D(50,50,0));
     lightEntity->addComponent(lightTransform);
 }
 
@@ -51,22 +52,14 @@ int main(int argc, char **argv){
 
     QApplication app(argc, argv);
     Q_INIT_RESOURCE(resources);
+    
     // Root entity
     Qt3DCore::QEntity *rootEntity = new Qt3DCore::QEntity();
+    
     // FrameGraph
-     Qt3DExtras::QForwardRenderer *forwardRenderer = new Qt3DExtras::QForwardRenderer();
-     //forwardRenderer->setClearColor(QColor::fromRgbF(0.0, 0.5, 1.0, 1.0));
-     // volume picking setting
-     Qt3DRender::QPickingSettings *settings = new Qt3DRender::QPickingSettings();
-     settings->setPickMethod(Qt3DRender::QPickingSettings::PickMethod::TrianglePicking);
-     settings->setWorldSpaceTolerance(0.1);
-    //settings->setPickResultMode(Qt3DRender::QPickingSettings::NearestPick);
-    settings->setPickResultMode(Qt3DRender::QPickingSettings::AllPicks);
-    settings->setFaceOrientationPickingMode(Qt3DRender::QPickingSettings::FrontFace);
-    Qt3DRender::QRenderSettings *mRenderSettings = new Qt3DRender::QRenderSettings;
-    //mRenderSettings->setActiveFrameGraph(forwardRenderer);
-    mRenderSettings->pickingSettings()->setPickMethod(Qt3DRender::QPickingSettings::PickMethod::TrianglePicking);
-
+    Qt3DExtras::QForwardRenderer *forwardRenderer = new Qt3DExtras::QForwardRenderer();
+    //forwardRenderer->setClearColor(QColor::fromRgbF(0.0, 0.5, 1.0, 1.0));
+     
     // view and container
     MainWindow *view = new MainWindow();
     view->setRootEntity(rootEntity);
@@ -75,6 +68,14 @@ int main(int argc, char **argv){
     QSize screenSize = view->screen()->size();
     container->setMinimumSize(QSize(100, 100));
     container->setMaximumSize(screenSize);
+
+    // Shows the framegraph
+    view->activeFrameGraph()->dumpObjectTree();
+    
+    // view's picking settings
+    auto rendersettings=view->renderSettings();
+    rendersettings->pickingSettings()->setPickMethod(Qt3DRender::QPickingSettings::TrianglePicking);
+    rendersettings->pickingSettings()->setPickResultMode(Qt3DRender::QPickingSettings::AllPicks);
 
     // Layout
     QWidget *mainWindow = new QWidget;
@@ -114,6 +115,7 @@ int main(int argc, char **argv){
     //if(boxModel != nullptr)
     //   boxModel->enablePickAll(false);
 
+    
     QObject::connect(cameraEntity, &Qt3DRender::QCamera::positionChanged,
                      [lightEntity,cameraEntity, textList](){
         Qt3DCore::QTransform* transform = (Qt3DCore::QTransform*)lightEntity->componentsOfType<Qt3DCore::QTransform>()[0];
@@ -123,6 +125,7 @@ int main(int argc, char **argv){
             textList[i]->rotateMesh(viewDir);
         }
     });
+    
 
     ExaminerViewer *viewer = new ExaminerViewer(boxModel, cameraWrapper);
     viewer->setupControlPanel(vLayout, mainWindow);
