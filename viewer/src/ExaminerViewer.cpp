@@ -31,12 +31,12 @@ void ExaminerViewer::setUpSliderController(QLabel *label, QSlider *slider, QStri
     //Setup a slider
     slider->setOrientation(Qt::Horizontal);
     slider->setRange(0, 359);
-    slider->setSingleStep(1);
+    slider->setSingleStep(initalPos/10);
     slider->setValue(initalPos);
     slider->setGeometry(10, 40, 210, 20);
     slider->setMaximumHeight(25);
     slider->setTickPosition(QSlider::TicksBelow);
-    slider->setTickInterval(10);
+    slider->setTickInterval(initalPos/5);
 }
 
 void ExaminerViewer::setUpInfoWindow(){
@@ -57,8 +57,8 @@ void ExaminerViewer::setUpVolumePanel(QVBoxLayout *vLayout, QWidget *mainWindow)
     //Switch between navigation and select mode
     QGridLayout *hLayoutSelect = new QGridLayout(mainWindow);
     QLabel *labelSel = new QLabel("mouse", mainWindow);
-    QRadioButton *selectBtn = new QRadioButton("select", mainWindow);
-    QRadioButton *viewBtn = new QRadioButton("view", mainWindow);
+    QRadioButton *selectBtn = new QRadioButton("fixed", mainWindow);
+    QRadioButton *viewBtn = new QRadioButton("dynamic", mainWindow);
     viewBtn->setChecked(true);
     hLayoutSelect->addWidget(labelSel, 0, 0);
     hLayoutSelect->addWidget(viewBtn, 0, 2);
@@ -78,11 +78,11 @@ void ExaminerViewer::setUpVolumePanel(QVBoxLayout *vLayout, QWidget *mainWindow)
     QObject::connect(selectBtn, &QRadioButton::clicked,
                      [this](bool clicked){
                       m_cameraWrapper->disableCameraController(clicked);
-                      m_cylinderModel->enablePickAll(clicked); });
+                      /*m_cylinderModel->enablePickAll(clicked);*/ });
     QObject::connect(viewBtn, &QRadioButton::clicked,
                      [this](bool clicked){
                       m_cameraWrapper->disableCameraController(!clicked);
-                      m_cylinderModel->enablePickAll(!clicked); });
+                      /*m_cylinderModel->enablePickAll(!clicked);*/ });
 }
 
 QSequentialAnimationGroup *ExaminerViewer::getRoute1Tour(){
@@ -151,16 +151,26 @@ void ExaminerViewer::setupControlPanel(QVBoxLayout *vLayout, QWidget *mainWindow
     hLayoutSwitch->addWidget(labelProj, 0, 0);
     hLayoutSwitch->addWidget(perspBtn, 0, 1);
     hLayoutSwitch->addWidget(orthoBtn, 0, 2);
-
     cameraLy->addLayout(hLayoutSwitch);
+
+    QLabel *labelScale = new QLabel(mainWindow);
+    QSlider *sliderScale = new QSlider(mainWindow);
+    setUpSliderController(labelScale, sliderScale, "Scale", int(m_cameraWrapper->init_distanceToOrigin));
+    sliderScale->setRange(int(m_cameraWrapper->init_distanceToOrigin)/3, int(m_cameraWrapper->init_distanceToOrigin)*2);
+
+    cameraLy->addWidget(labelScale);
+    cameraLy->addWidget(sliderScale);
+    QObject::connect(sliderScale,SIGNAL(valueChanged(int)), m_cameraWrapper, SLOT(zoomInOut(int)));
+
+
     cameraBox->setLayout(cameraLy);
     vLayout->addWidget(cameraBox);
     QObject::connect(perspBtn, &QRadioButton::clicked, [this](bool clicked){
                       m_cameraWrapper->setProjectiveMode(clicked); });
     QObject::connect(orthoBtn, &QRadioButton::clicked, [this](bool clicked){
                       m_cameraWrapper->setProjectiveMode(!clicked); });
-    /*
-    QTabWidget *posTab = new QTabWidget(mainWindow);
+
+    /*QTabWidget *posTab = new QTabWidget(mainWindow);
     posTab->setMaximumSize(QSize(240, 280));
     QComboBox *focusCenter = new QComboBox(mainWindow);
     focusCenter->addItem(QString("global coordinate"));

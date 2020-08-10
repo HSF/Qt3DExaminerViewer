@@ -12,17 +12,6 @@ class CameraWrapper : public QObject{
 public:
     int init_distanceToOrigin = 436;
     const int GLOBAL_CENTER = 0, LOCAL_CENTER = 1;
-private:
-    int m_radius;
-    float m_longitude, m_latitude;
-    float m_roll, m_yaw, m_pitch;
-    int m_center;
-    QVector3D m_bias;
-    Qt3DCore::QEntity *m_rootEntity;
-    Qt3DRender::QCamera *m_camera;
-    Qt3DCore::QTransform *m_cameraTransform;
-    Qt3DExtras::QAbstractCameraController *m_camController;
-public:
     explicit CameraWrapper(Qt3DCore::QEntity *parent = nullptr, Qt3DRender::QCamera *camera=nullptr);
     void addCameraController(Qt3DExtras::QAbstractCameraController *camController);
     void setCustomView(QVector4D dof4);
@@ -39,6 +28,7 @@ signals:
 public slots:
     void resetCameraView();
     void updateCameraPos();
+    void zoomInOut(int extent);
     void viewAll();
     void setProjectiveMode(bool isPerspective);
     void setCoordinateCenter(int index);
@@ -51,6 +41,16 @@ public slots:
     void rotateViewYaw(int yaw);
     void rotateViewPitch(int pitch);
 private:
+    int m_radius;
+    float m_longitude, m_latitude;
+    float m_roll, m_yaw, m_pitch;
+    int m_center;
+    QVector3D m_bias;
+    Qt3DCore::QEntity *m_rootEntity;
+    Qt3DRender::QCamera *m_camera;
+    Qt3DCore::QTransform *m_cameraTransform;
+    Qt3DExtras::QAbstractCameraController *m_camController;
+
     void sphericalToDirection();
     void sphericalToPosition();
     void translatePosRad(int radius);

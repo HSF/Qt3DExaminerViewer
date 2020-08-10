@@ -92,6 +92,15 @@ void CameraWrapper::disableCameraController(bool disEnble){
         m_camController ->setCamera(m_camera);
 }
 
+void CameraWrapper::zoomInOut(int extent){
+    if(m_camera->projectionType() == Qt3DRender::QCameraLens::PerspectiveProjection){
+        translatePosRad(extent);
+    }
+    else{
+        zoomOrth(extent);
+    }
+}
+
 void CameraWrapper::zoomOrth(int edge){
     float edgeF = edge * 20.0  / 100.0;
     m_camera->setTop(edgeF);
@@ -105,7 +114,9 @@ void CameraWrapper::translatePosRad(int radius){
     //QVector3D position = m_camera -> position();
     //m_camera->setPosition(position * radius / m_distanceToOrigin);
     m_radius = radius;
-    sphericalToPosition();
+    QVector3D dir = (m_camera->viewCenter() - m_camera->position()).normalized();
+    QVector3D newPos = m_camera->viewCenter() - (dir * radius);
+    m_camera->setPosition(newPos);
 }
 
 void CameraWrapper::translateView(QVector3D bias, int scale){

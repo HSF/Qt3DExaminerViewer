@@ -55,10 +55,6 @@ int main(int argc, char **argv){
     
     // Root entity
     Qt3DCore::QEntity *rootEntity = new Qt3DCore::QEntity();
-    
-    // FrameGraph
-    Qt3DExtras::QForwardRenderer *forwardRenderer = new Qt3DExtras::QForwardRenderer();
-    //forwardRenderer->setClearColor(QColor::fromRgbF(0.0, 0.5, 1.0, 1.0));
      
     // view and container
     MainWindow *view = new MainWindow();
@@ -125,7 +121,7 @@ int main(int argc, char **argv){
             textList[i]->rotateMesh(viewDir);
         }
     });
-    
+
 
     ExaminerViewer *viewer = new ExaminerViewer(boxModel, cameraWrapper);
     viewer->setupControlPanel(vLayout, mainWindow);
