@@ -101,7 +101,7 @@ int main(int argc, char **argv){
     GeneralMeshModel *loadedModel = loader->loadCreate(fileName);
 
     ModelFactory *builder = ModelFactory::GetInstance(rootEntity);
-    cameraWrapper->init_distanceToOrigin = builder->MaxSize() * 2 / tan(qDegreesToRadians(22.5f));
+    cameraWrapper->init_distanceToOrigin = builder->MaxSize() * 1.5 / tan(qDegreesToRadians(22.5f));
     cameraWrapper->viewAll();
     //if(boxModel != nullptr)
     //   boxModel->enablePickAll(false);

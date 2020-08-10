@@ -40,6 +40,7 @@ public:
     GeneralMeshModel *buildCoordinatePlane();
     GeneralMeshModel *buildCoordinateLine();
     GeneralMeshModel *buildTetrahedra();
+    GeneralMeshModel *buildBox(double xHalf, double yHalf, double zHalf);
     GeneralMeshModel *buildTube(double rMin, double rMax, double zHalf);
     GeneralMeshModel *buildTubs(double rMin, double rMax, double zHalf, double SPhi, double DPhi);
     GeneralMeshModel *buildPcon(double SPhi, double DPhi, unsigned int nPlanes, Pcon *planes);

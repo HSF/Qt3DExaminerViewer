@@ -14,16 +14,9 @@
 #include <fstream>
 #include <cstdlib> // EXIT_FAILURE
 #include <string>
-
-
-
-
-
 // Units
 #include <GeoModelKernel/Units.h>
 #define SYSTEM_OF_UNITS GeoModelKernelUnits // so we will get, e.g., 'GeoModelKernelUnits::cm'
-
-
 
 GeoLoaderQt::GeoLoaderQt(Qt3DCore::QEntity *rootEntity): m_rootEntity(rootEntity){
     m_builder = ModelFactory::GetInstance(rootEntity);
@@ -190,15 +183,7 @@ GeneralMeshModel *GeoLoaderQt::createBox(const GeoShape* shapeIn){
   //  Half-length in the z direction.
   const double zHalf = shape->getZHalfLength();
   std::cout << "xHalf: " << xHalf << " , yHalf: " << yHalf << " , zHalf: " << zHalf << std::endl;
-  Qt3DExtras::QCuboidMesh *meshBox = new Qt3DExtras::QCuboidMesh();
-  meshBox->setXExtent(float(2*xHalf));
-  meshBox->setYExtent(float(2*yHalf));
-  meshBox->setZExtent(float(2*zHalf));
-  meshBox->setObjectName(QString("GeoBox with xHalf:%1, yHalf:%2, zHalf:%3").arg(xHalf).arg(yHalf).arg(zHalf));
-  GeneralMeshModel *cuboidModel = new GeneralMeshModel(m_rootEntity, meshBox);
-  float maxSize = std::max(std::max(xHalf, yHalf), zHalf);
-  m_builder->setMaxSize(maxSize);
-  return cuboidModel;
+  return m_builder->buildBox(xHalf, yHalf, zHalf);
 }
 
 GeneralMeshModel *GeoLoaderQt::createTube(const GeoShape* shapeIn){
@@ -253,7 +238,7 @@ GeneralMeshModel *GeoLoaderQt::createPcon(const GeoShape* shapeIn){
     //  Get the RMin of the specified plane.
     const double nRmin = shape->getRMinPlane(iP);
     planes[iP].RMinPlane = nRmin;
-    //  Get the Z Position of the specified plane.
+    //  Get the RMax of the specified plane.
     const double nRmax = shape->getRMaxPlane(iP);
     planes[iP].RMaxPlane = nRmax;
     std::cout << "Plane # " << iP << " -- z: " << nZP << " , rMin: " << nRmin << " , rMax: " << nRmax << std::endl;

@@ -371,9 +371,8 @@ GeneralMeshModel *ModelFactory::buildTetrahedra(){
     rawIndexArray[10] = 3;
     rawIndexArray[11] = 2;
 
-
-    QBuffer *vertexDataBuffer = new QBuffer(QBuffer::VertexBuffer, customGeometry);
-    QBuffer *indexDataBuffer = new QBuffer(QBuffer::IndexBuffer, customGeometry);
+    QBuffer *vertexDataBuffer = new QBuffer();
+    QBuffer *indexDataBuffer = new QBuffer();
 
     vertexDataBuffer->setData(vertexBufferData);
     indexDataBuffer->setData(indexBufferData);
@@ -434,10 +433,23 @@ GeneralMeshModel *ModelFactory::buildTetrahedra(){
     return tetra;
 }
 
+GeneralMeshModel *ModelFactory::buildBox(double xHalf, double yHalf, double zHalf){
+    Qt3DExtras::QCuboidMesh *meshBox = new Qt3DExtras::QCuboidMesh();
+    meshBox->setObjectName(QString("GeoBox with xHalf:%1, yHalf:%2, zHalf:%3").arg(xHalf).arg(yHalf).arg(zHalf));
+    meshBox->setXExtent(float(2*xHalf));
+    meshBox->setYExtent(float(2*yHalf));
+    meshBox->setZExtent(float(2*zHalf));
+    GeneralMeshModel *cuboidModel = new GeneralMeshModel(m_rootEntity, meshBox);
+    float maxSize = std::max(std::max(xHalf, yHalf), zHalf);
+    setMaxSize(maxSize);
+    return cuboidModel;
+}
+
 GeneralMeshModel *ModelFactory::buildTube(double rMin, double rMax, double zHalf){
     
     // the revolution shape is a rectangular: we need 4 vertexes per slice
-    m_maxSize = rMax > zHalf ? rMax : zHalf;
+    float maxSize = rMax > zHalf ? rMax : zHalf;
+    setMaxSize(maxSize);
     int numPerCircle = 50; // # of slices
     float delta = 2 * M_PI / numPerCircle; // length of a slice, in radians
     float vertex[numPerCircle * 4 * 3]; // 4 vertexes per slice: one top inner, one top outer, one bottom outer, one bottom inner
@@ -594,14 +606,15 @@ GeneralMeshModel *ModelFactory::buildTube(double rMin, double rMax, double zHalf
     geometry->addAttribute(indexAttribute);
     geometry->addAttribute(normalAttribute);
     customRenderer->setGeometry(geometry);
-    
+    customRenderer->setObjectName(QString("GeoTube with rMin:%1, rMax:%2, zHalf:%3").arg(rMin).arg(rMax).arg(zHalf));
     GeneralMeshModel *tube = new GeneralMeshModel(m_rootEntity, customRenderer);
     return tube;
 }
 GeneralMeshModel *ModelFactory::buildTubs(double rMin, double rMax, double zHalf, double SPhi, double DPhi){
     // TODO: ask the diff between tubs and tube, define Tubs
     // the revolution shape is a rectangular: we need 4 vertexes per slice
-    m_maxSize = rMax > zHalf ? rMax : zHalf;
+    float maxSize = rMax > zHalf ? rMax : zHalf;
+    setMaxSize(maxSize);
     int numPerCircle = 40; // # of slices
     float delta = DPhi / numPerCircle; // length of a slice, in radians
     float vertex[numPerCircle * 4 * 3]; // 4 vertexes per slice: one top inner, one top outer, one bottom outer, one bottom inner
@@ -776,8 +789,8 @@ GeneralMeshModel *ModelFactory::buildTubs(double rMin, double rMax, double zHalf
     geometry->addAttribute(indexAttribute);
     geometry->addAttribute(normalAttribute);
     customRenderer->setGeometry(geometry);
-    //customRenderer->setPrimitiveType(QGeometryRenderer::Lines);
-
+    customRenderer->setObjectName(QString("GeoTubs with rMin:%1, rMax:%2, zHalf:%3, SPhi:%4, DPhi:%5")
+                                  .arg(rMin).arg(rMax).arg(zHalf).arg(SPhi).arg(DPhi));
     GeneralMeshModel *tubs = new GeneralMeshModel(m_rootEntity, customRenderer);
     return tubs;
 }
