@@ -99,11 +99,14 @@ int main(int argc, char **argv){
 
     GeoLoaderQt *loader = new GeoLoaderQt(rootEntity);
     GeneralMeshModel *loadedModel = loader->loadCreate(fileName);
+
+    ModelFactory *builder = ModelFactory::GetInstance(rootEntity);
+    cameraWrapper->init_distanceToOrigin = builder->MaxSize() * 2 / tan(qDegreesToRadians(22.5f));
+    cameraWrapper->viewAll();
     //if(boxModel != nullptr)
     //   boxModel->enablePickAll(false);
 
     // Create mesh model
-    ModelFactory *builder = ModelFactory::GetInstance(rootEntity);
     GeneralMeshModel **textList = builder->build3DText();
     builder->buildCoordinateLine();
     builder->buildCoordinatePlane();
@@ -121,6 +124,7 @@ int main(int argc, char **argv){
         for(int i = 0; i < 6; i++){
             textList[i]->rotateMesh(viewDir);
         }
+        //qInfo() << "radius: " << cameraEntity->viewVector().length();
     });
 
 

@@ -34,69 +34,23 @@ float ModelFactory::MaxSize(){
 GeneralMeshModel **ModelFactory::build3DText(){
 
     QColor qColor = QColor(147, 147, 147, 147);
-    Qt3DExtras::QExtrudedTextMesh *textMesh1 = new Qt3DExtras::QExtrudedTextMesh();
-    textMesh1->setObjectName("Z+");
-    textMesh1->setText("Z+");
-    GeneralMeshModel *textModel1 = new GeneralMeshModel(m_rootEntity, textMesh1);
-    textModel1->translateMesh(QVector3D(0.0f, 0.0f, 100.0f));
-    textModel1->scaleMesh(QVector3D(10.0f, 10.0f, 2.0f));
-    textModel1->enablePickAll(false);
-    textModel1->setColor(qColor);
+    GeneralMeshModel **textModel = new GeneralMeshModel*[6];
+    QString text[6] = {"Z+", "Z-", "Y+", "Y-", "X-", "X+"};
+    QVector3D position[6] = {QVector3D(0.0f, 0.0f, 1.3f), QVector3D(0.0f, 0.0f, -1.3f),
+                             QVector3D(0.0f, 1.3f, 0.0f), QVector3D(0.0f, -1.3f, 0.0f),
+                             QVector3D(1.3f, 0.0f, 0.0f),QVector3D(-1.3f, 0.0f, 0.0f)};
 
-    Qt3DExtras::QExtrudedTextMesh *textMesh2 = new Qt3DExtras::QExtrudedTextMesh();
-    textMesh2->setObjectName("Z-");
-    textMesh2->setText("Z-");
-    GeneralMeshModel *textModel2 = new GeneralMeshModel(m_rootEntity, textMesh2);
-    textModel2->translateMesh(QVector3D(0.0f, 0.0f, -100.0f));
-    textModel2->scaleMesh(QVector3D(10.0f, 10.0f, 2.0f));
-    textModel2->enablePickAll(false);
-    textModel2->setColor(qColor);
-
-
-    Qt3DExtras::QExtrudedTextMesh *textMesh3 = new Qt3DExtras::QExtrudedTextMesh();
-    textMesh3->setObjectName("Y+");
-    textMesh3->setText("Y+");
-    GeneralMeshModel *textModel3 = new GeneralMeshModel(m_rootEntity, textMesh3);
-    textModel3->translateMesh(QVector3D(0.0f, 100.0f, 0.0f));
-    textModel3->scaleMesh(QVector3D(10.0f, 10.0f, 2.0f));
-    textModel3->enablePickAll(false);
-    textModel3->setColor(qColor);
-
-    Qt3DExtras::QExtrudedTextMesh *textMesh4 = new Qt3DExtras::QExtrudedTextMesh();
-    textMesh4->setObjectName("Y-");
-    textMesh4->setText("Y-");
-    GeneralMeshModel *textModel4 = new GeneralMeshModel(m_rootEntity, textMesh4);
-    textModel4->translateMesh(QVector3D(0.0f, -100.0f, 0.0f));
-    textModel4->scaleMesh(QVector3D(10.0f, 10.0f, 2.0f));
-    textModel4->enablePickAll(false);
-    textModel4->setColor(qColor);
-
-
-    Qt3DExtras::QExtrudedTextMesh *textMesh5 = new Qt3DExtras::QExtrudedTextMesh();
-    textMesh5->setObjectName("X+");
-    textMesh5->setText("X+");
-    GeneralMeshModel *textModel5 = new GeneralMeshModel(m_rootEntity, textMesh5);
-    textModel5->translateMesh(QVector3D(100.0f, 0.0f, 0.0f));
-    textModel5->scaleMesh(QVector3D(10.0f, 10.0f, 2.0f));
-    textModel5->enablePickAll(false);
-    textModel5->setColor(qColor);
-
-    Qt3DExtras::QExtrudedTextMesh *textMesh6 = new Qt3DExtras::QExtrudedTextMesh();
-    textMesh6->setObjectName("X-");
-    textMesh6->setText("X-");
-    GeneralMeshModel *textModel6 = new GeneralMeshModel(m_rootEntity, textMesh6);
-    textModel6->translateMesh(QVector3D(-100.0f, 0.0f, 0.0f));
-    textModel6->scaleMesh(QVector3D(10.0f, 10.0f, 2.0f));
-    textModel6->enablePickAll(false);
-    textModel6->setColor(qColor);
-    GeneralMeshModel **textList = new GeneralMeshModel*[6];
-    textList[0] = textModel1;
-    textList[1] = textModel2;
-    textList[2] = textModel3;
-    textList[3] = textModel4;
-    textList[4] = textModel5;
-    textList[5] = textModel6;
-    return textList;
+    for(int i = 0; i < 6; i++){
+        Qt3DExtras::QExtrudedTextMesh *textMesh = new Qt3DExtras::QExtrudedTextMesh();
+        textMesh->setObjectName(text[i]);
+        textMesh->setText(text[i]);
+        textModel[i] = new GeneralMeshModel(m_rootEntity, textMesh);
+        textModel[i]->translateMesh(m_maxSize * position[i]);
+        textModel[i]->scaleMesh(m_maxSize * QVector3D(0.1f, 0.1f, 0.02f));
+        textModel[i]->enablePickAll(false);
+        textModel[i]->setColor(qColor);
+    }
+    return textModel;
 }
 
 GeneralMeshModel *ModelFactory::buildTestVolume(){
@@ -255,8 +209,8 @@ GeneralMeshModel *ModelFactory::buildCoordinatePlane()
 
     Qt3DExtras::QPerVertexColorMaterial *material = new Qt3DExtras::QPerVertexColorMaterial(m_rootEntity);
     GeneralMeshModel *lineOne = new GeneralMeshModel(m_rootEntity, meshRenderer, material);
-    lineOne->translateMesh(QVector3D(-50, 0, -50));
-    lineOne->scaleMesh(QVector3D(100,100,100));
+    lineOne->translateMesh(m_maxSize * QVector3D(-1, 0, -1));
+    lineOne->scaleMesh(m_maxSize * QVector3D(2, 2, 2));
     lineOne->enablePickAll(false);
     return lineOne;
 }
@@ -266,37 +220,36 @@ GeneralMeshModel *ModelFactory::buildCoordinateLine()
 {
     Qt3DRender::QGeometryRenderer *mesh = new Qt3DRender::QGeometryRenderer();
 
+    // initilise with 0.0f
     float vertex_array[3 * 6];
 
     int ix = 0;
     vertex_array[ix++] = 0.0f;
-    vertex_array[ix++] = -10.0f;
+    vertex_array[ix++] = -1.0f;
     vertex_array[ix++] = 0.0f;
 
     vertex_array[ix++] = 0.0f;
-    vertex_array[ix++] = 10.0f;
-    vertex_array[ix++] = 0.0f;
-
-
-
-    vertex_array[ix++] = -10.0f;
-    vertex_array[ix++] = 0.0f;
-    vertex_array[ix++] = 0.0f;
-
-    vertex_array[ix++] = 10.0f;
-    vertex_array[ix++] = 0.0f;
+    vertex_array[ix++] = 1.0f;
     vertex_array[ix++] = 0.0f;
 
 
 
+    vertex_array[ix++] = -1.0f;
+    vertex_array[ix++] = 0.0f;
+    vertex_array[ix++] = 0.0f;
+
+    vertex_array[ix++] = 1.0f;
+    vertex_array[ix++] = 0.0f;
+    vertex_array[ix++] = 0.0f;
+
 
     vertex_array[ix++] = 0.0f;
     vertex_array[ix++] = 0.0f;
-    vertex_array[ix++] = -10.0f;
+    vertex_array[ix++] = -1.0f;
 
     vertex_array[ix++] = 0.0f;
     vertex_array[ix++] = 0.0f;
-    vertex_array[ix++] = 10.0f;
+    vertex_array[ix++] = 1.0f;
 
     Qt3DRender::QGeometry *geometry = new Qt3DRender::QGeometry();
 
@@ -327,7 +280,7 @@ GeneralMeshModel *ModelFactory::buildCoordinateLine()
 
     Qt3DExtras::QPerVertexColorMaterial *material = new Qt3DExtras::QPerVertexColorMaterial(m_rootEntity);
     GeneralMeshModel *lineTwo = new GeneralMeshModel(m_rootEntity, mesh, material);
-    lineTwo->scaleMesh(QVector3D(10,10,10));
+    lineTwo->scaleMesh(m_maxSize * QVector3D(1.3,1.3,1.3));
     lineTwo->enablePickAll(false);
     return lineTwo;
 }
@@ -639,9 +592,8 @@ GeneralMeshModel *ModelFactory::buildTube(double rMin, double rMax, double zHalf
     Qt3DRender::QGeometry *geometry = new Qt3DRender::QGeometry(customRenderer);
     geometry->addAttribute(positionAttribute);
     geometry->addAttribute(indexAttribute);
-    geometry->addAttribute(normalAttribute);
+    //geometry->addAttribute(normalAttribute);
     customRenderer->setGeometry(geometry);
-    //customRenderer->setPrimitiveType(Qt3DRender::QGeometryRenderer::Lines);
     
     GeneralMeshModel *tube = new GeneralMeshModel(m_rootEntity, customRenderer);
     return tube;

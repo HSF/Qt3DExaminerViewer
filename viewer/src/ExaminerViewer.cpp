@@ -156,7 +156,8 @@ void ExaminerViewer::setupControlPanel(QVBoxLayout *vLayout, QWidget *mainWindow
     QLabel *labelScale = new QLabel(mainWindow);
     QSlider *sliderScale = new QSlider(mainWindow);
     setUpSliderController(labelScale, sliderScale, "Scale", int(m_cameraWrapper->init_distanceToOrigin));
-    sliderScale->setRange(int(m_cameraWrapper->init_distanceToOrigin)/3, int(m_cameraWrapper->init_distanceToOrigin)*2);
+    sliderScale->setRange(int(m_cameraWrapper->init_distanceToOrigin)/3, int(m_cameraWrapper->init_distanceToOrigin*1.5));
+    sliderScale->setValue(int(m_cameraWrapper->init_distanceToOrigin));
 
     cameraLy->addWidget(labelScale);
     cameraLy->addWidget(sliderScale);
