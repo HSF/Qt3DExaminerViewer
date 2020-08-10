@@ -592,7 +592,7 @@ GeneralMeshModel *ModelFactory::buildTube(double rMin, double rMax, double zHalf
     Qt3DRender::QGeometry *geometry = new Qt3DRender::QGeometry(customRenderer);
     geometry->addAttribute(positionAttribute);
     geometry->addAttribute(indexAttribute);
-    //geometry->addAttribute(normalAttribute);
+    geometry->addAttribute(normalAttribute);
     customRenderer->setGeometry(geometry);
     
     GeneralMeshModel *tube = new GeneralMeshModel(m_rootEntity, customRenderer);
@@ -600,8 +600,188 @@ GeneralMeshModel *ModelFactory::buildTube(double rMin, double rMax, double zHalf
 }
 GeneralMeshModel *ModelFactory::buildTubs(double rMin, double rMax, double zHalf, double SPhi, double DPhi){
     // TODO: ask the diff between tubs and tube, define Tubs
-    return nullptr;
+    // the revolution shape is a rectangular: we need 4 vertexes per slice
+    m_maxSize = rMax > zHalf ? rMax : zHalf;
+    int numPerCircle = 40; // # of slices
+    float delta = DPhi / numPerCircle; // length of a slice, in radians
+    float vertex[numPerCircle * 4 * 3]; // 4 vertexes per slice: one top inner, one top outer, one bottom outer, one bottom inner
+    int floatPerCircle = numPerCircle * 3;
+
+    // Vertices
+    for(int j = 0; j < numPerCircle; j++){
+
+        int i = j * 3; // 3 coordinates per vertex: we set them by hand as i, i+1, i+2, so we use an offset of j*3 for each ietration over j
+
+        // top inner
+        vertex[i]   = rMin * qCos(SPhi + delta*j);
+        vertex[i+1] = rMin * qSin(SPhi + delta*j);
+        vertex[i+2] = zHalf;
+
+        // top outer
+        vertex[i+floatPerCircle]   = vertex[i]/rMin*rMax;
+        vertex[i+1+floatPerCircle] = vertex[i+1]/rMin*rMax;
+        vertex[i+2+floatPerCircle] = zHalf;
+
+        // bottom inner
+        vertex[i+2*floatPerCircle]   = vertex[i];
+        vertex[i+1+2*floatPerCircle] = vertex[i+1];
+        vertex[i+2+2*floatPerCircle] = -zHalf;
+
+        // bottom outer
+        vertex[i+3*floatPerCircle]   = vertex[i+floatPerCircle];
+        vertex[i+1+3*floatPerCircle] = vertex[i+floatPerCircle+1];
+        vertex[i+2+3*floatPerCircle] = -zHalf;
+    }
+
+    //for(int i = 0; i < numPerCircle*4*3; i+=3){
+    //    qInfo() << i/3 << ") x:" << vertex[i] << "y:" << vertex[i+1] << "z:" << vertex[i+2];
+    //}
+
+    // 4 vertexes per slice; each vertex has 3 'float' coordinates ==> 4 * nSlices * 3 * size(float)
+    QByteArray bufferBytes;
+    bufferBytes.resize(4 * numPerCircle * 3 * sizeof(float));
+
+    memcpy(bufferBytes.data(), reinterpret_cast<const char*>(vertex), bufferBytes.size());
+
+    Qt3DRender::QBuffer *buf = (new Qt3DRender::QBuffer());
+    buf->setData(bufferBytes);
+    Qt3DRender::QAttribute *positionAttribute = new Qt3DRender::QAttribute();
+    positionAttribute->setName(QAttribute::defaultPositionAttributeName());
+    positionAttribute->setAttributeType(QAttribute::VertexAttribute);
+    positionAttribute->setVertexBaseType(QAttribute::Float);
+    positionAttribute->setVertexSize(3);
+    positionAttribute->setBuffer(buf);
+    positionAttribute->setByteOffset(0);
+    positionAttribute->setByteStride(3 * sizeof(float));
+    positionAttribute->setCount(numPerCircle * 3 * 4);
+
+    // Inner sides, Normals per vertex
+    float normal[numPerCircle * 4 * 3];
+    for(int j = 0; j < numPerCircle; j++){
+
+        int i = j * 3; // 3 coordinates per vertex, so we use an offset of j*3 at the start of each iteration
+
+        // top inner
+        normal[i]   = -qCos(SPhi + delta*j);
+        normal[i+1] = -qSin(SPhi + delta*j);
+        normal[i+2] = 1;
+
+        // top outer
+        normal[i+floatPerCircle]   = -normal[i];
+        normal[i+floatPerCircle+1] = -normal[i+1];
+        normal[i+floatPerCircle+2] = 1;
+
+        // bottom inner
+        normal[i+2*floatPerCircle]   = normal[i];
+        normal[i+2*floatPerCircle+1] = normal[i+1];
+        normal[i+2*floatPerCircle+2] = -1;
+
+        // bottom outer
+        normal[i+3*floatPerCircle]   = normal[i+floatPerCircle];
+        normal[i+3*floatPerCircle+1] = normal[i+floatPerCircle+1];
+        normal[i+3*floatPerCircle+2] = -1;
+    }
+    //for(int i = 0; i < numPerCircle*4*3; i+=3){
+    //    qInfo() << i/3 << ") x:" << normal[i] << "y:" << normal[i+1] << "z:" << normal[i+2];
+    //}
+    QByteArray normalBytes;
+    normalBytes.resize(4 * numPerCircle * 3 * sizeof(float));
+    memcpy(normalBytes.data(), reinterpret_cast<const char*>(normal), normalBytes.size());
+    Qt3DRender::QBuffer *normalBuf = (new Qt3DRender::QBuffer());
+    normalBuf->setData(normalBytes);
+
+    Qt3DRender::QAttribute *normalAttribute = new Qt3DRender::QAttribute();
+    normalAttribute->setBuffer(normalBuf);
+    normalAttribute->setName(QAttribute::defaultNormalAttributeName());
+    normalAttribute->setAttributeType(QAttribute::VertexAttribute);
+    normalAttribute->setVertexBaseType(QAttribute::Float);
+    normalAttribute->setVertexSize(3);
+    normalAttribute->setByteOffset(0);
+    normalAttribute->setByteStride(3 * sizeof(float));
+    normalAttribute->setCount(numPerCircle * 3 * 4);
+
+    // faces around each slices plus four triangular faces at two ends
+    unsigned int index[((numPerCircle-1) * 8 + 4) * 3];
+    int num = (numPerCircle - 1) * 6;
+    for(int j = 0; j < numPerCircle-1; j++){
+        int i = j * 6;
+        index[i] = j;
+        index[i+1] = j+numPerCircle;
+        index[i+2] = (j+1)%numPerCircle;
+        index[i+3] = (j+1)%numPerCircle;
+        index[i+4] = j+numPerCircle;
+        index[i+5] = (j+1)%numPerCircle + numPerCircle;
+
+        index[i+num] = j+numPerCircle;
+        index[i+num+1] = j+3*numPerCircle;
+        index[i+num+2] = (j+1)%numPerCircle + numPerCircle;
+        index[i+num+3] = (j+1)%numPerCircle + numPerCircle;
+        index[i+num+4] = j+3*numPerCircle;
+        index[i+num+5] = (j+1)%numPerCircle + 3*numPerCircle;
+
+        index[i+2*num] = j+3*numPerCircle;
+        index[i+2*num+1] = j+2*numPerCircle;
+        index[i+2*num+2] = (j+1)%numPerCircle + 3*numPerCircle;
+        index[i+2*num+3] = (j+1)%numPerCircle + 3*numPerCircle;
+        index[i+2*num+4] = j+2*numPerCircle;
+        index[i+2*num+5] = (j+1)%numPerCircle + 2*numPerCircle;
+
+        index[i+3*num] = j+2*numPerCircle;
+        index[i+3*num+1] = j;
+        index[i+3*num+2] = (j+1)%numPerCircle + 2*numPerCircle;
+        index[i+3*num+3] = (j+1)%numPerCircle + 2*numPerCircle;
+        index[i+3*num+4] = j;
+        index[i+3*num+5] = (j+1)%numPerCircle;
+    }
+    int endFace = (numPerCircle-1) * 8 * 3;
+    index[endFace] = 0;
+    index[endFace+1] = 3 * numPerCircle;
+    index[endFace+2] = numPerCircle;
+
+    index[endFace+3] = 0;
+    index[endFace+4] = 2 * numPerCircle;
+    index[endFace+5] = 3 * numPerCircle;
+
+    index[endFace+6] = numPerCircle - 1;
+    index[endFace+7] = 2 * numPerCircle - 1;
+    index[endFace+8] = 4 * numPerCircle - 1;
+
+    index[endFace+9] = numPerCircle - 1;
+    index[endFace+10] = 4 * numPerCircle - 1;
+    index[endFace+11] = 3 * numPerCircle - 1;
+
+    //for(int i= 0; i < numPerCircle * 8 * 3; i+=3){
+    //    qInfo() << i/3 <<" 1)"<< index[i] << " 2) " << index[i+1] << " 3) "<< index[i+2];
+    //}
+
+    QByteArray indexBytes;
+    indexBytes.resize((8 * (numPerCircle-1) + 4) * 3 * sizeof(quint32));
+
+    memcpy(indexBytes.data(), reinterpret_cast<const char*>(index), indexBytes.size());
+    Qt3DRender::QBuffer *indexBuffer(new QBuffer());
+    indexBuffer->setData(indexBytes);
+
+    QAttribute *indexAttribute = new QAttribute();
+    indexAttribute->setAttributeType(QAttribute::IndexAttribute);
+    indexAttribute->setBuffer(indexBuffer);
+    indexAttribute->setVertexBaseType(QAttribute::UnsignedInt);
+    indexAttribute->setVertexSize(3);
+    indexAttribute->setByteOffset(0);
+    indexAttribute->setByteStride(3 * sizeof(unsigned int));
+    indexAttribute->setCount((8 * (numPerCircle-1) + 4) * 3);
+
+    QGeometryRenderer *customRenderer = new QGeometryRenderer;
+    Qt3DRender::QGeometry *geometry = new Qt3DRender::QGeometry(customRenderer);
+    geometry->addAttribute(positionAttribute);
+    geometry->addAttribute(indexAttribute);
+    geometry->addAttribute(normalAttribute);
+    customRenderer->setGeometry(geometry);
+    //customRenderer->setPrimitiveType(QGeometryRenderer::Lines);
+
+    GeneralMeshModel *tubs = new GeneralMeshModel(m_rootEntity, customRenderer);
+    return tubs;
 }
+
 GeneralMeshModel *ModelFactory::buildPcon(double SPhi, double DPhi, unsigned int nPlanes, Pcon *planes){
     // TODO: make sure what is Pcon
     return nullptr;

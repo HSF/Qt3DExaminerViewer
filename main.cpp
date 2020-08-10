@@ -127,9 +127,10 @@ int main(int argc, char **argv){
         //qInfo() << "radius: " << cameraEntity->viewVector().length();
     });
 
-
-    ExaminerViewer *viewer = new ExaminerViewer(loadedModel, cameraWrapper);
-    viewer->setupControlPanel(vLayout, mainWindow);
+    if(loadedModel != nullptr){
+        ExaminerViewer *viewer = new ExaminerViewer(loadedModel, cameraWrapper);
+        viewer->setupControlPanel(vLayout, mainWindow);
+    }
 
     //QQmlApplicationEngine engine;
     //engine.load(QUrl("qrc:/qml/main.qml"));
