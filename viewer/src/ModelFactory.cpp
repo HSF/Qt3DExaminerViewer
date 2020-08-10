@@ -12,8 +12,23 @@
 #include <QtMath>
 
 using namespace Qt3DRender;
+ModelFactory *ModelFactory::m_singleton = nullptr;
+ModelFactory *ModelFactory::GetInstance(Qt3DCore::QEntity *rootEntity){
+    if(m_singleton == nullptr)
+        m_singleton = new ModelFactory(rootEntity);
+    return m_singleton;
+}
 
 ModelFactory::ModelFactory(Qt3DCore::QEntity *rootEntity): m_rootEntity(rootEntity){
+}
+
+void ModelFactory::setMaxSize(float size){
+    if(size > m_maxSize)
+        m_maxSize = size;
+}
+
+float ModelFactory::MaxSize(){
+    return m_maxSize;
 }
 
 GeneralMeshModel **ModelFactory::build3DText(){
@@ -457,21 +472,19 @@ GeneralMeshModel *ModelFactory::buildTetrahedra(){
     customGeometry->addAttribute(colorAttribute);
     customGeometry->addAttribute(indexAttribute);
 
-    //customMeshRenderer->setGeometry(customGeometry);
+    customMeshRenderer->setGeometry(customGeometry);
 
-    GeneralMeshModel *tetra = new GeneralMeshModel(m_rootEntity, customMeshRenderer);
+    GeneralMeshModel *tetra = new GeneralMeshModel(m_rootEntity, customMeshRenderer, material);
     tetra->translateMesh(QVector3D(0, 50, 0));
     tetra->scaleMesh(QVector3D(20,20,20));
     tetra->enablePickAll(false);
     return tetra;
 }
 
-
-
 GeneralMeshModel *ModelFactory::buildTube(double rMin, double rMax, double zHalf){
     
     // the revolution shape is a rectangular: we need 4 vertexes per slice
-
+    m_maxSize = rMax > zHalf ? rMax : zHalf;
     int numPerCircle = 50; // # of slices
     float delta = 2 * M_PI / numPerCircle; // length of a slice, in radians
     float vertex[numPerCircle * 4 * 3]; // 4 vertexes per slice: one top inner, one top outer, one bottom outer, one bottom inner

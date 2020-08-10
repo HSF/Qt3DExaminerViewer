@@ -26,7 +26,7 @@
 
 
 GeoLoaderQt::GeoLoaderQt(Qt3DCore::QEntity *rootEntity): m_rootEntity(rootEntity){
-    m_builder = new ModelFactory(rootEntity);
+    m_builder = ModelFactory::GetInstance(rootEntity);
 }
 
 GMDBManager* GeoLoaderQt::checkPath(QString path){
@@ -196,6 +196,8 @@ GeneralMeshModel *GeoLoaderQt::createBox(const GeoShape* shapeIn){
   meshBox->setZExtent(float(2*zHalf));
   meshBox->setObjectName(QString("GeoBox with xHalf:%1, yHalf:%2, zHalf:%3").arg(xHalf).arg(yHalf).arg(zHalf));
   GeneralMeshModel *cuboidModel = new GeneralMeshModel(m_rootEntity, meshBox);
+  float maxSize = std::max(std::max(xHalf, yHalf), zHalf);
+  m_builder->setMaxSize(maxSize);
   return cuboidModel;
 }
 

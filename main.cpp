@@ -94,22 +94,23 @@ int main(int argc, char **argv){
     Qt3DCore::QEntity *lightEntity = new Qt3DCore::QEntity(rootEntity);
     setUpLight(lightEntity, cameraEntity->position());
 
-    // Create mesh model
-    ModelFactory *builder = new ModelFactory(rootEntity);
-    GeneralMeshModel **textList = builder->build3DText();
-    builder->buildCoordinateLine();
-    builder->buildCoordinatePlane();
-    builder->buildTetrahedra();
-    //GeneralMeshModel *cylinderModel = builder->buildTestVolume();
-    //cylinderModel->enablePickAll(false);
-
     QString fileName;
     fileName = QFileDialog::getOpenFileName(mainWindow, "Open database file", DEFAULT_FOLDER, "Database Files (*.db)");
 
     GeoLoaderQt *loader = new GeoLoaderQt(rootEntity);
-    GeneralMeshModel *boxModel = loader->loadCreate(fileName);
+    GeneralMeshModel *loadedModel = loader->loadCreate(fileName);
     //if(boxModel != nullptr)
     //   boxModel->enablePickAll(false);
+
+    // Create mesh model
+    ModelFactory *builder = ModelFactory::GetInstance(rootEntity);
+    GeneralMeshModel **textList = builder->build3DText();
+    builder->buildCoordinateLine();
+    builder->buildCoordinatePlane();
+    qInfo() << "maxSize: " << builder->MaxSize();
+    //builder->buildTetrahedra();
+    //GeneralMeshModel *cylinderModel = builder->buildTestVolume();
+    //cylinderModel->enablePickAll(false);
 
     
     QObject::connect(cameraEntity, &Qt3DRender::QCamera::positionChanged,
@@ -123,7 +124,7 @@ int main(int argc, char **argv){
     });
 
 
-    ExaminerViewer *viewer = new ExaminerViewer(boxModel, cameraWrapper);
+    ExaminerViewer *viewer = new ExaminerViewer(loadedModel, cameraWrapper);
     viewer->setupControlPanel(vLayout, mainWindow);
 
     //QQmlApplicationEngine engine;
@@ -132,7 +133,5 @@ int main(int argc, char **argv){
     // Show window
     mainWindow->show();
     mainWindow->resize(1200, 800);
-    cameraEntity->viewAll();
-    cameraWrapper->init_distanceToOrigin = cameraEntity->position()[2];
     return app.exec();
 }
