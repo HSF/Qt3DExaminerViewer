@@ -611,15 +611,14 @@ GeneralMeshModel *ModelFactory::buildTube(double rMin, double rMax, double zHalf
     return tube;
 }
 GeneralMeshModel *ModelFactory::buildTubs(double rMin, double rMax, double zHalf, double SPhi, double DPhi){
-    // TODO: ask the diff between tubs and tube, define Tubs
     // the revolution shape is a rectangular: we need 4 vertexes per slice
     float maxSize = rMax > zHalf ? rMax : zHalf;
     setMaxSize(maxSize);
+
     int numPerCircle = 40; // # of slices
     float delta = DPhi / numPerCircle; // length of a slice, in radians
     float vertex[numPerCircle * 4 * 3]; // 4 vertexes per slice: one top inner, one top outer, one bottom outer, one bottom inner
     int floatPerCircle = numPerCircle * 3;
-
     // Vertices
     for(int j = 0; j < numPerCircle; j++){
 
@@ -796,6 +795,146 @@ GeneralMeshModel *ModelFactory::buildTubs(double rMin, double rMax, double zHalf
 }
 
 GeneralMeshModel *ModelFactory::buildPcon(double SPhi, double DPhi, unsigned int nPlanes, Pcon *planes){
-    // TODO: make sure what is Pcon
+    // the revolution shape is a rectangular: we need 4 vertexes per slice
+    int maxSize = planes[nPlanes-1].ZPlane - planes[0].ZPlane;
+    for(unsigned int i = 0; i < nPlanes; i++){
+        if( maxSize < planes[i].RMaxPlane)
+            maxSize = planes[i].RMaxPlane;
+    }
+    setMaxSize(maxSize);
+
+    int numPerCircle = 40; // # of slices
+    float delta = DPhi / numPerCircle; // length of a slice, in radians
+    float vertex[numPerCircle * 2 * nPlanes * 3]; // 4 vertexes per slice: one top inner, one top outer, one bottom outer, one bottom inner
+    int floatPerCircle = numPerCircle * 3;
+
+    // Vertices
+    for(int j = 0; j < numPerCircle; j++){
+        // 3 coordinates per vertex: we set them by hand as i, i+1, i+2,
+        //so we use an offset of j*3 for each ietration over j
+        int i = j * 3;
+        for(unsigned int z = 0; z < nPlanes; z++){
+            // z-th layer inner
+            vertex[i+2*z*floatPerCircle]   = planes[z].RMinPlane * qCos(SPhi + delta*j);
+            vertex[i+2*z*floatPerCircle+1] = planes[z].RMinPlane * qCos(SPhi + delta*j);
+            vertex[i+2*z*floatPerCircle+2] = planes[z].ZPlane;
+
+            // z-th layer outer
+            vertex[i+(2*z+1)*floatPerCircle]   = vertex[i+2*z*floatPerCircle] / planes[z].RMinPlane * planes[z].RMaxPlane;
+            vertex[i+(2*z+1)*floatPerCircle+1] = vertex[i+2*z*floatPerCircle+1] / planes[z].RMinPlane * planes[z].RMaxPlane;
+            vertex[i+(2*z+1)*floatPerCircle+2] = planes[z].ZPlane;
+        }
+    }
+
+    // 4 vertexes per slice; each vertex has 3 'float' coordinates ==> 4 * nSlices * 3 * size(float)
+    QByteArray bufferBytes;
+    bufferBytes.resize(numPerCircle * 2 * nPlanes * 3 * sizeof(float));
+
+    memcpy(bufferBytes.data(), reinterpret_cast<const char*>(vertex), bufferBytes.size());
+
+    Qt3DRender::QBuffer *buf = (new Qt3DRender::QBuffer());
+    buf->setData(bufferBytes);
+    Qt3DRender::QAttribute *positionAttribute = new Qt3DRender::QAttribute();
+    positionAttribute->setName(QAttribute::defaultPositionAttributeName());
+    positionAttribute->setAttributeType(QAttribute::VertexAttribute);
+    positionAttribute->setVertexBaseType(QAttribute::Float);
+    positionAttribute->setVertexSize(3);
+    positionAttribute->setBuffer(buf);
+    positionAttribute->setByteOffset(0);
+    positionAttribute->setByteStride(3 * sizeof(float));
+    positionAttribute->setCount(numPerCircle * 2 * nPlanes * 3);
+
+
+    // Inner sides, Normals per vertex
+    float normal[numPerCircle * 2 * nPlanes * 3];
+    for(int j = 0; j < numPerCircle; j++){
+        int i = j * 3; // 3 coordinates per vertex, so we use an offset of j*3 at the start of each iteration
+        for(unsigned int z = 0; z < nPlanes; z++){
+            // z-th layer inner
+            normal[i+2*z*floatPerCircle]   = -qCos(SPhi + delta*j);
+            normal[i+2*z*floatPerCircle+1] = -qSin(SPhi + delta*j);
+            normal[i+2*z*floatPerCircle+2] = 0;
+
+            // z-th layer outer
+            normal[i+(2*z+1)*floatPerCircle]   = qCos(SPhi + delta*j);
+            normal[i+(2*z+1)*floatPerCircle+1] = qSin(SPhi + delta*j);
+            normal[i+(2*z+1)*floatPerCircle+2] = 0;
+        }
+    }
+
+    QByteArray normalBytes;
+    normalBytes.resize(numPerCircle * 2 * nPlanes * 3 * sizeof(float));
+    memcpy(normalBytes.data(), reinterpret_cast<const char*>(normal), normalBytes.size());
+    Qt3DRender::QBuffer *normalBuf = (new Qt3DRender::QBuffer());
+    normalBuf->setData(normalBytes);
+
+    Qt3DRender::QAttribute *normalAttribute = new Qt3DRender::QAttribute();
+    normalAttribute->setBuffer(normalBuf);
+    normalAttribute->setName(QAttribute::defaultNormalAttributeName());
+    normalAttribute->setAttributeType(QAttribute::VertexAttribute);
+    normalAttribute->setVertexBaseType(QAttribute::Float);
+    normalAttribute->setVertexSize(3);
+    normalAttribute->setByteOffset(0);
+    normalAttribute->setByteStride(3 * sizeof(float));
+    normalAttribute->setCount(numPerCircle * 2 * nPlanes * 3);
+
+    // faces around each slices plus four triangular faces at two ends
+    unsigned int index[( (numPerCircle-1) * ( (nPlanes-1)*4 + 4 ) + 4 *(nPlanes-1) ) * 3];
+    int num = (numPerCircle - 1) * 6;
+    for(int j = 0; j < numPerCircle-1; j++){
+        int i = j * 6;
+        // top layer upward face
+        index[i] = j;
+        index[i+1] = j+numPerCircle;
+        index[i+2] = j+1;
+
+        index[i+3] = j+1;
+        index[i+4] = j+numPerCircle;
+        index[i+5] = j+numPerCircle+1;
+
+        // bottom layer downward face
+        index[i+6] = j+3*numPerCircle;
+        index[i+7] = j+2*numPerCircle;
+        index[i+8] = j+1+3*numPerCircle;
+
+        index[i+9] = j+1+3*numPerCircle;
+        index[i+10] = j+2*numPerCircle;
+        index[i+11] = j+1+2*numPerCircle;
+
+        for(unsigned int z = 0; z < nPlanes-1; z++){
+            index[i+num] = j+numPerCircle;
+            index[i+num+1] = j+3*numPerCircle;
+            index[i+num+2] = (j+1)%numPerCircle + numPerCircle;
+            index[i+num+3] = (j+1)%numPerCircle + numPerCircle;
+            index[i+num+4] = j+3*numPerCircle;
+            index[i+num+5] = (j+1)%numPerCircle + 3*numPerCircle;
+
+            index[i+num] = j+numPerCircle;
+            index[i+num+1] = j+3*numPerCircle;
+            index[i+num+2] = (j+1)%numPerCircle + numPerCircle;
+            index[i+num+3] = (j+1)%numPerCircle + numPerCircle;
+            index[i+num+4] = j+3*numPerCircle;
+            index[i+num+5] = (j+1)%numPerCircle + 3*numPerCircle;
+        }
+
+    }
+    int endFace = (numPerCircle-1) * 8 * 3;
+    index[endFace] = 0;
+    index[endFace+1] = 3 * numPerCircle;
+    index[endFace+2] = numPerCircle;
+
+    index[endFace+3] = 0;
+    index[endFace+4] = 2 * numPerCircle;
+    index[endFace+5] = 3 * numPerCircle;
+
+    index[endFace+6] = numPerCircle - 1;
+    index[endFace+7] = 2 * numPerCircle - 1;
+    index[endFace+8] = 4 * numPerCircle - 1;
+
+    index[endFace+9] = numPerCircle - 1;
+    index[endFace+10] = 4 * numPerCircle - 1;
+    index[endFace+11] = 3 * numPerCircle - 1;
+
+    ( (numPerCircle-1) * ( (nPlanes-1)*4 + 4 ) + 4 *(nPlanes-1) ) * 3;
     return nullptr;
 }
