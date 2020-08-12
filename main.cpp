@@ -35,6 +35,7 @@
 #define DEFAULT_FOLDER "../../../../resources/db/"
 
 CameraWrapper *camera;
+GeneralMeshModel *loadedModel;
 
 void setUpLight(Qt3DCore::QEntity *lightEntity, QVector3D position){
     Qt3DRender::QPointLight *light = new Qt3DRender::QPointLight(lightEntity);
@@ -98,7 +99,7 @@ int main(int argc, char **argv){
     fileName = QFileDialog::getOpenFileName(mainWindow, "Open database file", DEFAULT_FOLDER, "Database Files (*.db)");
 
     GeoLoaderQt *loader = new GeoLoaderQt(rootEntity);
-    GeneralMeshModel *loadedModel = loader->loadCreate(fileName);
+    loadedModel = loader->loadCreate(fileName);
 
     ModelFactory *builder = ModelFactory::GetInstance(rootEntity);
     cameraWrapper->init_distanceToOrigin = builder->MaxSize() * 1.5 / tan(qDegreesToRadians(22.5f));

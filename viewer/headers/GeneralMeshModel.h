@@ -13,13 +13,13 @@
 #include <Qt3DRender/QObjectPicker>
 
 #define TIPS QString("1) Left click to highlight\n" \
-           "2) CMD/Ctrl + left click to open volume\n" \
-           "3) Option/Alt + left click to close volume\n" \
-           "4) Shift + left click to focus on clicked surface point\n" \
-           "5) Shift + right click to focus on clicked object volume center\n" \
-           "view mode\n" \
-           "6) Control(Mac) + left click to rotate\n" \
-           "7) Left click to translate view\n")
+                     "2) press X key to cancel selected volume" \
+                     "3) CMD/Ctrl + left click to open volume\n" \
+                     "4) Option/Alt + left click to close volume\n" \
+                     "5) Shift + left click to focus on clicked surface point\n" \
+                     "6) Shift + right click to focus on clicked object volume center\n" \
+                     "7) Ctrl(Mac) + left click to rotate\n" \
+                     "8) left click to translate view\n")
 
 extern QCommandLinkButton *info;
 extern CameraWrapper *camera;
@@ -43,10 +43,10 @@ public slots:
     void unpackSubMesh(Qt3DRender::QPickEvent* event);
     void packMesh(Qt3DRender::QPickEvent* event);
     void enablePickAll(bool enable);
+    void restoreState(bool checked);
 
 private slots:
     void changeState(Qt3DRender::QPickEvent* event);
-    void restoreState(bool checked);
     void enablePick(bool enable);
     void onMoveCamera(Qt3DRender::QPickEvent *event);
 

@@ -93,42 +93,6 @@ GeneralMeshModel *ModelFactory::buildTestVolume(){
     cylinderModel->addSubModel(cuboidModel2);
     cuboidModel1->addSubModel(cuboidModel3);
     cuboidModel2->addSubModel(sphereModel);
-    /*Qt3DRender::QMesh *mesh = new Qt3DRender::QMesh();
-    mesh->setSource(QUrl("qrc:///mesh/Detector.obj"));
-    mesh->setObjectName(QString("ATLAS detector volume"));
-    mesh->setProperty("Vertices", QVariant(37216));
-    mesh->setProperty("Edges", QVariant(58416));
-    mesh->setProperty("Faces", QVariant(29208));
-    GeneralMeshModel *detectorModel = new GeneralMeshModel(rootEntity, mesh);
-    detectorModel->scaleMesh(QVector3D(0.006f, 0.006f, 0.006f));
-    Qt3DRender::QMesh *meshLeft = new Qt3DRender::QMesh();
-    meshLeft->setSource(QUrl("qrc:///mesh/left_part.obj"));
-    meshLeft->setProperty("Vertices", QVariant(3));
-    meshLeft->setProperty("Edges", QVariant(5));
-    meshLeft->setProperty("Faces", QVariant(29));
-    MeshModel *subModelLeft = new MeshModel(rootEntity, meshLeft);
-    subModelLeft->scaleMesh(QVector3D(0.006f, 0.006f, 0.006f));
-
-    Qt3DRender::QMesh *meshRight = new Qt3DRender::QMesh();
-    meshRight->setSource(QUrl("qrc:///mesh/right_part.obj"));
-    meshRight->setProperty("Vertices", QVariant(32));
-    meshRight->setProperty("Edges", QVariant(58));
-    meshRight->setProperty("Faces", QVariant(2));
-    MeshModel *subModelRight = new MeshModel(rootEntity, meshRight);
-    subModelRight->scaleMesh(QVector3D(0.006f, 0.006f, 0.006f));
-
-    Qt3DRender::QMesh *meshMiddle = new Qt3DRender::QMesh();
-    meshMiddle->setSource(QUrl("qrc:///mesh/middle_part.obj"));
-    meshMiddle->setProperty("Vertices", QVariant(16));
-    meshMiddle->setProperty("Edges", QVariant(56));
-    meshMiddle->setProperty("Faces", QVariant(8));
-    MeshModel *subModelMiddle = new MeshModel(rootEntity, meshMiddle);
-    subModelMiddle->scaleMesh(QVector3D(0.006f, 0.006f, 0.006f));
-
-    detectorModel->add_subModel(subModelLeft);
-    detectorModel->add_subModel(subModelRight);
-    detectorModel->add_subModel(subModelMiddle);
-    */
     return cylinderModel;
 }
 
@@ -231,7 +195,6 @@ GeneralMeshModel *ModelFactory::buildCoordinateLine()
     vertex_array[ix++] = 0.0f;
     vertex_array[ix++] = 1.0f;
     vertex_array[ix++] = 0.0f;
-
 
 
     vertex_array[ix++] = -1.0f;
@@ -459,7 +422,6 @@ GeneralMeshModel *ModelFactory::buildTube(double rMin, double rMax, double zHalf
     for(int j = 0; j < numPerCircle; j++){
         
         int i = j * 3; // 3 coordinates per vertex: we set them by hand as i, i+1, i+2, so we use an offset of j*3 for each ietration over j
- 
         // top inner
         vertex[i]   = rMin * qCos(delta*j);
         vertex[i+1] = rMin * qSin(delta*j);           
@@ -501,7 +463,6 @@ GeneralMeshModel *ModelFactory::buildTube(double rMin, double rMax, double zHalf
     positionAttribute->setByteOffset(0);
     positionAttribute->setByteStride(3 * sizeof(float));
     positionAttribute->setCount(numPerCircle * 3 * 4);
-
 
     // Inner sides, Normals per vertex
     float normal[numPerCircle * 4 * 3];
@@ -616,7 +577,7 @@ GeneralMeshModel *ModelFactory::buildTubs(double rMin, double rMax, double zHalf
     setMaxSize(maxSize);
 
     int numPerCircle = 40; // # of slices
-    float delta = DPhi / numPerCircle; // length of a slice, in radians
+    float delta = DPhi / (numPerCircle-1); // length of a slice, in radians
     float vertex[numPerCircle * 4 * 3]; // 4 vertexes per slice: one top inner, one top outer, one bottom outer, one bottom inner
     int floatPerCircle = numPerCircle * 3;
     // Vertices

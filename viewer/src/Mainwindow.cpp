@@ -1,9 +1,12 @@
 #include "../headers/MainWindow.h"
+#include "../headers/GeneralMeshModel.h"
 #include <QDebug>
 #include <QKeyEvent>
 #include <Qt3DInput/QAnalogAxisInput>
 #include <Qt3DInput/QAxis>
 #include <Qt3DInput/QMouseDevice>
+
+extern GeneralMeshModel *loadedModel;
 
 MainWindow::MainWindow(): Qt3DExtras::Qt3DWindow(){
 }
@@ -28,6 +31,7 @@ void MainWindow::mousePressEvent(QMouseEvent *event){
 void MainWindow::keyPressEvent(QKeyEvent *event){
     switch (event->key()) {
     case Qt::Key_X:
+        loadedModel->restoreState(true);
         qInfo()<<"Key X is pressed";
         break;
     default:
