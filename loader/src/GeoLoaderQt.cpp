@@ -217,7 +217,7 @@ GeneralMeshModel *GeoLoaderQt::createTubs(const GeoShape* shapeIn){
   //if(std::abs(DPhi - 2 * M_PI) < 1e-2)
   //    return m_builder->buildTube(rMin/10, rMax/10, zHalf/10);
  // else
-      return m_builder->buildTubs(rMin/10, rMax/10, zHalf/10, SPhi+1, DPhi/3);
+      return m_builder->buildTubs(rMin/10, rMax/10, zHalf/10, SPhi, DPhi);
 }
 
 GeneralMeshModel *GeoLoaderQt::createPcon(const GeoShape* shapeIn){

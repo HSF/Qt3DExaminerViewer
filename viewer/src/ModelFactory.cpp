@@ -435,7 +435,7 @@ GeneralMeshModel *ModelFactory::buildTetrahedra(){
 
 GeneralMeshModel *ModelFactory::buildBox(double xHalf, double yHalf, double zHalf){
     Qt3DExtras::QCuboidMesh *meshBox = new Qt3DExtras::QCuboidMesh();
-    meshBox->setObjectName(QString("GeoBox with xHalf:%1, yHalf:%2, zHalf:%3").arg(xHalf).arg(yHalf).arg(zHalf));
+    meshBox->setObjectName(QString("GeoBox with:\n xHalf:%1, yHalf:%2, zHalf:%3").arg(xHalf).arg(yHalf).arg(zHalf));
     meshBox->setXExtent(float(2*xHalf));
     meshBox->setYExtent(float(2*yHalf));
     meshBox->setZExtent(float(2*zHalf));
@@ -606,7 +606,7 @@ GeneralMeshModel *ModelFactory::buildTube(double rMin, double rMax, double zHalf
     geometry->addAttribute(indexAttribute);
     geometry->addAttribute(normalAttribute);
     customRenderer->setGeometry(geometry);
-    customRenderer->setObjectName(QString("GeoTube with rMin:%1, rMax:%2, zHalf:%3").arg(rMin).arg(rMax).arg(zHalf));
+    customRenderer->setObjectName(QString("GeoTube with:\n rMin:%1, rMax:%2, zHalf:%3").arg(rMin).arg(rMax).arg(zHalf));
     GeneralMeshModel *tube = new GeneralMeshModel(m_rootEntity, customRenderer);
     return tube;
 }
@@ -788,7 +788,7 @@ GeneralMeshModel *ModelFactory::buildTubs(double rMin, double rMax, double zHalf
     geometry->addAttribute(indexAttribute);
     geometry->addAttribute(normalAttribute);
     customRenderer->setGeometry(geometry);
-    customRenderer->setObjectName(QString("GeoTubs with rMin:%1, rMax:%2, zHalf:%3, SPhi:%4, DPhi:%5")
+    customRenderer->setObjectName(QString("GeoTubs with:\n rMin:%1, rMax:%2, zHalf:%3, SPhi:%4, DPhi:%5")
                                   .arg(rMin).arg(rMax).arg(zHalf).arg(SPhi).arg(DPhi));
     GeneralMeshModel *tubs = new GeneralMeshModel(m_rootEntity, customRenderer);
     return tubs;
@@ -983,9 +983,9 @@ GeneralMeshModel *ModelFactory::buildPcon(double SPhi, double DPhi, unsigned int
     customRenderer->setGeometry(geometry);
     //customRenderer->setPrimitiveType(QGeometryRenderer::Lines);
     QString info;
-    info = QString("GeoPcon with: ");
+    info = QString("GeoPcon with:\n ");
     for(unsigned int z = 0; z < nPlanes; z++){
-        QString subInfo = QString("Plane #%1, --z: %2, --rMin: %3, --rMax: %4\n").arg(z)
+        QString subInfo = QString("Plane #%1: z: %2, rMin: %3, rMax: %4\n").arg(z)
                 .arg(planes[z].ZPlane).arg(planes[z].RMinPlane).arg(planes[z].RMaxPlane);
         info += subInfo;
     }
