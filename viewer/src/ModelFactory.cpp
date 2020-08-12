@@ -796,7 +796,7 @@ GeneralMeshModel *ModelFactory::buildTubs(double rMin, double rMax, double zHalf
 
 GeneralMeshModel *ModelFactory::buildPcon(double SPhi, double DPhi, unsigned int nPlanes, Pcon *planes){
     // the revolution shape is a rectangular: we need 4 vertexes per slice
-    int maxSize = planes[nPlanes-1].ZPlane - planes[0].ZPlane;
+    float maxSize = planes[nPlanes-1].ZPlane - planes[0].ZPlane;
     for(unsigned int i = 0; i < nPlanes; i++){
         if( maxSize < planes[i].RMaxPlane)
             maxSize = planes[i].RMaxPlane;
@@ -804,7 +804,7 @@ GeneralMeshModel *ModelFactory::buildPcon(double SPhi, double DPhi, unsigned int
     setMaxSize(maxSize);
 
     int numPerCircle = 40; // # of slices
-    float delta = DPhi / numPerCircle; // length of a slice, in radians
+    float delta = DPhi / (numPerCircle-1); // length of a slice, in radians
     float vertex[numPerCircle * 2 * nPlanes * 3]; // 4 vertexes per slice: one top inner, one top outer, one bottom outer, one bottom inner
     int floatPerCircle = numPerCircle * 3;
 
@@ -816,7 +816,7 @@ GeneralMeshModel *ModelFactory::buildPcon(double SPhi, double DPhi, unsigned int
         for(unsigned int z = 0; z < nPlanes; z++){
             // z-th layer inner
             vertex[i+2*z*floatPerCircle]   = planes[z].RMinPlane * qCos(SPhi + delta*j);
-            vertex[i+2*z*floatPerCircle+1] = planes[z].RMinPlane * qCos(SPhi + delta*j);
+            vertex[i+2*z*floatPerCircle+1] = planes[z].RMinPlane * qSin(SPhi + delta*j);
             vertex[i+2*z*floatPerCircle+2] = planes[z].ZPlane;
 
             // z-th layer outer
@@ -825,6 +825,9 @@ GeneralMeshModel *ModelFactory::buildPcon(double SPhi, double DPhi, unsigned int
             vertex[i+(2*z+1)*floatPerCircle+2] = planes[z].ZPlane;
         }
     }
+    /*for(unsigned int i = 0; i < numPerCircle * 2 * nPlanes * 3; i+=3){
+        qInfo() << i/3 << ") x:" << vertex[i] << "y:" << vertex[i+1] << "z:" << vertex[i+2];
+    }*/
 
     // 4 vertexes per slice; each vertex has 3 'float' coordinates ==> 4 * nSlices * 3 * size(float)
     QByteArray bufferBytes;
@@ -860,7 +863,16 @@ GeneralMeshModel *ModelFactory::buildPcon(double SPhi, double DPhi, unsigned int
             normal[i+(2*z+1)*floatPerCircle+1] = qSin(SPhi + delta*j);
             normal[i+(2*z+1)*floatPerCircle+2] = 0;
         }
+        // specical direction for tope layer
+        normal[i+2] = -1;
+        normal[i+floatPerCircle+2] = -1;
+        // specical direction for tope layer
+        normal[i+2*(nPlanes-1)*floatPerCircle+2] = 1;
+        normal[i+2*(nPlanes+1)*floatPerCircle+2] = 1;
     }
+    /*for(unsigned int i = 0; i < numPerCircle * 2 * nPlanes * 3; i+=3){
+        qInfo() << i/3 << ") x:" << normal[i] << "y:" << normal[i+1] << "z:" << normal[i+2];
+    }*/
 
     QByteArray normalBytes;
     normalBytes.resize(numPerCircle * 2 * nPlanes * 3 * sizeof(float));
@@ -880,61 +892,104 @@ GeneralMeshModel *ModelFactory::buildPcon(double SPhi, double DPhi, unsigned int
 
     // faces around each slices plus four triangular faces at two ends
     unsigned int index[( (numPerCircle-1) * ( (nPlanes-1)*4 + 4 ) + 4 *(nPlanes-1) ) * 3];
-    int num = (numPerCircle - 1) * 6;
+    int num = (nPlanes - 1) * 4 * 3;
     for(int j = 0; j < numPerCircle-1; j++){
-        int i = j * 6;
+        int i = j * (12+num);
         // top layer upward face
         index[i] = j;
-        index[i+1] = j+numPerCircle;
-        index[i+2] = j+1;
+        index[i+1] = j+1;
+        index[i+2] = j+numPerCircle;
 
         index[i+3] = j+1;
-        index[i+4] = j+numPerCircle;
-        index[i+5] = j+numPerCircle+1;
+        index[i+4] = j+numPerCircle+1;
+        index[i+5] = j+numPerCircle;
 
         // bottom layer downward face
-        index[i+6] = j+3*numPerCircle;
-        index[i+7] = j+2*numPerCircle;
-        index[i+8] = j+1+3*numPerCircle;
+        index[i+6] = (2*nPlanes-2)*numPerCircle+j;
+        index[i+7] = (2*nPlanes-1)*numPerCircle+j;
+        index[i+8] = (2*nPlanes-2)*numPerCircle+j+1;
 
-        index[i+9] = j+1+3*numPerCircle;
-        index[i+10] = j+2*numPerCircle;
-        index[i+11] = j+1+2*numPerCircle;
+        index[i+9] = (2*nPlanes-1)*numPerCircle+j+1;
+        index[i+10] = (2*nPlanes-2)*numPerCircle+j+1;
+        index[i+11] = (2*nPlanes-1)*numPerCircle+j;
 
         for(unsigned int z = 0; z < nPlanes-1; z++){
-            index[i+num] = j+numPerCircle;
-            index[i+num+1] = j+3*numPerCircle;
-            index[i+num+2] = (j+1)%numPerCircle + numPerCircle;
-            index[i+num+3] = (j+1)%numPerCircle + numPerCircle;
-            index[i+num+4] = j+3*numPerCircle;
-            index[i+num+5] = (j+1)%numPerCircle + 3*numPerCircle;
+            // z-th layer inner face
+            index[i+12*z+12] = j+numPerCircle*2*z;
+            index[i+12*z+13] = j+numPerCircle*2*(z+1);
+            index[i+12*z+14] = j+numPerCircle*2*z+1;
 
-            index[i+num] = j+numPerCircle;
-            index[i+num+1] = j+3*numPerCircle;
-            index[i+num+2] = (j+1)%numPerCircle + numPerCircle;
-            index[i+num+3] = (j+1)%numPerCircle + numPerCircle;
-            index[i+num+4] = j+3*numPerCircle;
-            index[i+num+5] = (j+1)%numPerCircle + 3*numPerCircle;
+            index[i+12*z+15] = j+numPerCircle*2*(z+1)+1;
+            index[i+12*z+16] = j+numPerCircle*2*z+1;
+            index[i+12*z+17] = j+numPerCircle*2*(z+1);
+
+            // z-th layer outer face
+            index[i+12*z+18] = j+numPerCircle*(2*z+1);
+            index[i+12*z+19] = j+numPerCircle*(2*z+1)+1;
+            index[i+12*z+20] = j+numPerCircle*(2*z+3);
+
+            index[i+12*z+21] = j+numPerCircle*(2*z+3)+1;
+            index[i+12*z+22] = j+numPerCircle*(2*z+3);
+            index[i+12*z+23] = j+numPerCircle*(2*z+1)+1;
         }
-
     }
-    int endFace = (numPerCircle-1) * 8 * 3;
-    index[endFace] = 0;
-    index[endFace+1] = 3 * numPerCircle;
-    index[endFace+2] = numPerCircle;
+    int endFace = (numPerCircle-1) * ( (nPlanes-1)*4 + 4 ) * 3;
+    int stride = 12;
+    for(unsigned int z = 0; z < nPlanes-1; z++){
+       //beginning side face
+       index[endFace+stride*z] = numPerCircle*2*z;
+       index[endFace+stride*z+1] = numPerCircle*(2*z+1);
+       index[endFace+stride*z+2] = numPerCircle*(2*z+2);
 
-    index[endFace+3] = 0;
-    index[endFace+4] = 2 * numPerCircle;
-    index[endFace+5] = 3 * numPerCircle;
+       index[endFace+stride*z+3] = numPerCircle*(2*z+3);
+       index[endFace+stride*z+4] = numPerCircle*(2*z+2);
+       index[endFace+stride*z+5] = numPerCircle*(2*z+1);
 
-    index[endFace+6] = numPerCircle - 1;
-    index[endFace+7] = 2 * numPerCircle - 1;
-    index[endFace+8] = 4 * numPerCircle - 1;
+       // ending side face
+       index[endFace+stride*z+6] = numPerCircle*(2*z+1)-1;
+       index[endFace+stride*z+7] = numPerCircle*(2*z+3)-1;
+       index[endFace+stride*z+8] = numPerCircle*(2*z+2)-1;
 
-    index[endFace+9] = numPerCircle - 1;
-    index[endFace+10] = 4 * numPerCircle - 1;
-    index[endFace+11] = 3 * numPerCircle - 1;
+       index[endFace+stride*z+9]  = numPerCircle*(2*z+4)-1;
+       index[endFace+stride*z+10] = numPerCircle*(2*z+2)-1;
+       index[endFace+stride*z+11] = numPerCircle*(2*z+3)-1;
+    }
 
-    ( (numPerCircle-1) * ( (nPlanes-1)*4 + 4 ) + 4 *(nPlanes-1) ) * 3;
-    return nullptr;
+    /*for(unsigned int i= 0; i < ( (numPerCircle-1) * ( (nPlanes-1)*4 + 4 ) + 4 *(nPlanes-1) ) * 3; i+=3){
+        qInfo() << i/3 <<" 1)"<< index[i] << " 2) " << index[i+1] << " 3) "<< index[i+2];
+    }*/
+
+    QByteArray indexBytes;
+    indexBytes.resize(( (numPerCircle-1) * ( (nPlanes-1)*4 + 4 ) + 4 *(nPlanes-1) ) * 3 * sizeof(quint32));
+
+    memcpy(indexBytes.data(), reinterpret_cast<const char*>(index), indexBytes.size());
+    Qt3DRender::QBuffer *indexBuffer(new QBuffer());
+    indexBuffer->setData(indexBytes);
+
+    QAttribute *indexAttribute = new QAttribute();
+    indexAttribute->setAttributeType(QAttribute::IndexAttribute);
+    indexAttribute->setBuffer(indexBuffer);
+    indexAttribute->setVertexBaseType(QAttribute::UnsignedInt);
+    indexAttribute->setVertexSize(3);
+    indexAttribute->setByteOffset(0);
+    indexAttribute->setByteStride(3 * sizeof(unsigned int));
+    indexAttribute->setCount(( (numPerCircle-1) * ( (nPlanes-1)*4 + 4 ) + 4 *(nPlanes-1) ) * 3);
+
+    QGeometryRenderer *customRenderer = new QGeometryRenderer;
+    Qt3DRender::QGeometry *geometry = new Qt3DRender::QGeometry(customRenderer);
+    geometry->addAttribute(positionAttribute);
+    geometry->addAttribute(indexAttribute);
+    geometry->addAttribute(normalAttribute);
+    customRenderer->setGeometry(geometry);
+    //customRenderer->setPrimitiveType(QGeometryRenderer::Lines);
+    QString info;
+    info = QString("GeoPcon with: ");
+    for(unsigned int z = 0; z < nPlanes; z++){
+        QString subInfo = QString("Plane #%1, --z: %2, --rMin: %3, --rMax: %4\n").arg(z)
+                .arg(planes[z].ZPlane).arg(planes[z].RMinPlane).arg(planes[z].RMaxPlane);
+        info += subInfo;
+    }
+    customRenderer->setObjectName(info);
+    GeneralMeshModel *pcon = new GeneralMeshModel(m_rootEntity, customRenderer);
+    return pcon;
 }

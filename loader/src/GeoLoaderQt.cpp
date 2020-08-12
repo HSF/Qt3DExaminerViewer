@@ -234,13 +234,13 @@ GeneralMeshModel *GeoLoaderQt::createPcon(const GeoShape* shapeIn){
   for (uint iP=0; iP < nPlanes; ++iP) {
     //  Get the Z Position of the specified plane.
     const double nZP = shape->getZPlane(iP);
-    planes[iP].ZPlane = nZP;
+    planes[iP].ZPlane = nZP/100;
     //  Get the RMin of the specified plane.
     const double nRmin = shape->getRMinPlane(iP);
-    planes[iP].RMinPlane = nRmin;
+    planes[iP].RMinPlane = nRmin/100;
     //  Get the RMax of the specified plane.
     const double nRmax = shape->getRMaxPlane(iP);
-    planes[iP].RMaxPlane = nRmax;
+    planes[iP].RMaxPlane = nRmax/100;
     std::cout << "Plane # " << iP << " -- z: " << nZP << " , rMin: " << nRmin << " , rMax: " << nRmax << std::endl;
   }
   //  True if the polycone has at least two planes.  False otherwise.
