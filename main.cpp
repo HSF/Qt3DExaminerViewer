@@ -70,6 +70,7 @@ int main(int argc, char **argv){
     view->activeFrameGraph()->dumpObjectTree();
     
     // view's picking settings
+    // see: https://stackoverflow.com/a/58412885/32036
     auto rendersettings=view->renderSettings();
     rendersettings->pickingSettings()->setPickMethod(Qt3DRender::QPickingSettings::TrianglePicking);
     rendersettings->pickingSettings()->setPickResultMode(Qt3DRender::QPickingSettings::AllPicks);
