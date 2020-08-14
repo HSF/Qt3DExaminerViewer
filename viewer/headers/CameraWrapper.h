@@ -26,7 +26,7 @@ signals:
     void viewCenterChanged(const QVector3D &viewCenter);
     void positionChanged(const QVector3D &position);
 public slots:
-    void resetCameraView();
+    void resetCameraView(float farPlanePos);
     void updateCameraPos();
     void zoomInOut(int extent);
     void viewAll();

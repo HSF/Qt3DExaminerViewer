@@ -104,12 +104,15 @@ int main(int argc, char **argv){
     ModelFactory *builder = ModelFactory::GetInstance(rootEntity);
     cameraWrapper->init_distanceToOrigin = builder->MaxSize() * 1.5 / tan(qDegreesToRadians(22.5f));
     cameraWrapper->viewAll();
+    qInfo() << "maxSize: " << builder->MaxSize();
+    cameraWrapper->resetCameraView(builder->MaxSize()*22);
+    camController->setLinearSpeed(builder->MaxSize()*3);
 
     // Create mesh model
     GeneralMeshModel **textList = builder->build3DText();
     builder->buildCoordinateLine();
     builder->buildCoordinatePlane();
-    qInfo() << "maxSize: " << builder->MaxSize();
+
     //builder->buildTetrahedra();
     //GeneralMeshModel *cylinderModel = builder->buildTestVolume();
     //cylinderModel->enablePickAll(false);

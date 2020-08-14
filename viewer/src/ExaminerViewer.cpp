@@ -58,7 +58,7 @@ void ExaminerViewer::setUpVolumePanel(QVBoxLayout *vLayout, QWidget *mainWindow)
     QGridLayout *hLayoutSelect = new QGridLayout(mainWindow);
     QLabel *labelSel = new QLabel("mouse", mainWindow);
     QRadioButton *selectBtn = new QRadioButton("fixed", mainWindow);
-    QRadioButton *viewBtn = new QRadioButton("dynamic", mainWindow);
+    QRadioButton *viewBtn = new QRadioButton("view", mainWindow);
     viewBtn->setChecked(true);
     hLayoutSelect->addWidget(labelSel, 0, 0);
     hLayoutSelect->addWidget(viewBtn, 0, 2);
@@ -162,7 +162,7 @@ void ExaminerViewer::setupControlPanel(QVBoxLayout *vLayout, QWidget *mainWindow
     QLabel *labelScale = new QLabel(mainWindow);
     QSlider *sliderScale = new QSlider(mainWindow);
     setUpSliderController(labelScale, sliderScale, "Scale", int(m_cameraWrapper->init_distanceToOrigin));
-    sliderScale->setRange(int(m_cameraWrapper->init_distanceToOrigin)/3, int(m_cameraWrapper->init_distanceToOrigin*5.5));
+    sliderScale->setRange(int(m_cameraWrapper->init_distanceToOrigin)/3, int(m_cameraWrapper->init_distanceToOrigin*5));
     sliderScale->setValue(int(m_cameraWrapper->init_distanceToOrigin));
 
     QHBoxLayout *hLayoutScale = new QHBoxLayout(mainWindow);
