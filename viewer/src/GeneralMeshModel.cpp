@@ -36,11 +36,14 @@ GeneralMeshModel::GeneralMeshModel(Qt3DCore::QEntity *rootEntity, Qt3DRender::QG
     QObject::connect(m_picker, &Qt3DRender::QObjectPicker::clicked, this, &GeneralMeshModel::packMesh);
     QObject::connect(m_picker, &Qt3DRender::QObjectPicker::exited, this, [](){ info->setDescription(TIPS);});
     
-    // add components to the Entity
-    m_meshEntity->addComponent(m_mesh);
-    m_meshEntity->addComponent(m_meshMaterial);
-    m_meshEntity->addComponent(m_meshTransform);
-    m_meshEntity->addComponent(m_picker);
+    // When a GeneralMeshModel is used for world container, m_mesh is nullptr
+    if(m_mesh != nullptr){
+        // add components to the Entity
+        m_meshEntity->addComponent(m_mesh);
+        m_meshEntity->addComponent(m_meshMaterial);
+        m_meshEntity->addComponent(m_meshTransform);
+        m_meshEntity->addComponent(m_picker);
+    }
 }
 
 GeneralMeshModel::~GeneralMeshModel(){
@@ -80,10 +83,7 @@ void GeneralMeshModel::changeState(Qt3DRender::QPickEvent *event){
     }
 }
 
-void GeneralMeshModel::enablePickAll(bool enable){
-    for(GeneralMeshModel *subModel:m_subModels){
-        subModel->enablePickAll(enable);
-    }
+void GeneralMeshModel::setPickMode(bool enable){
     enablePick(enable & m_isVisiable);
     m_isSelectMode=enable;
 }
@@ -111,7 +111,7 @@ void GeneralMeshModel::unpackSubMesh(Qt3DRender::QPickEvent* event){
     if(event->modifiers() == Qt::ControlModifier && event->button() == Qt3DRender::QPickEvent::LeftButton){
         if(m_subModels.size() == 0){
             info->setDescription(QString("This volume has no children"));
-            return;
+            //return;
         }
         showMesh(false);
         enablePick(false);
@@ -124,7 +124,7 @@ void GeneralMeshModel::unpackSubMesh(Qt3DRender::QPickEvent* event){
 
 void GeneralMeshModel::packMesh(Qt3DRender::QPickEvent* event){
     if(event->modifiers() == Qt::AltModifier && event->button() == Qt3DRender::QPickEvent::LeftButton){
-        if(m_parentModel == nullptr){
+        if(m_parentModel == nullptr || m_parentModel->objectName()=="world"){
             qInfo() << "has not parent";
             info->setDescription(QString("This volume has no parent"));
             return;

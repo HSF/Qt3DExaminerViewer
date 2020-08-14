@@ -13,7 +13,7 @@
 #include <Qt3DRender/QObjectPicker>
 
 #define TIPS QString("1) Left click to highlight\n" \
-                     "2) press X key to cancel selected volume" \
+                     "2) press X key to cancel selected volume\n" \
                      "3) CMD/Ctrl + left click to open volume\n" \
                      "4) Option/Alt + left click to close volume\n" \
                      "5) Shift + left click to focus on clicked surface point\n" \
@@ -42,7 +42,7 @@ public slots:
     void scaleMesh(QVector3D magnitude);
     void unpackSubMesh(Qt3DRender::QPickEvent* event);
     void packMesh(Qt3DRender::QPickEvent* event);
-    void enablePickAll(bool enable);
+    void setPickMode(bool enable);
     void restoreState(bool checked);
 
 private slots:

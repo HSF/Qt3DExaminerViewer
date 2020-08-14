@@ -20,7 +20,7 @@ Qt3DRender::QCamera *CameraWrapper::camera(){
 }
 
 void CameraWrapper::resetCameraView(){
-    m_camera->lens()->setPerspectiveProjection(45.0f, 16.0f/9.0f, 0.1f, 1000.0f);
+    m_camera->lens()->setPerspectiveProjection(45.0f, 16.0f/9.0f, 0.1f, 1000000.0f);
     m_camera->setPosition(QVector3D(0, 0, init_distanceToOrigin));
     m_camera->setUpVector(QVector3D(0, 1, 0));
     m_camera->setViewCenter(QVector3D(0, 0, 0));
@@ -119,6 +119,7 @@ void CameraWrapper::translatePosRad(int radius){
     QVector3D dir = (m_camera->viewCenter() - m_camera->position()).normalized();
     QVector3D newPos = m_camera->viewCenter() - (dir * radius);
     m_camera->setPosition(newPos);
+    qInfo() << "after viewAll: " << m_camera->viewVector().length();
 }
 
 void CameraWrapper::translateView(QVector3D bias, int scale){

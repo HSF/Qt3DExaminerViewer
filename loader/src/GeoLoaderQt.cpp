@@ -30,10 +30,6 @@ GMDBManager* GeoLoaderQt::checkPath(QString path){
   // get file
   std::string file = pathStd.substr(botDirPos, path.length());
   std::cout << "reading current file: " << file << std::endl;
-  if(file != "/Step1_Box_Pixel_Brl1926A_BeamExtension.db"){
-      std::cout << "Creating other geometries except Box is not supported, returning..." << std::endl;
-      //return nullptr;
-  }
 
   // check if DB file exists. If not, return.
   std::ifstream infile(path.toStdString().c_str());
@@ -94,7 +90,7 @@ const GeoVPhysVol *GeoLoaderQt::introChild(PVConstLink nodeLink){
 }
 
 
-GeneralMeshModel *GeoLoaderQt::loadCreate(QString path){
+GeneralMeshModel *GeoLoaderQt::loadFromDB(QString path){
 
   std::cout << "Using this DB file:" << path.toStdString() << std::endl;
 
@@ -107,36 +103,38 @@ GeneralMeshModel *GeoLoaderQt::loadCreate(QString path){
   //std::cout << "Printing the list of all GeoElement nodes" << std::endl;
   //db->printAllElements();
   GeoPhysVol *world = introWorld(db);
-  GeneralMeshModel *model = nullptr;
   // --- testing the imported Geometry
   // get number of children volumes
   unsigned int nChil = world->getNChildVols();
   std:: cout << "'world' number of children: " << nChil << std::endl;
+  GeneralMeshModel *container = new GeneralMeshModel(nullptr, nullptr);
+  container->setPickMode(false);
+  container->setObjectName("world");
   // loop over all children nodes
   std::cout << "Looping over all 'volume' children (i.e., GeoPhysVol and GeoFullPhysVol)..." << std::endl;
   for (unsigned int idx=0; idx<nChil; ++idx) {
     PVConstLink nodeLink = world->getChildVol(idx);
 
     if ( dynamic_cast<const GeoVPhysVol*>( &(*( nodeLink ))) ) {
-      std::cout << "\t" << "the child n. " << idx << " ";
+      std::cout << "\n" << "the child n. " << idx << " ";
       const GeoVPhysVol *childVolV = introChild(nodeLink);
       // Get shape type
       const GeoShape* shapeIn = childVolV->getLogVol()->getShape();
       std::cout << "the shape used by the VPhysVol is of type: " << shapeIn->type() << std::endl;
       if(shapeIn->type() == "Box")
-          model = createBox(shapeIn);
+          container->addSubModel(createBox(shapeIn));
       else if(shapeIn->type() == "Tube")
-          model = createTube(shapeIn);
+          container->addSubModel(createTube(shapeIn));
       else if(shapeIn->type() == "Tubs")
-          model = createTubs(shapeIn);
+          container->addSubModel(createTubs(shapeIn));
       else if(shapeIn->type() == "Pcon")
-          model = createPcon(shapeIn);
+          container->addSubModel(createPcon(shapeIn));
       else
           std::cout << "Unknown shape";
     }
   }
   std::cout << "Everything done." << std::endl;
-  return model;
+  return container;
 }
 
 GeoPhysVol* GeoLoaderQt::createTheWorld(GeoPhysVol* world){
@@ -214,10 +212,10 @@ GeneralMeshModel *GeoLoaderQt::createTubs(const GeoShape* shapeIn){
   //  Delta angle of the tube section in radians.
   const double DPhi = shape->getDPhi();
   std::cout << "rMin: " << rMin << " , rMax: " << rMax << " , zHalf: " << zHalf << " , SPhi: " << SPhi << " , DPhi: " << DPhi << std::endl;
-  //if(std::abs(DPhi - 2 * M_PI) < 1e-2)
-  //    return m_builder->buildTube(rMin/10, rMax/10, zHalf/10);
- // else
-      return m_builder->buildTubs(rMin/10, rMax/10, zHalf/10, SPhi, DPhi);
+  if(std::abs(DPhi - 2 * M_PI) < 1e-2)
+      return m_builder->buildTube(rMin, rMax, zHalf);
+  else
+      return m_builder->buildTubs(rMin, rMax, zHalf, SPhi, DPhi);
 }
 
 GeneralMeshModel *GeoLoaderQt::createPcon(const GeoShape* shapeIn){
@@ -234,13 +232,13 @@ GeneralMeshModel *GeoLoaderQt::createPcon(const GeoShape* shapeIn){
   for (uint iP=0; iP < nPlanes; ++iP) {
     //  Get the Z Position of the specified plane.
     const double nZP = shape->getZPlane(iP);
-    planes[iP].ZPlane = nZP/100;
+    planes[iP].ZPlane = nZP;
     //  Get the RMin of the specified plane.
     const double nRmin = shape->getRMinPlane(iP);
-    planes[iP].RMinPlane = nRmin/100;
+    planes[iP].RMinPlane = nRmin;
     //  Get the RMax of the specified plane.
     const double nRmax = shape->getRMaxPlane(iP);
-    planes[iP].RMaxPlane = nRmax/100;
+    planes[iP].RMaxPlane = nRmax;
     std::cout << "Plane # " << iP << " -- z: " << nZP << " , rMin: " << nRmin << " , rMax: " << nRmax << std::endl;
   }
   //  True if the polycone has at least two planes.  False otherwise.

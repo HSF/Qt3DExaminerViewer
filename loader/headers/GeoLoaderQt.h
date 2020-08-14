@@ -18,7 +18,7 @@
 class GeoLoaderQt{
 public:
 	GeoLoaderQt(Qt3DCore::QEntity *rootEntity);
-    GeneralMeshModel *loadCreate(QString path);
+    GeneralMeshModel *loadFromDB(QString path);
 private:
     GeoPhysVol* createTheWorld(GeoPhysVol* world);
     GMDBManager* checkPath(QString path);

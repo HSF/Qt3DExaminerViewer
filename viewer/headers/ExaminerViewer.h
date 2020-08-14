@@ -11,7 +11,7 @@ extern CameraWrapper *camera;
 
 class ExaminerViewer{
 public:
-    ExaminerViewer(GeneralMeshModel *cylinerModel, CameraWrapper *cameraWrapper);
+    ExaminerViewer(GeneralMeshModel *worldModel, CameraWrapper *cameraWrapper);
     void setupControlPanel(QVBoxLayout *vLayout, QWidget *mainWindow);
 
 private:
@@ -19,7 +19,7 @@ private:
     void setUpVolumePanel(QVBoxLayout *vLayout, QWidget *mainWindow);
     void setUpSliderController(QLabel *label, QSlider *slider, QString tip, int initalPos);
     QSequentialAnimationGroup *getRoute1Tour();
-    GeneralMeshModel *m_cylinderModel;
+    GeneralMeshModel *m_worldModel;
     CameraWrapper *m_cameraWrapper;
 };
 

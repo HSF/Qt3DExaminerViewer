@@ -18,8 +18,8 @@ QComboBox *bookmarkedView;
 QVector<QVector4D> bookmarkedViewls;
 
 
-ExaminerViewer::ExaminerViewer(GeneralMeshModel *cylinderModel, CameraWrapper *m_cameraWrapper)
-    : m_cylinderModel(cylinderModel),  m_cameraWrapper(m_cameraWrapper){
+ExaminerViewer::ExaminerViewer(GeneralMeshModel *worldModel, CameraWrapper *m_cameraWrapper)
+    : m_worldModel(worldModel),  m_cameraWrapper(m_cameraWrapper){
 }
 
 void ExaminerViewer::setUpSliderController(QLabel *label, QSlider *slider, QString tip, int initalPos){
@@ -44,8 +44,8 @@ void ExaminerViewer::setUpInfoWindow(){
     info->setText(QStringLiteral("Info windows:"));
     info->setDescription(TIPS);
     info->setIconSize(QSize(0,0));
-    info->setMaximumSize(QSize(250, 350));
-    info->setMinimumSize(QSize(200, 250));
+    info->setMaximumSize(QSize(300, 250));
+    info->setMinimumSize(QSize(300, 250));
     info->setFont(QFont ("Courier", 12));
 }
 
@@ -74,7 +74,7 @@ void ExaminerViewer::setUpVolumePanel(QVBoxLayout *vLayout, QWidget *mainWindow)
     volBox->setLayout(volLy);
     vLayout->addWidget(volBox);
 
-    QObject::connect(restoreSelectBtn, SIGNAL(clicked(bool)), m_cylinderModel, SLOT(restoreState(bool)));
+    QObject::connect(restoreSelectBtn, SIGNAL(clicked(bool)), m_worldModel, SLOT(restoreState(bool)));
     QObject::connect(selectBtn, &QRadioButton::clicked,
                      [this](bool clicked){
                       m_cameraWrapper->disableCameraController(clicked);
@@ -162,7 +162,7 @@ void ExaminerViewer::setupControlPanel(QVBoxLayout *vLayout, QWidget *mainWindow
     QLabel *labelScale = new QLabel(mainWindow);
     QSlider *sliderScale = new QSlider(mainWindow);
     setUpSliderController(labelScale, sliderScale, "Scale", int(m_cameraWrapper->init_distanceToOrigin));
-    sliderScale->setRange(int(m_cameraWrapper->init_distanceToOrigin)/3, int(m_cameraWrapper->init_distanceToOrigin*1.5));
+    sliderScale->setRange(int(m_cameraWrapper->init_distanceToOrigin)/3, int(m_cameraWrapper->init_distanceToOrigin*5.5));
     sliderScale->setValue(int(m_cameraWrapper->init_distanceToOrigin));
 
     QHBoxLayout *hLayoutScale = new QHBoxLayout(mainWindow);

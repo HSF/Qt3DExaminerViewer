@@ -47,7 +47,7 @@ GeneralMeshModel **ModelFactory::build3DText(){
         textModel[i] = new GeneralMeshModel(m_rootEntity, textMesh);
         textModel[i]->translateMesh(m_maxSize * position[i]);
         textModel[i]->scaleMesh(m_maxSize * QVector3D(0.1f, 0.1f, 0.02f));
-        textModel[i]->enablePickAll(false);
+        textModel[i]->setPickMode(false);
         textModel[i]->setColor(qColor);
     }
     return textModel;
@@ -101,7 +101,7 @@ GeneralMeshModel *ModelFactory::buildCoordinatePlane()
     Qt3DRender::QGeometryRenderer *meshRenderer = new Qt3DRender::QGeometryRenderer();
     Qt3DRender::QGeometry *geometry = new Qt3DRender::QGeometry(meshRenderer);
 
-    Qt3DRender::QBuffer *vertexDataBuffer = new Qt3DRender::QBuffer(Qt3DRender::QBuffer::VertexBuffer, geometry);
+    Qt3DRender::QBuffer *vertexDataBuffer = new Qt3DRender::QBuffer();
     //Qt3DRender::QBuffer *indexDataBuffer = new Qt3DRender::QBuffer(Qt3DRender::QBuffer::IndexBuffer, geometry);
 
     float netX1 = 1.0f, netX0 = 0.0f, netZ1 = 1.0f, netZ0 = 0.0f, netY = 0.0f;
@@ -175,7 +175,7 @@ GeneralMeshModel *ModelFactory::buildCoordinatePlane()
     GeneralMeshModel *lineOne = new GeneralMeshModel(m_rootEntity, meshRenderer, material);
     lineOne->translateMesh(m_maxSize * QVector3D(-1, 0, -1));
     lineOne->scaleMesh(m_maxSize * QVector3D(2, 2, 2));
-    lineOne->enablePickAll(false);
+    lineOne->setPickMode(false);
     return lineOne;
 }
 
@@ -244,7 +244,7 @@ GeneralMeshModel *ModelFactory::buildCoordinateLine()
     Qt3DExtras::QPerVertexColorMaterial *material = new Qt3DExtras::QPerVertexColorMaterial(m_rootEntity);
     GeneralMeshModel *lineTwo = new GeneralMeshModel(m_rootEntity, mesh, material);
     lineTwo->scaleMesh(m_maxSize * QVector3D(1.3,1.3,1.3));
-    lineTwo->enablePickAll(false);
+    lineTwo->setPickMode(false);
     return lineTwo;
 }
 
@@ -392,7 +392,7 @@ GeneralMeshModel *ModelFactory::buildTetrahedra(){
     GeneralMeshModel *tetra = new GeneralMeshModel(m_rootEntity, customMeshRenderer, material);
     tetra->translateMesh(QVector3D(0, 50, 0));
     tetra->scaleMesh(QVector3D(20,20,20));
-    tetra->enablePickAll(false);
+    tetra->setPickMode(false);
     return tetra;
 }
 
@@ -944,7 +944,7 @@ GeneralMeshModel *ModelFactory::buildPcon(double SPhi, double DPhi, unsigned int
     customRenderer->setGeometry(geometry);
     //customRenderer->setPrimitiveType(QGeometryRenderer::Lines);
     QString info;
-    info = QString("GeoPcon with:\n ");
+    info = QString("GeoPcon with:\n");
     for(unsigned int z = 0; z < nPlanes; z++){
         QString subInfo = QString("Plane #%1: z: %2, rMin: %3, rMax: %4\n").arg(z)
                 .arg(planes[z].ZPlane).arg(planes[z].RMinPlane).arg(planes[z].RMaxPlane);

@@ -99,13 +99,11 @@ int main(int argc, char **argv){
     fileName = QFileDialog::getOpenFileName(mainWindow, "Open database file", DEFAULT_FOLDER, "Database Files (*.db)");
 
     GeoLoaderQt *loader = new GeoLoaderQt(rootEntity);
-    loadedModel = loader->loadCreate(fileName);
+    loadedModel = loader->loadFromDB(fileName);
 
     ModelFactory *builder = ModelFactory::GetInstance(rootEntity);
     cameraWrapper->init_distanceToOrigin = builder->MaxSize() * 1.5 / tan(qDegreesToRadians(22.5f));
     cameraWrapper->viewAll();
-    //if(boxModel != nullptr)
-    //   boxModel->enablePickAll(false);
 
     // Create mesh model
     GeneralMeshModel **textList = builder->build3DText();
