@@ -17,7 +17,7 @@ git clone https://github.com/HSF/Qt3DExaminerViewer.git
 cd Qt3DExaminerViewer
 qmake -o build/Makefile Qt3DExaminerViewer.pro
 cd build
-make -j4. 
+make -j4 
 open Qt3DExaminerViewer.app
 ```
 Then select one of the database file from resourse/db folder when OpenFileDialog appears.
@@ -52,5 +52,5 @@ Then select one of the database file from resourse/db folder when OpenFileDialog
 ## current UI
 - control camera position and direction with slider/spinbox/keyboard arrow keys or touchpad/mouse(in view mode)
 
-![spinbox](https://firebasestorage.googleapis.com/v0/b/steam-key-269816.appspot.com/o/Screenshot%202020-08-06%20at%2018.15.31.png?alt=media&token=f64f2bab-7f23-4028-8363-f30b631cf8b5)
+![spinbox](https://firebasestorage.googleapis.com/v0/b/steam-key-269816.appspot.com/o/Screenshot%202020-08-14%20at%2011.02.13.png?alt=media&token=9ff49d4e-7ffc-4022-9aaa-7f169262891c)
 
