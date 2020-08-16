@@ -133,7 +133,7 @@ GeneralMeshModel *GeoLoaderQt::loadFromDB(QString path){
           std::cout << "Unknown shape";
     }
   }
-  std::cout << "Everything done." << std::endl;
+  std::cout << "Everything done." << container->subModelCount() << std::endl;
   return container;
 }
 

@@ -137,12 +137,19 @@ void ExaminerViewer::setupControlPanel(QVBoxLayout *vLayout, QWidget *mainWindow
     QTreeWidget *treeWidget = new QTreeWidget(mainWindow);
     treeWidget->setColumnCount(1);
     QList<QTreeWidgetItem *> items;
-    for (int i = 0; i < m_worldModel->subModelCount(); ++i)
-        items.append(new QTreeWidgetItem(static_cast<QTreeWidget *>(nullptr),
-             QStringList(QString("volume %1: %2").arg(i).arg(m_worldModel->subModel(i)->objectName()))));
+    for (int i = 0; i < m_worldModel->subModelCount(); ++i){
+        GeneralMeshModel *volume = m_worldModel->subModel(i);
+        QTreeWidgetItem *item = new QTreeWidgetItem(static_cast<QTreeWidget *>(nullptr),
+                     QStringList(QString("volume %1: ").arg(i) + volume->objectName()));
+        items.append(item);
+    }
+    QObject::connect(treeWidget, &QTreeWidget::itemClicked, [this, treeWidget](QTreeWidgetItem *item){
+         int idx = treeWidget->indexOfTopLevelItem(item);
+         m_cameraWrapper->camera()->viewEntity(m_worldModel->subModel(idx)->m_meshEntity);
+    });
+
     treeWidget->insertTopLevelItems(0, items);
     vLayout->addWidget(treeWidget);
-
 
     /************ Volume control******************/
     setUpVolumePanel(vLayout, mainWindow);

@@ -64,6 +64,7 @@ private:
     GeneralMeshModel *m_parentModel;
     bool m_isSelectMode;
     bool m_isVisiable;
+    friend class ExaminerViewer;
 };
 
 #endif // GENERALMESHMODEL_H

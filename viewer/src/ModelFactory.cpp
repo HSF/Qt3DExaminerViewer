@@ -403,6 +403,7 @@ GeneralMeshModel *ModelFactory::buildBox(double xHalf, double yHalf, double zHal
     meshBox->setYExtent(float(2*yHalf));
     meshBox->setZExtent(float(2*zHalf));
     GeneralMeshModel *cuboidModel = new GeneralMeshModel(m_rootEntity, meshBox);
+    cuboidModel->setObjectName("GeoBox");
     float maxSize = std::max(std::max(xHalf, yHalf), zHalf);
     setMaxSize(maxSize);
     return cuboidModel;
@@ -569,6 +570,7 @@ GeneralMeshModel *ModelFactory::buildTube(double rMin, double rMax, double zHalf
     customRenderer->setGeometry(geometry);
     customRenderer->setObjectName(QString("GeoTube with:\n rMin:%1, rMax:%2, zHalf:%3").arg(rMin).arg(rMax).arg(zHalf));
     GeneralMeshModel *tube = new GeneralMeshModel(m_rootEntity, customRenderer);
+    tube->setObjectName("GeoTube");
     return tube;
 }
 GeneralMeshModel *ModelFactory::buildTubs(double rMin, double rMax, double zHalf, double SPhi, double DPhi){
@@ -752,6 +754,7 @@ GeneralMeshModel *ModelFactory::buildTubs(double rMin, double rMax, double zHalf
     customRenderer->setObjectName(QString("GeoTubs with:\n rMin:%1, rMax:%2, zHalf:%3, SPhi:%4, DPhi:%5")
                                   .arg(rMin).arg(rMax).arg(zHalf).arg(SPhi).arg(DPhi));
     GeneralMeshModel *tubs = new GeneralMeshModel(m_rootEntity, customRenderer);
+    tubs->setObjectName("GeoTubs");
     return tubs;
 }
 
@@ -952,5 +955,6 @@ GeneralMeshModel *ModelFactory::buildPcon(double SPhi, double DPhi, unsigned int
     }
     customRenderer->setObjectName(info);
     GeneralMeshModel *pcon = new GeneralMeshModel(m_rootEntity, customRenderer);
+    pcon->setObjectName("GeoPcon");
     return pcon;
 }
