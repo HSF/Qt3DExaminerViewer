@@ -14,6 +14,7 @@
 #include <GeoModelKernel/GeoTube.h>
 #include <GeoModelKernel/GeoTubs.h>
 #include <GeoModelKernel/GeoPcon.h>
+#include <GeoModelKernel/GeoCons.h>
 
 class GeoLoaderQt{
 public:
@@ -29,6 +30,7 @@ private:
 	GeneralMeshModel *createTube(const GeoShape* shapeIn);
 	GeneralMeshModel *createTubs(const GeoShape* shapeIn);
     GeneralMeshModel *createPcon(const GeoShape* shapeIn);
+    GeneralMeshModel *createCons(const GeoShape* shapeIn);
     Qt3DCore::QEntity *m_rootEntity;
     ModelFactory *m_builder;
 };

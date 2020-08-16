@@ -129,8 +129,10 @@ GeneralMeshModel *GeoLoaderQt::loadFromDB(QString path){
           container->addSubModel(createTubs(shapeIn));
       else if(shapeIn->type() == "Pcon")
           container->addSubModel(createPcon(shapeIn));
+      else if(shapeIn->type() == "Cons")
+          container->addSubModel(createCons(shapeIn));
       else
-          std::cout << "Unknown shape";
+          std::cout << "Unsupported shape: " << shapeIn->type();
     }
   }
   std::cout << "Everything done." << container->subModelCount() << std::endl;
@@ -248,5 +250,27 @@ GeneralMeshModel *GeoLoaderQt::createPcon(const GeoShape* shapeIn){
     return m_builder->buildPcon(SPhi, DPhi, nPlanes, planes);
   else
     return nullptr;
+}
+
+GeneralMeshModel *GeoLoaderQt::createCons(const GeoShape* shapeIn){
+  std::cout << "Cons parameters:\n";
+  const GeoCons* shape = dynamic_cast<const GeoCons*>(shapeIn);
+  //  Starting angle of the segment in radians.
+  const double SPhi = shape->getSPhi();
+  //  Delta angle of the segment in radians.
+  const double DPhi = shape->getDPhi();
+  //  Half-length in the z direction.
+  const double zHalf = shape->getDZ();
+  //  Returns the min radius of specified annulus at -zHalf position
+  const double rMin1 = shape->getRMin1();
+  //  Returns the min radius of specified annulus at zHalf position
+  const double rMin2 = shape->getRMin1();
+  //  Returns the max radius of specified annulus at -zHalf position
+  const double rMax1 = shape->getRMax1();
+  //  Returns the max radius of specified annulus at zHalf position
+  const double rMax2 = shape->getRMax2();
+  std::cout << "rMin1: " << rMin1 << " , rMin2: " << rMin2 << " , rMax1: " << rMax1  << " , rMax2: " << rMax2
+          << " , zHalf: " << zHalf << "SPhi: " << SPhi << " , DPhi: " << DPhi  << std::endl;
+  return m_builder->buildCons(rMin1, rMin2, rMax1, rMax2, zHalf, SPhi, DPhi);
 }
 

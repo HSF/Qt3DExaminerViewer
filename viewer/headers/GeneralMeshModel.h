@@ -65,6 +65,7 @@ private:
     bool m_isSelectMode;
     bool m_isVisiable;
     friend class ExaminerViewer;
+    friend class ModelFactory;
 };
 
 #endif // GENERALMESHMODEL_H

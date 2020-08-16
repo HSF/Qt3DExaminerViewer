@@ -44,6 +44,7 @@ public:
     GeneralMeshModel *buildTube(double rMin, double rMax, double zHalf);
     GeneralMeshModel *buildTubs(double rMin, double rMax, double zHalf, double SPhi, double DPhi);
     GeneralMeshModel *buildPcon(double SPhi, double DPhi, unsigned int nPlanes, Pcon *planes);
+    GeneralMeshModel *buildCons(double rMin1, double rMin2, double rMax1, double rMax2, double zHalf, double SPhi, double DPhi);
 };
 
 #endif // MODOLFACTORY_H
