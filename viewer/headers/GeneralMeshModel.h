@@ -31,6 +31,8 @@ public:
     ~GeneralMeshModel();
     void addSubModel(GeneralMeshModel *subModel);
     void addParentModel(GeneralMeshModel *parentModel);
+    GeneralMeshModel *subModel(int i);
+    int subModelCount();
     void setColor(QColor color);
 signals:
     void mouseEnter(QString tip);
@@ -44,6 +46,7 @@ public slots:
     void packMesh(Qt3DRender::QPickEvent* event);
     void setPickMode(bool enable);
     void restoreState(bool checked);
+    void disselect();
 
 private slots:
     void changeState(Qt3DRender::QPickEvent* event);

@@ -96,6 +96,7 @@ int main(int argc, char **argv){
     Qt3DCore::QEntity *lightEntity = new Qt3DCore::QEntity(rootEntity);
     setUpLight(lightEntity, cameraEntity->position());
 
+    // load volume
     QString fileName;
     fileName = QFileDialog::getOpenFileName(mainWindow, "Open database file", DEFAULT_FOLDER, "Database Files (*.db)");
 
@@ -109,7 +110,7 @@ int main(int argc, char **argv){
     cameraWrapper->resetCameraView(builder->MaxSize()*22);
     camController->setLinearSpeed(builder->MaxSize()*3);
 
-    // Create mesh model
+    // Create coordinate text
     GeneralMeshModel **textList = builder->build3DText();
     builder->buildCoordinateLine();
     builder->buildCoordinatePlane();

@@ -11,7 +11,7 @@
 #include <QtWidgets/QTabWidget>
 #include <QtWidgets/QComboBox>
 #include <QtWidgets/QRadioButton>
-
+#include <QTreeWidget>
 
 QCommandLinkButton *info;
 QComboBox *bookmarkedView;
@@ -133,6 +133,16 @@ void ExaminerViewer::setupControlPanel(QVBoxLayout *vLayout, QWidget *mainWindow
     // Create a info window to display mesh properties
     setUpInfoWindow();
     vLayout->addWidget(info);
+
+    QTreeWidget *treeWidget = new QTreeWidget(mainWindow);
+    treeWidget->setColumnCount(1);
+    QList<QTreeWidgetItem *> items;
+    for (int i = 0; i < m_worldModel->subModelCount(); ++i)
+        items.append(new QTreeWidgetItem(static_cast<QTreeWidget *>(nullptr),
+             QStringList(QString("volume %1: %2").arg(i).arg(m_worldModel->subModel(i)->objectName()))));
+    treeWidget->insertTopLevelItems(0, items);
+    vLayout->addWidget(treeWidget);
+
 
     /************ Volume control******************/
     setUpVolumePanel(vLayout, mainWindow);

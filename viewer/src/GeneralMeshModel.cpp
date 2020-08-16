@@ -61,6 +61,14 @@ void GeneralMeshModel::addSubModel(GeneralMeshModel *subModel){
     subModel->addParentModel(this);
 }
 
+int GeneralMeshModel::subModelCount(){
+    return m_subModels.count();
+}
+
+GeneralMeshModel *GeneralMeshModel::subModel(int i){
+    return m_subModels.at(i);
+}
+
 void GeneralMeshModel::addParentModel(GeneralMeshModel *parentModel){
     m_parentModel = parentModel;
 }
@@ -105,6 +113,13 @@ void GeneralMeshModel::restoreState(bool checked){
     setColor(QColor(QRgb(0xbeb32b)));
     showMesh(true);
     if(m_isSelectMode) enablePick(true);
+}
+
+void GeneralMeshModel::disselect(){
+    for(GeneralMeshModel *subModel:m_subModels){
+        subModel->disselect();
+    }
+    setColor(QColor(QRgb(0xbeb32b)));
 }
 
 void GeneralMeshModel::unpackSubMesh(Qt3DRender::QPickEvent* event){

@@ -31,7 +31,7 @@ void MainWindow::mousePressEvent(QMouseEvent *event){
 void MainWindow::keyPressEvent(QKeyEvent *event){
     switch (event->key()) {
     case Qt::Key_X:
-        loadedModel->restoreState(true);
+        loadedModel->disselect();
         qInfo()<<"Key X is pressed";
         break;
     default:
