@@ -106,12 +106,10 @@ void GeneralMeshModel::setPickMode(bool enable){
 }
 
 void GeneralMeshModel::enablePick(bool enable){
-    if(enable){
+    if(enable)
         m_meshEntity->addComponent(m_picker);
-    }
-    else{
+    else
         m_meshEntity->removeComponent(m_picker);
-    }
 }
 
 void GeneralMeshModel::restoreState(bool checked){

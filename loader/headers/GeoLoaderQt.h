@@ -15,6 +15,8 @@
 #include <GeoModelKernel/GeoTubs.h>
 #include <GeoModelKernel/GeoPcon.h>
 #include <GeoModelKernel/GeoCons.h>
+#include <GeoModelKernel/GeoTorus.h>
+#include <GeoModelKernel/GeoTessellatedSolid.h>
 
 class GeoLoaderQt{
 public:
@@ -31,6 +33,8 @@ private:
 	GeneralMeshModel *createTubs(const GeoShape* shapeIn);
     GeneralMeshModel *createPcon(const GeoShape* shapeIn);
     GeneralMeshModel *createCons(const GeoShape* shapeIn);
+    GeneralMeshModel *createTorus(const GeoShape* shapeIn);
+    GeneralMeshModel *createTessellatedSolid(const GeoShape* shapeIn);
     ModelFactory *m_builder;
 };
 

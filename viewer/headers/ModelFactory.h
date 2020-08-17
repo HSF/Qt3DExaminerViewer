@@ -2,6 +2,7 @@
 #define MODOLFACTORY_H
 #include "GeneralMeshModel.h"
 #include <QEntity>
+#include <GeoModelKernel/GeoTessellatedSolid.h>
 struct Pcon{
     double ZPlane;
     double RMinPlane;
@@ -45,6 +46,8 @@ public:
     GeneralMeshModel *buildTubs(double rMin, double rMax, double zHalf, double SPhi, double DPhi);
     GeneralMeshModel *buildPcon(double SPhi, double DPhi, unsigned int nPlanes, Pcon *planes);
     GeneralMeshModel *buildCons(double rMin1, double rMin2, double rMax1, double rMax2, double zHalf, double SPhi, double DPhi);
+    GeneralMeshModel *buildTorus(double rMin, double rMax, double rTor, double SPhi, double DPhi);
+    GeneralMeshModel *buildTessellatedSolid(size_t num, GeoFacet **faces);
 };
 
 #endif // MODOLFACTORY_H

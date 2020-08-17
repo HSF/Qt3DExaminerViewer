@@ -121,18 +121,25 @@ GeneralMeshModel *GeoLoaderQt::loadFromDB(QString path){
       // Get shape type
       const GeoShape* shapeIn = childVolV->getLogVol()->getShape();
       std::cout << "the shape used by the VPhysVol is of type: " << shapeIn->type() << std::endl;
+      GeneralMeshModel *model = nullptr;
       if(shapeIn->type() == "Box")
-          container->addSubModel(createBox(shapeIn));
+          model = createBox(shapeIn);
       else if(shapeIn->type() == "Tube")
-          container->addSubModel(createTube(shapeIn));
+          model = createTube(shapeIn);
       else if(shapeIn->type() == "Tubs")
-          container->addSubModel(createTubs(shapeIn));
+          model = createTubs(shapeIn);
       else if(shapeIn->type() == "Pcon")
-          container->addSubModel(createPcon(shapeIn));
+          model = createPcon(shapeIn);
       else if(shapeIn->type() == "Cons")
-          container->addSubModel(createCons(shapeIn));
+          model = createCons(shapeIn);
+      else if(shapeIn->type() == "Torus")
+          model = createTorus(shapeIn);
+      else if(shapeIn->type() == "TessellatedSolid")
+          model = createTessellatedSolid(shapeIn);
       else
           std::cout << "Unsupported shape: " << shapeIn->type();
+      if(model != nullptr)
+          container->addSubModel(model);
     }
   }
   std::cout << "Everything done." << container->subModelCount() << std::endl;
@@ -272,5 +279,37 @@ GeneralMeshModel *GeoLoaderQt::createCons(const GeoShape* shapeIn){
   std::cout << "rMin1: " << rMin1 << " , rMin2: " << rMin2 << " , rMax1: " << rMax1  << " , rMax2: " << rMax2
           << " , zHalf: " << zHalf << ", SPhi: " << SPhi << " , DPhi: " << DPhi  << std::endl;
   return m_builder->buildCons(rMin1, rMin2, rMax1, rMax2, zHalf, SPhi, DPhi);
+}
+
+GeneralMeshModel *GeoLoaderQt::createTorus(const GeoShape* shapeIn){
+  std::cout << "Torus parameters:\n";
+  const GeoTorus* shape = dynamic_cast<const GeoTorus*>(shapeIn);
+  //  Starting angle of the segment in radians.
+  const double SPhi = shape->getSPhi();
+  //  Delta angle of the segment in radians.
+  const double DPhi = shape->getDPhi();
+  //
+  const double rTor = shape->getRTor();
+  //  Returns the min radius of annulus
+  const double rMin = shape->getRMin();
+  //  Returns the max radius of annulus
+  const double rMax = shape->getRMax();
+  std::cout << "rMin: " << rMin << " , rMax: " << rMax
+          << " , zHalf: " << rTor << ", SPhi: " << SPhi << " , DPhi: " << DPhi  << std::endl;
+  return m_builder->buildTorus(rMin, rMax, rTor, SPhi, DPhi);
+}
+
+GeneralMeshModel *GeoLoaderQt::createTessellatedSolid(const GeoShape *shapeIn){
+  std::cout << "Cons parameters:\n";
+  const GeoTessellatedSolid* shape = dynamic_cast<const GeoTessellatedSolid*>(shapeIn);
+  //  get the number of facets of shape.
+  const size_t num = shape->getNumberOfFacets();
+  GeoFacet *faces[num];
+  for (size_t i = 0; i < num; i++){
+      // get each facet
+      faces[i] = shape->getFacet(i);
+  }
+  std::cout << "number of facets: " << num  << std::endl;
+  return m_builder->buildTessellatedSolid(num, faces);
 }
 

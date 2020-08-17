@@ -974,3 +974,13 @@ GeneralMeshModel *ModelFactory::buildCons(double rMin1, double rMin2, double rMa
     cons->setObjectName("GeoCons");
     return cons;
 }
+
+GeneralMeshModel *ModelFactory::buildTorus(double rMin, double rMax, double rTor, double SPhi, double DPhi){
+    //TODO
+    return nullptr;
+}
+
+GeneralMeshModel *ModelFactory::buildTessellatedSolid(size_t num, GeoFacet **faces){
+    //TODO
+    return nullptr;
+}
