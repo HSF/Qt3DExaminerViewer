@@ -751,7 +751,7 @@ GeneralMeshModel *ModelFactory::buildTubs(double rMin, double rMax, double zHalf
     geometry->addAttribute(indexAttribute);
     geometry->addAttribute(normalAttribute);
     customRenderer->setGeometry(geometry);
-    customRenderer->setObjectName(QString("GeoTubs with:\nrMin:%1, rMax:%2, zHalf:%3, SPhi:%4, DPhi:%5")
+    customRenderer->setObjectName(QString("GeoTubs with:\nrMin:%1, rMax:%2, \nzHalf:%3, SPhi:%4, DPhi:%5")
                                   .arg(rMin).arg(rMax).arg(zHalf).arg(SPhi).arg(DPhi));
     GeneralMeshModel *tubs = new GeneralMeshModel(m_rootEntity, customRenderer);
     tubs->setObjectName("GeoTubs");
@@ -969,7 +969,7 @@ GeneralMeshModel *ModelFactory::buildCons(double rMin1, double rMin2, double rMa
     planes[1].RMinPlane = rMax2;
     planes[1].RMaxPlane = rMax2;
     GeneralMeshModel *cons = buildPcon(SPhi, DPhi, 2, planes);
-    cons->m_mesh->setObjectName(QString("GeoCons with:\nrMin1:%1, rMin2:%2, rMax1:%3, rMax2:%4, zHalf:%5, SPhi:%6, DPhi:%7")
+    cons->m_mesh->setObjectName(QString("GeoCons with:\nrMin1:%1, rMin2:%2, \nrMax1:%3, rMax2:%4, \nzHalf:%5, SPhi:%6, DPhi:%7")
                                 .arg(rMin1).arg(rMin2).arg(rMax1).arg(rMax2).arg(zHalf).arg(SPhi).arg(DPhi));
     cons->setObjectName("GeoCons");
     return cons;

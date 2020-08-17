@@ -6,7 +6,7 @@
 #include <Qt3DRender/qpickevent.h>
 
 GeneralMeshModel::GeneralMeshModel(Qt3DCore::QEntity *rootEntity, Qt3DRender::QGeometryRenderer *mesh, Qt3DRender::QMaterial* mat)
-    : m_mesh(mesh), m_parentModel(nullptr), m_isSelectMode(true), m_isVisiable(true)
+    : m_mesh(mesh), m_parentModel(nullptr), m_isSelectMode(true)
 {
     // Build Mesh Entity
     m_meshEntity = new Qt3DCore::QEntity(rootEntity);
@@ -30,12 +30,27 @@ GeneralMeshModel::GeneralMeshModel(Qt3DCore::QEntity *rootEntity, Qt3DRender::QG
     m_picker = new Qt3DRender::QObjectPicker;
     m_picker->setEnabled(true);
     m_picker->setHoverEnabled(true);
-    QObject::connect(m_picker, &Qt3DRender::QObjectPicker::clicked, this, &GeneralMeshModel::unpackSubMesh);
-    QObject::connect(m_picker, &Qt3DRender::QObjectPicker::clicked, this, &GeneralMeshModel::changeState);
-    QObject::connect(m_picker, &Qt3DRender::QObjectPicker::clicked, this, &GeneralMeshModel::onMoveCamera);
-    QObject::connect(m_picker, &Qt3DRender::QObjectPicker::clicked, this, &GeneralMeshModel::packMesh);
+
     QObject::connect(m_picker, &Qt3DRender::QObjectPicker::exited, this, [](){ info->setDescription(TIPS);});
-    
+    QObject::connect(m_picker, &Qt3DRender::QObjectPicker::clicked, [this](Qt3DRender::QPickEvent *event){
+        if(event->modifiers() == Qt::ControlModifier && event->button() == Qt3DRender::QPickEvent::LeftButton)
+            openVolume();
+        else if(event->modifiers() == Qt::AltModifier && event->button() == Qt3DRender::QPickEvent::LeftButton)
+            closeVolume();
+        else if(event->button() == Qt3DRender::QPickEvent::LeftButton && event->modifiers() == Qt::NoModifier)
+            getSelected();
+        else {
+            // change the focus of camera
+            if(event->button() == Qt3DRender::QPickEvent::LeftButton && event->modifiers() == Qt::ShiftModifier){
+                camera->translateView(event->worldIntersection(), 0);
+            }
+            else if(event->button() == Qt3DRender::QPickEvent::RightButton && event->modifiers() == Qt::ShiftModifier){
+                camera->camera()->viewEntity(m_meshEntity);
+                //camera->translateView(m_meshTransform->translation(), m_mesh->property("maxLength").toInt());
+            }
+        }
+    });
+
     // When a GeneralMeshModel is used for world container, m_mesh is nullptr
     if(m_mesh != nullptr){
         // add components to the Entity
@@ -73,26 +88,20 @@ void GeneralMeshModel::addParentModel(GeneralMeshModel *parentModel){
     m_parentModel = parentModel;
 }
 
-void GeneralMeshModel::onMoveCamera(Qt3DRender::QPickEvent *event){
-     if(event->button() == Qt3DRender::QPickEvent::LeftButton && event->modifiers() == Qt::ShiftModifier){
-         camera->translateView(event->worldIntersection(), 0);
-     }
-     else if(event->button() == Qt3DRender::QPickEvent::RightButton && event->modifiers() == Qt::ShiftModifier){
-         camera->camera()->viewEntity(m_meshEntity);
-         //camera->translateView(m_meshTransform->translation(), m_mesh->property("maxLength").toInt());
-     }
+void GeneralMeshModel::getSelected(){
+    setColor(QColor(120, 0, 0, 127));
+    info->setDescription(QString("This is ") + m_mesh->objectName());
 }
 
-void GeneralMeshModel::changeState(Qt3DRender::QPickEvent *event){
-    if(event->button() == Qt3DRender::QPickEvent::LeftButton && event->modifiers() == Qt::NoModifier){
-        //m_meshMaterial->setDiffuse(QColor(255, 0, 0, 127));
-        setColor(QColor(255, 0, 0, 127));
-        info->setDescription(QString("This is ") + m_mesh->objectName());
+void GeneralMeshModel::deselect(){
+    for(GeneralMeshModel *subModel:m_subModels){
+        subModel->deselect();
     }
+    setColor(QColor(QRgb(0xbeb32b)));
 }
 
 void GeneralMeshModel::setPickMode(bool enable){
-    enablePick(enable & m_isVisiable);
+    enablePick(enable);
     m_isSelectMode=enable;
 }
 
@@ -112,49 +121,31 @@ void GeneralMeshModel::restoreState(bool checked){
     //m_meshMaterial->setDiffuse(QColor(QRgb(0xbeb32b)));
     setColor(QColor(QRgb(0xbeb32b)));
     showMesh(true);
-    if(m_isSelectMode) enablePick(true);
 }
 
-void GeneralMeshModel::disselect(){
-    for(GeneralMeshModel *subModel:m_subModels){
-        subModel->disselect();
+void GeneralMeshModel::openVolume(){
+    if(m_subModels.size() == 0){
+        info->setDescription(QString("This volume has no children"));
+        //return;
     }
-    setColor(QColor(QRgb(0xbeb32b)));
+    showMesh(false);
+    /*for(GeneralMeshModel *subModel:m_subModels){
+        subModel->showMesh(true);
+        subModel->enablePick(true);
+    }*/
 }
 
-void GeneralMeshModel::unpackSubMesh(Qt3DRender::QPickEvent* event){
-    if(event->modifiers() == Qt::ControlModifier && event->button() == Qt3DRender::QPickEvent::LeftButton){
-        if(m_subModels.size() == 0){
-            info->setDescription(QString("This volume has no children"));
-            //return;
-        }
-        showMesh(false);
-        enablePick(false);
-        /*for(GeneralMeshModel *subModel:m_subModels){
-            subModel->showMesh(true);
-            subModel->enablePick(true);
-        }*/
+void GeneralMeshModel::closeVolume(){
+    if(m_parentModel == nullptr || m_parentModel->objectName()=="world"){
+        info->setDescription(QString("This volume has no parent"));
+        return;
     }
-}
-
-void GeneralMeshModel::packMesh(Qt3DRender::QPickEvent* event){
-    if(event->modifiers() == Qt::AltModifier && event->button() == Qt3DRender::QPickEvent::LeftButton){
-        if(m_parentModel == nullptr || m_parentModel->objectName()=="world"){
-            qInfo() << "has not parent";
-            info->setDescription(QString("This volume has no parent"));
-            return;
-        }
-        qInfo() << "has parent";
-        /*showMesh(false);
-        enablePick(false);*/
-        m_parentModel->showMesh(true);
-        m_parentModel->enablePick(true);
-    }
+    m_parentModel->showMesh(true);
 }
 
 void GeneralMeshModel::showMesh(bool visible){
     m_meshEntity->setEnabled(visible);
-    m_isVisiable = visible;
+    if(m_isSelectMode) enablePick(visible);
 }
 
 void GeneralMeshModel::translateMesh(QVector3D translation){

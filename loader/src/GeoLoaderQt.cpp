@@ -18,7 +18,7 @@
 #include <GeoModelKernel/Units.h>
 #define SYSTEM_OF_UNITS GeoModelKernelUnits // so we will get, e.g., 'GeoModelKernelUnits::cm'
 
-GeoLoaderQt::GeoLoaderQt(Qt3DCore::QEntity *rootEntity): m_rootEntity(rootEntity){
+GeoLoaderQt::GeoLoaderQt(Qt3DCore::QEntity *rootEntity){
     m_builder = ModelFactory::GetInstance(rootEntity);
 }
 
@@ -270,7 +270,7 @@ GeneralMeshModel *GeoLoaderQt::createCons(const GeoShape* shapeIn){
   //  Returns the max radius of specified annulus at zHalf position
   const double rMax2 = shape->getRMax2();
   std::cout << "rMin1: " << rMin1 << " , rMin2: " << rMin2 << " , rMax1: " << rMax1  << " , rMax2: " << rMax2
-          << " , zHalf: " << zHalf << "SPhi: " << SPhi << " , DPhi: " << DPhi  << std::endl;
+          << " , zHalf: " << zHalf << ", SPhi: " << SPhi << " , DPhi: " << DPhi  << std::endl;
   return m_builder->buildCons(rMin1, rMin2, rMax1, rMax2, zHalf, SPhi, DPhi);
 }
 

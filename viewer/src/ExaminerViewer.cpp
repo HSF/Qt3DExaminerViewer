@@ -145,7 +145,10 @@ void ExaminerViewer::setupControlPanel(QVBoxLayout *vLayout, QWidget *mainWindow
     }
     QObject::connect(treeWidget, &QTreeWidget::itemClicked, [this, treeWidget](QTreeWidgetItem *item){
          int idx = treeWidget->indexOfTopLevelItem(item);
-         m_cameraWrapper->camera()->viewEntity(m_worldModel->subModel(idx)->m_meshEntity);
+         this->m_cameraWrapper->camera()->viewEntity(m_worldModel->subModel(idx)->m_meshEntity);
+         m_worldModel->deselect();
+         m_worldModel->subModel(idx)->showMesh(true);
+         m_worldModel->subModel(idx)->getSelected();
     });
 
     treeWidget->insertTopLevelItems(0, items);

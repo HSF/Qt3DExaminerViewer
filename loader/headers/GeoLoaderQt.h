@@ -31,7 +31,6 @@ private:
 	GeneralMeshModel *createTubs(const GeoShape* shapeIn);
     GeneralMeshModel *createPcon(const GeoShape* shapeIn);
     GeneralMeshModel *createCons(const GeoShape* shapeIn);
-    Qt3DCore::QEntity *m_rootEntity;
     ModelFactory *m_builder;
 };
 
