@@ -463,7 +463,7 @@ GeneralMeshModel *ModelFactory::buildTube(double rMin, double rMax, double zHalf
     positionAttribute->setBuffer(buf);
     positionAttribute->setByteOffset(0);
     positionAttribute->setByteStride(3 * sizeof(float));
-    positionAttribute->setCount(numPerCircle * 3 * 4);
+    positionAttribute->setCount(numPerCircle * 4);
 
     // Inner sides, Normals per vertex
     float normal[numPerCircle * 4 * 3];
@@ -508,7 +508,7 @@ GeneralMeshModel *ModelFactory::buildTube(double rMin, double rMax, double zHalf
     normalAttribute->setVertexSize(3);
     normalAttribute->setByteOffset(0);
     normalAttribute->setByteStride(3 * sizeof(float));
-    normalAttribute->setCount(numPerCircle * 3 * 4);
+    normalAttribute->setCount(numPerCircle * 4);
 
 
     unsigned int index[numPerCircle * 8 * 3];
@@ -628,7 +628,7 @@ GeneralMeshModel *ModelFactory::buildTubs(double rMin, double rMax, double zHalf
     positionAttribute->setBuffer(buf);
     positionAttribute->setByteOffset(0);
     positionAttribute->setByteStride(3 * sizeof(float));
-    positionAttribute->setCount(numPerCircle * 3 * 4);
+    positionAttribute->setCount(numPerCircle * 4);
 
     // Inner sides, Normals per vertex
     float normal[numPerCircle * 4 * 3];
@@ -673,7 +673,7 @@ GeneralMeshModel *ModelFactory::buildTubs(double rMin, double rMax, double zHalf
     normalAttribute->setVertexSize(3);
     normalAttribute->setByteOffset(0);
     normalAttribute->setByteStride(3 * sizeof(float));
-    normalAttribute->setCount(numPerCircle * 3 * 4);
+    normalAttribute->setCount(numPerCircle * 4);
 
     // faces around each slices plus four triangular faces at two ends
     unsigned int index[((numPerCircle-1) * 8 + 4) * 3];
@@ -809,7 +809,7 @@ GeneralMeshModel *ModelFactory::buildPcon(double SPhi, double DPhi, unsigned int
     positionAttribute->setBuffer(buf);
     positionAttribute->setByteOffset(0);
     positionAttribute->setByteStride(3 * sizeof(float));
-    positionAttribute->setCount(numPerCircle * 2 * nPlanes * 3);
+    positionAttribute->setCount(numPerCircle * 2 * nPlanes);
 
 
     // Inner sides, Normals per vertex
@@ -852,7 +852,7 @@ GeneralMeshModel *ModelFactory::buildPcon(double SPhi, double DPhi, unsigned int
     normalAttribute->setVertexSize(3);
     normalAttribute->setByteOffset(0);
     normalAttribute->setByteStride(3 * sizeof(float));
-    normalAttribute->setCount(numPerCircle * 2 * nPlanes * 3);
+    normalAttribute->setCount(numPerCircle * 2 * nPlanes);
 
     // faces around each slices plus four triangular faces at two ends
     unsigned int index[( (numPerCircle-1) * ( (nPlanes-1)*4 + 4 ) + 4 *(nPlanes-1) ) * 3];
@@ -981,6 +981,134 @@ GeneralMeshModel *ModelFactory::buildTorus(double rMin, double rMax, double rTor
 }
 
 GeneralMeshModel *ModelFactory::buildTessellatedSolid(size_t num, GeoFacet **faces){
-    //TODO
-    return nullptr;
+
+    float vertex[num*4*3]; // max 4 vertices per face, 3 float per vertex
+    int sumVert = 0;
+    QVector<GeoFacetVertex> vertexVec;
+    for (size_t i = 0; i < num; i++){
+        int n = faces[i]->getNumberOfVertices();
+        for (int j = 0; j < n; j++){
+            vertex[sumVert*3+j*3] = faces[i]->getVertex(j).x();
+            vertex[sumVert*3+j*3+1] = faces[i]->getVertex(j).y();
+            vertex[sumVert*3+j*3+2] = faces[i]->getVertex(j).z();
+            vertexVec.push_back(faces[i]->getVertex(j));
+        }
+        sumVert += n;
+    }
+    float maxSize = 0;
+    for (int i = 0; i < sumVert; i++){
+        for (int j = 0; j < sumVert; j++){
+            float length = (vertexVec.at(i) - vertexVec.at(j)).norm();
+            if (maxSize < length)
+                maxSize = length;
+        }
+    }
+    setMaxSize(maxSize);
+    qInfo() << "lenght of facet:" << maxSize;
+    /*for(unsigned int i = 0; i < numPerCircle * 2 * nPlanes * 3; i+=3){
+        qInfo() << i/3 << ") x:" << vertex[i] << "y:" << vertex[i+1] << "z:" << vertex[i+2];
+    }*/
+    QByteArray bufferBytes;
+    bufferBytes.resize(sumVert * 3 * sizeof(float));
+
+    memcpy(bufferBytes.data(), reinterpret_cast<const char*>(vertex), bufferBytes.size());
+
+    Qt3DRender::QBuffer *buf = (new Qt3DRender::QBuffer());
+    buf->setData(bufferBytes);
+    Qt3DRender::QAttribute *positionAttribute = new Qt3DRender::QAttribute();
+    positionAttribute->setName(QAttribute::defaultPositionAttributeName());
+    positionAttribute->setAttributeType(QAttribute::VertexAttribute);
+    positionAttribute->setVertexBaseType(QAttribute::Float);
+    positionAttribute->setVertexSize(3);
+    positionAttribute->setBuffer(buf);
+    positionAttribute->setByteOffset(0);
+    positionAttribute->setByteStride(3 * sizeof(float));
+    positionAttribute->setCount(sumVert);
+
+
+    float normal[num*4*3]; // max 4 vertices per face, 3 float per vertex
+    sumVert = 0;
+    for (size_t i = 0; i < num; i++){
+        GeoFacetVertex faceNormal =
+        (faces[i]->getVertex(1) - faces[i]->getVertex(0)).cross(faces[i]->getVertex(2) - faces[i]->getVertex(0));
+        int n = faces[i]->getNumberOfVertices();
+        for (int j = 0; j < n; j++){
+            normal[sumVert*3+j*3] = faceNormal.x();
+            normal[sumVert*3+j*3+1] = faceNormal.y();
+            normal[sumVert*3+j*3+2] = faceNormal.z();
+        }
+        sumVert += n;
+    }
+    QByteArray normalBytes;
+    normalBytes.resize(sumVert * 3 * sizeof(float));
+    memcpy(normalBytes.data(), reinterpret_cast<const char*>(normal), normalBytes.size());
+    Qt3DRender::QBuffer *normalBuf = (new Qt3DRender::QBuffer());
+    normalBuf->setData(normalBytes);
+
+    Qt3DRender::QAttribute *normalAttribute = new Qt3DRender::QAttribute();
+    normalAttribute->setBuffer(normalBuf);
+    normalAttribute->setName(QAttribute::defaultNormalAttributeName());
+    normalAttribute->setAttributeType(QAttribute::VertexAttribute);
+    normalAttribute->setVertexBaseType(QAttribute::Float);
+    normalAttribute->setVertexSize(3);
+    normalAttribute->setByteOffset(0);
+    normalAttribute->setByteStride(3 * sizeof(float));
+    normalAttribute->setCount(sumVert);
+
+
+    unsigned int index[4 * num]; // max 4 vertex per face
+    int indexBase = 0;
+    int vertexBase = 0;
+    for (size_t i = 0; i < num; i++){
+        int n = faces[i]->getNumberOfVertices();
+        if(n == 3){
+            index[indexBase] = vertexBase;
+            index[indexBase+1] = vertexBase+1;
+            index[indexBase+2] = vertexBase+2;
+            indexBase += 3;
+            vertexBase += 3;
+        } else if(n == 4){
+            // change Quadrangular face to Triangular face
+            index[indexBase] = vertexBase;
+            index[indexBase+1] = vertexBase+1;
+            index[indexBase+2] = vertexBase+2;
+
+            index[indexBase+3] = vertexBase;
+            index[indexBase+4] = vertexBase+2;
+            index[indexBase+5] = vertexBase+3;
+            indexBase += 6;
+            vertexBase += 4;
+        }
+    }
+    //for(int i= 0; i < numPerCircle * 8 * 3; i+=3){
+    //    qInfo() << i/3 <<" 1)"<< index[i] << " 2) " << index[i+1] << " 3) "<< index[i+2];
+    //}
+
+    QByteArray indexBytes;
+    indexBytes.resize(indexBase * sizeof(quint32));
+
+    memcpy(indexBytes.data(), reinterpret_cast<const char*>(index), indexBytes.size());
+    Qt3DRender::QBuffer *indexBuffer(new QBuffer());
+    indexBuffer->setData(indexBytes);
+
+    QAttribute *indexAttribute = new QAttribute();
+    indexAttribute->setAttributeType(QAttribute::IndexAttribute);
+    indexAttribute->setBuffer(indexBuffer);
+    indexAttribute->setVertexBaseType(QAttribute::UnsignedInt);
+    indexAttribute->setVertexSize(3);
+    indexAttribute->setByteOffset(0);
+    indexAttribute->setByteStride(3 * sizeof(unsigned int));
+    indexAttribute->setCount(indexBase);
+
+    QGeometryRenderer *customRenderer = new QGeometryRenderer;
+    Qt3DRender::QGeometry *geometry = new Qt3DRender::QGeometry(customRenderer);
+    geometry->addAttribute(positionAttribute);
+    geometry->addAttribute(normalAttribute);
+    geometry->addAttribute(indexAttribute);
+    customRenderer->setGeometry(geometry);
+    customRenderer->setObjectName(QString("GeoTessellatedSolid with:\nnumFacets: %1")
+                                  .arg(num));
+    GeneralMeshModel *tessellatedSolid = new GeneralMeshModel(m_rootEntity, customRenderer);
+    tessellatedSolid->setObjectName("GeoTessellatedSolid");
+    return tessellatedSolid;
 }

@@ -295,7 +295,7 @@ GeneralMeshModel *GeoLoaderQt::createTorus(const GeoShape* shapeIn){
   //  Returns the max radius of annulus
   const double rMax = shape->getRMax();
   std::cout << "rMin: " << rMin << " , rMax: " << rMax
-          << " , zHalf: " << rTor << ", SPhi: " << SPhi << " , DPhi: " << DPhi  << std::endl;
+          << " , rTor: " << rTor << ", SPhi: " << SPhi << " , DPhi: " << DPhi  << std::endl;
   return m_builder->buildTorus(rMin, rMax, rTor, SPhi, DPhi);
 }
 
