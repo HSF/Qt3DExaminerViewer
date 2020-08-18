@@ -30,7 +30,8 @@ public:
     explicit GeneralMeshModel(Qt3DCore::QEntity *rootEntity, Qt3DRender::QGeometryRenderer *mesh, Qt3DRender::QMaterial* mat = nullptr /*if null, a default material will be used*/);
     ~GeneralMeshModel();
     void addSubModel(GeneralMeshModel *subModel);
-    GeneralMeshModel *subModel(int i);
+    GeneralMeshModel *getSubModel(int i);
+    GeneralMeshModel *getParentModel();
     void addParentModel(GeneralMeshModel *parentModel);
     int subModelCount();
     void setColor(QColor color);

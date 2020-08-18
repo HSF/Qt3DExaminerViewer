@@ -80,8 +80,12 @@ int GeneralMeshModel::subModelCount(){
     return m_subModels.count();
 }
 
-GeneralMeshModel *GeneralMeshModel::subModel(int i){
+GeneralMeshModel *GeneralMeshModel::getSubModel(int i){
     return m_subModels.at(i);
+}
+
+GeneralMeshModel *GeneralMeshModel::getParentModel(){
+    return m_parentModel;
 }
 
 void GeneralMeshModel::addParentModel(GeneralMeshModel *parentModel){
@@ -89,6 +93,10 @@ void GeneralMeshModel::addParentModel(GeneralMeshModel *parentModel){
 }
 
 void GeneralMeshModel::getSelected(){
+    GeneralMeshModel *topParent = m_parentModel;
+    while(topParent->getParentModel() != nullptr)
+        topParent = topParent->getParentModel();
+    topParent->deselect();
     setColor(QColor(120, 0, 0, 127));
     info->setDescription(QString("This is ") + m_mesh->objectName());
 }
@@ -116,7 +124,6 @@ void GeneralMeshModel::restoreState(bool checked){
     for(GeneralMeshModel *subModel:m_subModels){
         subModel->restoreState(checked);
     }
-    //m_meshMaterial->setDiffuse(QColor(QRgb(0xbeb32b)));
     setColor(QColor(QRgb(0xbeb32b)));
     showMesh(true);
 }
@@ -124,7 +131,7 @@ void GeneralMeshModel::restoreState(bool checked){
 void GeneralMeshModel::openVolume(){
     if(m_subModels.size() == 0){
         info->setDescription(QString("This volume has no children"));
-        //return;
+        return;
     }
     showMesh(false);
     /*for(GeneralMeshModel *subModel:m_subModels){

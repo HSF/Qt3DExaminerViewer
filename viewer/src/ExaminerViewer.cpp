@@ -67,7 +67,7 @@ void ExaminerViewer::setUpVolumePanel(QVBoxLayout *vLayout, QWidget *mainWindow)
 
     // Cancel selected and unpacked state
     QHBoxLayout *hLayoutRestore = new QHBoxLayout(mainWindow);
-    QPushButton *restoreSelectBtn = new QPushButton("revert original state", volBox);
+    QPushButton *restoreSelectBtn = new QPushButton("reset everything", volBox);
     restoreSelectBtn->setMaximumSize(QSize(200, 25));
     hLayoutRestore->addWidget(restoreSelectBtn);
     volLy->addLayout(hLayoutRestore);
@@ -138,17 +138,16 @@ void ExaminerViewer::setupControlPanel(QVBoxLayout *vLayout, QWidget *mainWindow
     treeWidget->setColumnCount(1);
     QList<QTreeWidgetItem *> items;
     for (int i = 0; i < m_worldModel->subModelCount(); ++i){
-        GeneralMeshModel *volume = m_worldModel->subModel(i);
+        GeneralMeshModel *volume = m_worldModel->getSubModel(i);
         QTreeWidgetItem *item = new QTreeWidgetItem(static_cast<QTreeWidget *>(nullptr),
                      QStringList(QString("volume %1: ").arg(i) + volume->objectName()));
         items.append(item);
     }
     QObject::connect(treeWidget, &QTreeWidget::itemClicked, [this, treeWidget](QTreeWidgetItem *item){
          int idx = treeWidget->indexOfTopLevelItem(item);
-         this->m_cameraWrapper->camera()->viewEntity(m_worldModel->subModel(idx)->m_meshEntity);
-         m_worldModel->deselect();
-         m_worldModel->subModel(idx)->showMesh(true);
-         m_worldModel->subModel(idx)->getSelected();
+         this->m_cameraWrapper->camera()->viewEntity(m_worldModel->getSubModel(idx)->m_meshEntity);
+         m_worldModel->getSubModel(idx)->showMesh(true);
+         m_worldModel->getSubModel(idx)->getSelected();
     });
 
     treeWidget->insertTopLevelItems(0, items);
