@@ -1052,7 +1052,7 @@ GeneralMeshModel *ModelFactory::buildTessellatedSolid(size_t num, GeoFacet **fac
     normalAttribute->setCount(sumVert);
 
 
-    unsigned int index[4 * num]; // max 4 vertex per face
+    unsigned int index[2 * 4 * num]; // max 4 vertex per face, two layer of faces: one outward and one inward
     int indexBase = 0;
     int vertexBase = 0;
     for (size_t i = 0; i < num; i++){
@@ -1072,6 +1072,28 @@ GeneralMeshModel *ModelFactory::buildTessellatedSolid(size_t num, GeoFacet **fac
             index[indexBase+3] = vertexBase;
             index[indexBase+4] = vertexBase+2;
             index[indexBase+5] = vertexBase+3;
+            indexBase += 6;
+            vertexBase += 4;
+        }
+    }
+    vertexBase = 0;
+    for (size_t i = 0; i < num; i++){
+        int n = faces[i]->getNumberOfVertices();
+        if(n == 3){
+            index[indexBase] = vertexBase;
+            index[indexBase+1] = vertexBase+2;
+            index[indexBase+2] = vertexBase+1;
+            indexBase += 3;
+            vertexBase += 3;
+        } else if(n == 4){
+            // change Quadrangular face to Triangular face
+            index[indexBase] = vertexBase;
+            index[indexBase+1] = vertexBase+2;
+            index[indexBase+2] = vertexBase+1;
+
+            index[indexBase+3] = vertexBase;
+            index[indexBase+4] = vertexBase+3;
+            index[indexBase+5] = vertexBase+2;
             indexBase += 6;
             vertexBase += 4;
         }

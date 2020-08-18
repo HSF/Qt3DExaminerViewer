@@ -34,7 +34,7 @@ void CameraWrapper::resetCameraView(float farPlanePos){
 }
 
 void CameraWrapper::viewAll(){
-    translatePosRad(init_distanceToOrigin);
+    zoomInOut(init_distanceToOrigin);
     //m_camera->viewAll();
 }
 
@@ -117,7 +117,7 @@ void CameraWrapper::translatePosRad(int radius){
     //m_camera->setPosition(position * radius / m_distanceToOrigin);
     m_radius = radius;
     QVector3D dir = (m_camera->viewCenter() - m_camera->position()).normalized();
-    QVector3D newPos = m_camera->viewCenter() - (dir * radius);
+    QVector3D newPos =  - (dir * radius);
     m_camera->setPosition(newPos);
     //qInfo() << "after viewAll: " << m_camera->viewVector().length();
 }
