@@ -146,6 +146,13 @@ void GeneralMeshModel::showMesh(bool visible){
     if(m_isSelectMode) enablePick(visible);
 }
 
+void GeneralMeshModel::setTransformMatrix(QMatrix4x4 transform){
+    for(GeneralMeshModel *subModel:m_subModels){
+        subModel->setTransformMatrix(transform);
+    }
+    m_meshTransform->setMatrix(transform);
+}
+
 void GeneralMeshModel::translateMesh(QVector3D translation){
     for(GeneralMeshModel *subModel:m_subModels){
         subModel->translateMesh(translation);

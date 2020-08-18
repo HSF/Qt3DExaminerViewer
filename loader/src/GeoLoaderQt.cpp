@@ -89,6 +89,14 @@ const GeoVPhysVol *GeoLoaderQt::introChild(PVConstLink nodeLink){
   return childVolV;
 }
 
+inline QMatrix4x4 toQMatrix(GeoTrf::Transform3D tr){
+    QMatrix4x4 mtx;
+    for(int i = 0; i < 4; i++){
+        for(int j = 0; j < 4; j++)
+            mtx(i,j) = tr.matrix()(i, j);
+    }
+    return mtx;
+}
 
 GeneralMeshModel *GeoLoaderQt::loadFromDB(QString path){
 
@@ -138,8 +146,12 @@ GeneralMeshModel *GeoLoaderQt::loadFromDB(QString path){
           model = createTessellatedSolid(shapeIn);
       else
           std::cout << "Unsupported shape: " << shapeIn->type();
-      if(model != nullptr)
+      if(model != nullptr){
+          QMatrix4x4 transform = toQMatrix(childVolV->getX());
+          model->setTransformMatrix(transform);
           container->addSubModel(model);
+      }
+
     }
   }
   std::cout << "Everything done." << container->subModelCount() << std::endl;
@@ -271,7 +283,7 @@ GeneralMeshModel *GeoLoaderQt::createCons(const GeoShape* shapeIn){
   //  Returns the min radius of specified annulus at -zHalf position
   const double rMin1 = shape->getRMin1();
   //  Returns the min radius of specified annulus at zHalf position
-  const double rMin2 = shape->getRMin1();
+  const double rMin2 = shape->getRMin2();
   //  Returns the max radius of specified annulus at -zHalf position
   const double rMax1 = shape->getRMax1();
   //  Returns the max radius of specified annulus at zHalf position

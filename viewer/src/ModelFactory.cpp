@@ -966,7 +966,7 @@ GeneralMeshModel *ModelFactory::buildCons(double rMin1, double rMin2, double rMa
     planes[0].RMaxPlane = rMax1;
 
     planes[1].ZPlane = zHalf;
-    planes[1].RMinPlane = rMax2;
+    planes[1].RMinPlane = rMin2;
     planes[1].RMaxPlane = rMax2;
     GeneralMeshModel *cons = buildPcon(SPhi, DPhi, 2, planes);
     cons->m_mesh->setObjectName(QString("GeoCons with:\nrMin1:%1, rMin2:%2, \nrMax1:%3, rMax2:%4, \nzHalf:%5, SPhi:%6, DPhi:%7")
@@ -1004,10 +1004,6 @@ GeneralMeshModel *ModelFactory::buildTessellatedSolid(size_t num, GeoFacet **fac
         }
     }
     setMaxSize(maxSize);
-    qInfo() << "lenght of facet:" << maxSize;
-    /*for(unsigned int i = 0; i < numPerCircle * 2 * nPlanes * 3; i+=3){
-        qInfo() << i/3 << ") x:" << vertex[i] << "y:" << vertex[i+1] << "z:" << vertex[i+2];
-    }*/
     QByteArray bufferBytes;
     bufferBytes.resize(sumVert * 3 * sizeof(float));
 
@@ -1080,9 +1076,6 @@ GeneralMeshModel *ModelFactory::buildTessellatedSolid(size_t num, GeoFacet **fac
             vertexBase += 4;
         }
     }
-    //for(int i= 0; i < numPerCircle * 8 * 3; i+=3){
-    //    qInfo() << i/3 <<" 1)"<< index[i] << " 2) " << index[i+1] << " 3) "<< index[i+2];
-    //}
 
     QByteArray indexBytes;
     indexBytes.resize(indexBase * sizeof(quint32));

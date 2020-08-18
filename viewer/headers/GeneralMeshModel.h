@@ -34,6 +34,7 @@ public:
     void addParentModel(GeneralMeshModel *parentModel);
     int subModelCount();
     void setColor(QColor color);
+    void setTransformMatrix(QMatrix4x4 transform);
 
 signals:
     void mouseEnter(QString tip);
