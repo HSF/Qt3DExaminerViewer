@@ -26,7 +26,7 @@ private:
     GeoPhysVol* createTheWorld(GeoPhysVol* world);
     GMDBManager* checkPath(QString path);
     GeoPhysVol* introWorld(GMDBManager *db);
-    const GeoVPhysVol* introChild(PVConstLink nodeLink);
+    void loadChildren(GeneralMeshModel *container, const GeoVPhysVol *parent);
 
 	GeneralMeshModel *createBox( const GeoShape* shapeIn);
 	GeneralMeshModel *createTube(const GeoShape* shapeIn);

@@ -92,10 +92,6 @@ int main(int argc, char **argv){
     //camController->setCamera(nullptr);
     camera = cameraWrapper;
 
-    // Light source
-    Qt3DCore::QEntity *lightEntity = new Qt3DCore::QEntity(rootEntity);
-    setUpLight(lightEntity, cameraEntity->position());
-
     // load volume
     QString fileName;
     fileName = QFileDialog::getOpenFileName(mainWindow, "Open database file", DEFAULT_FOLDER, "Database Files (*.db)");
@@ -106,9 +102,12 @@ int main(int argc, char **argv){
     ModelFactory *builder = ModelFactory::GetInstance(rootEntity);
     cameraWrapper->init_distanceToOrigin = builder->MaxSize() * 1.5 / tan(qDegreesToRadians(22.5f));
     cameraWrapper->viewAll();
-    qInfo() << "maxSize: " << builder->MaxSize();
     cameraWrapper->resetCameraView(builder->MaxSize()*22);
     camController->setLinearSpeed(builder->MaxSize()*3);
+
+    // Light source
+    Qt3DCore::QEntity *lightEntity = new Qt3DCore::QEntity(rootEntity);
+    setUpLight(lightEntity, cameraEntity->position());
 
     // Create coordinate text
     GeneralMeshModel **textList = builder->build3DText();

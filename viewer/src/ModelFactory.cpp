@@ -1079,11 +1079,7 @@ GeneralMeshModel *ModelFactory::buildTorus(double rMin, double rMax, double rTor
        index[endFace+6*numSlice+stride*z+4] = numSlice*(2*numRing-1) + (z+1)%numSlice;
        index[endFace+6*numSlice+stride*z+5] = numSlice*(2*numRing-1) + z;
     }
-/*
-    for(unsigned int i= 0; i < ( (numPerCircle-1) * ( (nPlanes-1)*4 + 4 ) + 4 *(nPlanes-1) ) * 3; i+=3){
-        qInfo() << i/3 <<" 1)"<< index[i] << " 2) " << index[i+1] << " 3) "<< index[i+2];
-    }
-*/
+
     QByteArray indexBytes;
     indexBytes.resize((numSlice*(numRing-1)*12 + (numSlice)*12) * sizeof(quint32));
     memcpy(indexBytes.data(), reinterpret_cast<const char*>(index), indexBytes.size());
@@ -1104,7 +1100,6 @@ GeneralMeshModel *ModelFactory::buildTorus(double rMin, double rMax, double rTor
     geometry->addAttribute(normalAttribute);
     geometry->addAttribute(indexAttribute);
     customRenderer->setGeometry(geometry);
-    //customRenderer->setPrimitiveType(QGeometryRenderer::Lines);
     customRenderer->setObjectName(QString("GeoTorus with:\nrMin: %1, rMax: %2, rTor: %3\nSPhi: %4, DPhi: %5")
                                   .arg(rMin).arg(rMax).arg(rTor).arg(SPhi).arg(DPhi));
     GeneralMeshModel *torus = new GeneralMeshModel(m_rootEntity, customRenderer);
