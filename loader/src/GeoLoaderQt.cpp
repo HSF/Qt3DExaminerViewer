@@ -83,9 +83,15 @@ inline QMatrix4x4 toQMatrix(GeoTrf::Transform3D tr){
     return mtx;
 }
 
+QStringList list;
+
 void GeoLoaderQt::loadChildren(GeneralMeshModel *container, const GeoVPhysVol *parent){
+    static int count = 0;
     unsigned int nChil = parent->getNChildVols();
     for (unsigned int idx = 0; idx < nChil; idx++){
+        count++;
+        qInfo() << "count: " << count << "sum: " << nChil;
+        if(count > 100) return;
         PVConstLink nodeLink = parent->getChildVol(idx);
         if ( dynamic_cast<const GeoVPhysVol*>( &(*( nodeLink ))) ) {
           std::cout << "\n" << "the child n. " << idx << " ";
@@ -99,6 +105,9 @@ void GeoLoaderQt::loadChildren(GeneralMeshModel *container, const GeoVPhysVol *p
             const GeoFullPhysVol *childVol = dynamic_cast<const GeoFullPhysVol*>(childVolV);
             std::cout << "is a GeoFullPhysVol, whose GeoLogVol name is: " << childVol->getLogVol()->getName();
             std::cout<< " and it has  "<<childVol->getNChildVols()<<" child volumes" << std::endl;
+          } else {
+              std::cout << "unknown object! " << std::endl;
+              continue;
           }
           // Get shape type
           const GeoShape* shapeIn = childVolV->getLogVol()->getShape();
@@ -118,8 +127,12 @@ void GeoLoaderQt::loadChildren(GeneralMeshModel *container, const GeoVPhysVol *p
               model = createTorus(shapeIn);
           else if(shapeIn->type() == "TessellatedSolid")
               model = createTessellatedSolid(shapeIn);
-          else
+          else if(shapeIn->type() == "Trd")
+              model = createTrd(shapeIn);
+          else{
               std::cout << "Unsupported shape: " << shapeIn->type();
+              list << QString::fromStdString(shapeIn->type());
+          }
           if(model != nullptr){
               std::cout << "name: " << childVolV->getLogVol()->getName();
               std::cout << " material name: " << childVolV->getLogVol()->getMaterial()->getName()
@@ -127,6 +140,7 @@ void GeoLoaderQt::loadChildren(GeneralMeshModel *container, const GeoVPhysVol *p
                         << " material elementSize: " << childVolV->getLogVol()->getMaterial()->getNumElements()
                         << std::endl;
               QMatrix4x4 transform = toQMatrix(childVolV->getX());
+              //qInfo() << transform;
               model->setTransformMatrix(transform);
               model->setVolume(childVolV);
               container->addSubModel(model);
@@ -160,6 +174,8 @@ GeneralMeshModel *GeoLoaderQt::loadFromDB(QString path){
   std::cout << "Looping over all 'volume' children (i.e., GeoPhysVol and GeoFullPhysVol)..." << std::endl;
   loadChildren(container, world);
   std::cout << "Everything done." << container->subModelCount() << std::endl;
+  qInfo() << "how many unknows: " <<  list.count();
+  qInfo() << list;
   return container;
 }
 
@@ -223,7 +239,11 @@ GeneralMeshModel *GeoLoaderQt::createTube(const GeoShape* shapeIn){
   const double zHalf = shape->getZHalfLength();
   std::cout << "rMin: " << rMin << " , rMax: " << rMax << " , zHalf: " << zHalf << std::endl;
   std::cout << "Volume: " << shape->volume() << std::endl;
-  return m_builder->buildTube(rMin, rMax, zHalf);
+  //TODO: to prevent shape from disappering, this is a temporary fix for rendering bug
+  if(rMin < 1e-2)
+      return m_builder->buildTube(1e-2, rMax, zHalf);
+  else
+      return m_builder->buildTube(rMin, rMax, zHalf);
 }
 
 GeneralMeshModel *GeoLoaderQt::createTubs(const GeoShape* shapeIn){
@@ -241,10 +261,21 @@ GeneralMeshModel *GeoLoaderQt::createTubs(const GeoShape* shapeIn){
   const double DPhi = shape->getDPhi();
   std::cout << "rMin: " << rMin << " , rMax: " << rMax << " , zHalf: " << zHalf << " , SPhi: " << SPhi << " , DPhi: " << DPhi << std::endl;
   std::cout << "Volume: " << shape->volume() << std::endl;
-  if(std::abs(DPhi - 2 * M_PI) < 1e-2)
-      return m_builder->buildTube(rMin, rMax, zHalf);
-  else
-      return m_builder->buildTubs(rMin, rMax, zHalf, SPhi, DPhi);
+  if(std::abs(DPhi - 2 * M_PI) < 1e-2){
+      qInfo() << "run here to build tube";
+      // TOD: to prevent shape from disappering, this is a temporary fix for rendering bug
+      if(rMin < 1e-2)
+          return m_builder->buildTube(1e-2, rMax, zHalf);
+      else
+          return m_builder->buildTube(rMin, rMax, zHalf);
+  }
+  else{
+       // to prevent shape from disappering, this is a temporary fix for rendering bug
+      if(rMin < 1e-2)
+          return m_builder->buildTubs(1e-2, rMax, zHalf, SPhi, DPhi);
+      else
+          return m_builder->buildTubs(rMin, rMax, zHalf, SPhi, DPhi);
+  }
 }
 
 GeneralMeshModel *GeoLoaderQt::createPcon(const GeoShape* shapeIn){
@@ -263,7 +294,10 @@ GeneralMeshModel *GeoLoaderQt::createPcon(const GeoShape* shapeIn){
     const double nZP = shape->getZPlane(iP);
     planes[iP].ZPlane = nZP;
     //  Get the RMin of the specified plane.
-    const double nRmin = shape->getRMinPlane(iP);
+    double nRmin = shape->getRMinPlane(iP);
+    // TODO: to prevent shape from disappering, this is a temporary fix for rendering bug
+    if(nRmin < 1e-2)
+        nRmin = 1e-2;
     planes[iP].RMinPlane = nRmin;
     //  Get the RMax of the specified plane.
     const double nRmax = shape->getRMaxPlane(iP);
@@ -274,6 +308,7 @@ GeneralMeshModel *GeoLoaderQt::createPcon(const GeoShape* shapeIn){
   //  True if the polycone has at least two planes.  False otherwise.
   bool isValid = shape->isValid();
   std::cout << "Is this GeoPcon shape valid? " << isValid << std::endl;
+   //TODO: to prevent shape from disappering, this is a temporary fix for rendering bug
   if(isValid)
     return m_builder->buildPcon(SPhi, DPhi, nPlanes, planes);
   else
@@ -300,7 +335,14 @@ GeneralMeshModel *GeoLoaderQt::createCons(const GeoShape* shapeIn){
   std::cout << "rMin1: " << rMin1 << " , rMin2: " << rMin2 << " , rMax1: " << rMax1  << " , rMax2: " << rMax2
           << " , zHalf: " << zHalf << ", SPhi: " << SPhi << " , DPhi: " << DPhi  << std::endl;
   std::cout << "Volume: " << shape->volume() << std::endl;
-  return m_builder->buildCons(rMin1, rMin2, rMax1, rMax2, zHalf, SPhi, DPhi);
+  //TODO: to prevent shape from disappering, this is a temporary fix for rendering bug
+  if(rMin1 < 1e-2 && rMin2 > 1e-2)
+      return m_builder->buildCons(0, rMin2, rMax1, rMax2, zHalf, SPhi, DPhi);
+  else if(rMin1 > 1e-2 && rMin2 < 1e-2)
+      return m_builder->buildCons(rMin1, 1e-2, rMax1, rMax2, zHalf, SPhi, DPhi);
+  else if(rMin1 < 1e-2 && rMin2 < 1e-2)
+      return m_builder->buildCons(1e-2, 1e-2, rMax1, rMax2, zHalf, SPhi, DPhi);
+  else return m_builder->buildCons(rMin1, rMin2, rMax1, rMax2, zHalf, SPhi, DPhi);
 }
 
 GeneralMeshModel *GeoLoaderQt::createTorus(const GeoShape* shapeIn){
@@ -337,3 +379,7 @@ GeneralMeshModel *GeoLoaderQt::createTessellatedSolid(const GeoShape *shapeIn){
   return m_builder->buildTessellatedSolid(num, faces);
 }
 
+GeneralMeshModel *GeoLoaderQt::createTrd(const GeoShape *shapeIn){
+
+  return nullptr;
+}

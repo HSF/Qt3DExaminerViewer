@@ -98,13 +98,15 @@ int main(int argc, char **argv){
 
     GeoLoaderQt *loader = new GeoLoaderQt(rootEntity);
     loadedModel = loader->loadFromDB(fileName);
+    qInfo() << "stil alive? ";
+
 
     ModelFactory *builder = ModelFactory::GetInstance(rootEntity);
     cameraWrapper->init_distanceToOrigin = builder->MaxSize() * 1.5 / tan(qDegreesToRadians(22.5f));
     cameraWrapper->viewAll();
     cameraWrapper->resetCameraView(builder->MaxSize()*22);
     camController->setLinearSpeed(builder->MaxSize()*3);
-
+    qInfo() << "maxSize: " << builder->MaxSize();
     // Light source
     Qt3DCore::QEntity *lightEntity = new Qt3DCore::QEntity(rootEntity);
     setUpLight(lightEntity, cameraEntity->position());

@@ -439,10 +439,6 @@ GeneralMeshModel *ModelFactory::buildTube(double rMin, double rMax, double zHalf
         vertex[i+1+3*floatPerCircle] = vertex[i+floatPerCircle+1];
         vertex[i+2+3*floatPerCircle] = -zHalf;
     }
-    /*for(int i = 0; i < numPerCircle*4*3; i+=3){
-        qInfo() << i/3 << ") x:" << vertex[i] << "y:" << vertex[i+1] << "z:" << vertex[i+2];
-    }*/
-
     // 4 vertexes per slice; each vertex has 3 'float' coordinates ==> 4 * nSlices * 3 * size(float) 
     QByteArray bufferBytes;
     bufferBytes.resize(4 * numPerCircle * 3 * sizeof(float));
@@ -485,9 +481,6 @@ GeneralMeshModel *ModelFactory::buildTube(double rMin, double rMax, double zHalf
         normal[i+3*floatPerCircle+1] = normal[i+floatPerCircle+1];
         normal[i+3*floatPerCircle+2] = -1;
     }
-    /*for(int i = 0; i < numPerCircle*4*3; i+=3){
-        qInfo() << i/3 << ") x:" << normal[i] << "y:" << normal[i+1] << "z:" << normal[i+2];
-    }*/
     QByteArray normalBytes;
     normalBytes.resize(4 * numPerCircle * 3 * sizeof(float));
     memcpy(normalBytes.data(), reinterpret_cast<const char*>(normal), normalBytes.size());
@@ -502,7 +495,6 @@ GeneralMeshModel *ModelFactory::buildTube(double rMin, double rMax, double zHalf
     normalAttribute->setByteOffset(0);
     normalAttribute->setByteStride(3 * sizeof(float));
     normalAttribute->setCount(numPerCircle * 4);
-
 
     unsigned int index[numPerCircle * 8 * 3];
     int num = numPerCircle * 6;
@@ -536,9 +528,6 @@ GeneralMeshModel *ModelFactory::buildTube(double rMin, double rMax, double zHalf
         index[i+3*num+4] = j;
         index[i+3*num+5] = (j+1)%numPerCircle;
     }
-    /*for(int i= 0; i < numPerCircle * 8 * 3; i+=3){
-        qInfo() << i/3 <<" 1)"<< index[i] << " 2) " << index[i+1] << " 3) "<< index[i+2];
-    }*/
     QByteArray indexBytes;
     indexBytes.resize(8 * numPerCircle * 3 * sizeof(quint32));
     memcpy(indexBytes.data(), reinterpret_cast<const char*>(index), indexBytes.size());
@@ -552,7 +541,7 @@ GeneralMeshModel *ModelFactory::buildTube(double rMin, double rMax, double zHalf
     indexAttribute->setByteOffset(0);
     indexAttribute->setByteStride(3 * sizeof(unsigned int));
     indexAttribute->setCount(8 * 3 * numPerCircle);
-    
+
     QGeometryRenderer *customRenderer = new QGeometryRenderer;
     Qt3DRender::QGeometry *geometry = new Qt3DRender::QGeometry(customRenderer);
     geometry->addAttribute(positionAttribute);

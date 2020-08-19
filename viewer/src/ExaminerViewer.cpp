@@ -128,6 +128,18 @@ QSequentialAnimationGroup *ExaminerViewer::getRoute1Tour(){
     return tour1;
 }
 
+inline void loopDaughters(QTreeWidgetItem *item, GeneralMeshModel *model){
+    int n = model->subModelCount();
+    for(int i = 0; i < n; i++){
+        GeneralMeshModel *daughter = model->getSubModel(i);
+        QTreeWidgetItem *subItem = new QTreeWidgetItem();
+        subItem->setText(0, daughter->objectName());
+        subItem->setText(1, QString::number(daughter->subModelCount()));
+        loopDaughters(subItem, daughter);
+        item->addChild(subItem);
+    }
+}
+
 void ExaminerViewer::setupControlPanel(QVBoxLayout *vLayout, QWidget *mainWindow){
     /************ Info window ******************/
     // Create a info window to display mesh properties
@@ -135,22 +147,39 @@ void ExaminerViewer::setupControlPanel(QVBoxLayout *vLayout, QWidget *mainWindow
     vLayout->addWidget(info);
 
     QTreeWidget *treeWidget = new QTreeWidget(mainWindow);
-    treeWidget->setColumnCount(1);
+    treeWidget->setColumnCount(2);
+    QStringList headerLabels;
+    headerLabels.push_back("volume");
+    headerLabels.push_back("#children");
+    treeWidget->setHeaderLabels(headerLabels);
     QList<QTreeWidgetItem *> items;
+    //QTreeWidgetItem *topItem = new QTreeWidgetItem(treeWidget);
+
     for (int i = 0; i < m_worldModel->subModelCount(); ++i){
         GeneralMeshModel *volume = m_worldModel->getSubModel(i);
-        QTreeWidgetItem *item = new QTreeWidgetItem(static_cast<QTreeWidget *>(nullptr),
-                     QStringList(QString("volume %1: ").arg(i) + volume->objectName()));
+        QTreeWidgetItem *item = new QTreeWidgetItem(treeWidget);
+        item->setText(0, volume->objectName());
+        item->setText(1, QString::number(volume->subModelCount()));
+        //loopDaughters(item, volume);
+        //item->addChild(item);
+        //item->addChild(new QTreeWidgetItem(QStringList(QObject::tr("A"))));
+        //item->addChild(new QTreeWidgetItem(QStringList(QObject::tr("B"))));
+        //item->addChild(new QTreeWidgetItem(QStringList(QObject::tr("C"))));
+       // treeWidget->expandItem(item);
         items.append(item);
     }
+
     QObject::connect(treeWidget, &QTreeWidget::itemClicked, [this, treeWidget](QTreeWidgetItem *item){
          int idx = treeWidget->indexOfTopLevelItem(item);
+         //qInfo() << "sec" << topItem->child(0)->indexOfChild(item);
+         //qInfo() << "third"  << topItem->child(0)->child(0)->indexOfChild(item);
+         qInfo() << "idx: " << idx;
          this->m_cameraWrapper->camera()->viewEntity(m_worldModel->getSubModel(idx)->m_meshEntity);
          m_worldModel->getSubModel(idx)->showMesh(true);
          m_worldModel->getSubModel(idx)->getSelected();
     });
-
     treeWidget->insertTopLevelItems(0, items);
+    //treeWidget->expandItem(topItem);
     vLayout->addWidget(treeWidget);
 
     /************ Volume control******************/

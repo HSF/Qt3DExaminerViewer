@@ -35,6 +35,7 @@ private:
     GeneralMeshModel *createCons(const GeoShape* shapeIn);
     GeneralMeshModel *createTorus(const GeoShape* shapeIn);
     GeneralMeshModel *createTessellatedSolid(const GeoShape* shapeIn);
+    GeneralMeshModel *createTrd(const GeoShape* shapeIn);
     ModelFactory *m_builder;
 };
 
