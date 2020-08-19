@@ -214,16 +214,13 @@ GeneralMeshModel *ModelFactory::buildCoordinateLine()
     vertex_array[ix++] = 0.0f;
     vertex_array[ix++] = 1.0f;
 
-    Qt3DRender::QGeometry *geometry = new Qt3DRender::QGeometry();
 
     QByteArray bufferBytes;
     const int num_vertices = 6;
     const quint32 elementsize = 3;
     const quint32 stride = elementsize * sizeof(float);
     bufferBytes.resize(stride * num_vertices);
-
     memcpy(bufferBytes.data(), reinterpret_cast<const char*>(vertex_array), bufferBytes.size());
-
     Qt3DRender::QBuffer *buf = (new Qt3DRender::QBuffer());
     buf->setData(bufferBytes);
     Qt3DRender::QAttribute *positionAttribute = new Qt3DRender::QAttribute();
@@ -236,11 +233,10 @@ GeneralMeshModel *ModelFactory::buildCoordinateLine()
     positionAttribute->setByteStride(stride);
     positionAttribute->setCount(18);
 
+    Qt3DRender::QGeometry *geometry = new Qt3DRender::QGeometry();
     geometry->addAttribute(positionAttribute);
-
     mesh->setGeometry(geometry);
     mesh->setPrimitiveType(QGeometryRenderer::Lines);
-
     Qt3DExtras::QPerVertexColorMaterial *material = new Qt3DExtras::QPerVertexColorMaterial(m_rootEntity);
     GeneralMeshModel *lineTwo = new GeneralMeshModel(m_rootEntity, mesh, material);
     lineTwo->scaleMesh(m_maxSize * QVector3D(1.3,1.3,1.3));
@@ -450,9 +446,7 @@ GeneralMeshModel *ModelFactory::buildTube(double rMin, double rMax, double zHalf
     // 4 vertexes per slice; each vertex has 3 'float' coordinates ==> 4 * nSlices * 3 * size(float) 
     QByteArray bufferBytes;
     bufferBytes.resize(4 * numPerCircle * 3 * sizeof(float));
-
     memcpy(bufferBytes.data(), reinterpret_cast<const char*>(vertex), bufferBytes.size());
-
     Qt3DRender::QBuffer *buf = (new Qt3DRender::QBuffer());
     buf->setData(bufferBytes);
     Qt3DRender::QAttribute *positionAttribute = new Qt3DRender::QAttribute();
@@ -499,7 +493,6 @@ GeneralMeshModel *ModelFactory::buildTube(double rMin, double rMax, double zHalf
     memcpy(normalBytes.data(), reinterpret_cast<const char*>(normal), normalBytes.size());
     Qt3DRender::QBuffer *normalBuf = (new Qt3DRender::QBuffer());
     normalBuf->setData(normalBytes);
-    
     Qt3DRender::QAttribute *normalAttribute = new Qt3DRender::QAttribute();
     normalAttribute->setBuffer(normalBuf);
     normalAttribute->setName(QAttribute::defaultNormalAttributeName());
@@ -548,11 +541,9 @@ GeneralMeshModel *ModelFactory::buildTube(double rMin, double rMax, double zHalf
     }*/
     QByteArray indexBytes;
     indexBytes.resize(8 * numPerCircle * 3 * sizeof(quint32));
-
     memcpy(indexBytes.data(), reinterpret_cast<const char*>(index), indexBytes.size());
     Qt3DRender::QBuffer *indexBuffer(new QBuffer());
     indexBuffer->setData(indexBytes);
-
     QAttribute *indexAttribute = new QAttribute();
     indexAttribute->setAttributeType(QAttribute::IndexAttribute);
     indexAttribute->setBuffer(indexBuffer);
@@ -615,9 +606,7 @@ GeneralMeshModel *ModelFactory::buildTubs(double rMin, double rMax, double zHalf
     // 4 vertexes per slice; each vertex has 3 'float' coordinates ==> 4 * nSlices * 3 * size(float)
     QByteArray bufferBytes;
     bufferBytes.resize(4 * numPerCircle * 3 * sizeof(float));
-
     memcpy(bufferBytes.data(), reinterpret_cast<const char*>(vertex), bufferBytes.size());
-
     Qt3DRender::QBuffer *buf = (new Qt3DRender::QBuffer());
     buf->setData(bufferBytes);
     Qt3DRender::QAttribute *positionAttribute = new Qt3DRender::QAttribute();
@@ -664,7 +653,6 @@ GeneralMeshModel *ModelFactory::buildTubs(double rMin, double rMax, double zHalf
     memcpy(normalBytes.data(), reinterpret_cast<const char*>(normal), normalBytes.size());
     Qt3DRender::QBuffer *normalBuf = (new Qt3DRender::QBuffer());
     normalBuf->setData(normalBytes);
-
     Qt3DRender::QAttribute *normalAttribute = new Qt3DRender::QAttribute();
     normalAttribute->setBuffer(normalBuf);
     normalAttribute->setName(QAttribute::defaultNormalAttributeName());
@@ -731,11 +719,9 @@ GeneralMeshModel *ModelFactory::buildTubs(double rMin, double rMax, double zHalf
 
     QByteArray indexBytes;
     indexBytes.resize((8 * (numPerCircle-1) + 4) * 3 * sizeof(quint32));
-
     memcpy(indexBytes.data(), reinterpret_cast<const char*>(index), indexBytes.size());
     Qt3DRender::QBuffer *indexBuffer(new QBuffer());
     indexBuffer->setData(indexBytes);
-
     QAttribute *indexAttribute = new QAttribute();
     indexAttribute->setAttributeType(QAttribute::IndexAttribute);
     indexAttribute->setBuffer(indexBuffer);
@@ -777,10 +763,13 @@ GeneralMeshModel *ModelFactory::buildPcon(double SPhi, double DPhi, unsigned int
         // 3 coordinates per vertex: we set them by hand as i, i+1, i+2,
         //so we use an offset of j*3 for each ietration over j
         int i = j * 3;
+        float u = SPhi + delta * j;
+        float cu = qCos(u);
+        float su = qSin(u);
         for(unsigned int z = 0; z < nPlanes; z++){
             // z-th layer inner
-            vertex[i+2*z*floatPerCircle]   = planes[z].RMinPlane * qCos(SPhi + delta*j);
-            vertex[i+2*z*floatPerCircle+1] = planes[z].RMinPlane * qSin(SPhi + delta*j);
+            vertex[i+2*z*floatPerCircle]   = planes[z].RMinPlane * cu;
+            vertex[i+2*z*floatPerCircle+1] = planes[z].RMinPlane * su;
             vertex[i+2*z*floatPerCircle+2] = planes[z].ZPlane;
 
             // z-th layer outer
@@ -796,9 +785,7 @@ GeneralMeshModel *ModelFactory::buildPcon(double SPhi, double DPhi, unsigned int
     // 4 vertexes per slice; each vertex has 3 'float' coordinates ==> 4 * nSlices * 3 * size(float)
     QByteArray bufferBytes;
     bufferBytes.resize(numPerCircle * 2 * nPlanes * 3 * sizeof(float));
-
     memcpy(bufferBytes.data(), reinterpret_cast<const char*>(vertex), bufferBytes.size());
-
     Qt3DRender::QBuffer *buf = (new Qt3DRender::QBuffer());
     buf->setData(bufferBytes);
     Qt3DRender::QAttribute *positionAttribute = new Qt3DRender::QAttribute();
@@ -816,21 +803,24 @@ GeneralMeshModel *ModelFactory::buildPcon(double SPhi, double DPhi, unsigned int
     float normal[numPerCircle * 2 * nPlanes * 3];
     for(int j = 0; j < numPerCircle; j++){
         int i = j * 3; // 3 coordinates per vertex, so we use an offset of j*3 at the start of each iteration
+        float u = SPhi + delta * j;
+        float cu = qCos(u);
+        float su = qSin(u);
         for(unsigned int z = 0; z < nPlanes; z++){
             // z-th layer inner
-            normal[i+2*z*floatPerCircle]   = -qCos(SPhi + delta*j);
-            normal[i+2*z*floatPerCircle+1] = -qSin(SPhi + delta*j);
+            normal[i+2*z*floatPerCircle]   = -cu;
+            normal[i+2*z*floatPerCircle+1] = -su;
             normal[i+2*z*floatPerCircle+2] = 0;
 
             // z-th layer outer
-            normal[i+(2*z+1)*floatPerCircle]   = qCos(SPhi + delta*j);
-            normal[i+(2*z+1)*floatPerCircle+1] = qSin(SPhi + delta*j);
+            normal[i+(2*z+1)*floatPerCircle]   = cu;
+            normal[i+(2*z+1)*floatPerCircle+1] = su;
             normal[i+(2*z+1)*floatPerCircle+2] = 0;
         }
-        // specical direction for tope layer
+        // specical direction for top layer
         normal[i+2] = -1;
         normal[i+floatPerCircle+2] = -1;
-        // specical direction for tope layer
+        // specical direction for bottom layer
         normal[i+2*(nPlanes-1)*floatPerCircle+2] = 1;
         normal[i+2*(nPlanes+1)*floatPerCircle+2] = 1;
     }
@@ -843,7 +833,6 @@ GeneralMeshModel *ModelFactory::buildPcon(double SPhi, double DPhi, unsigned int
     memcpy(normalBytes.data(), reinterpret_cast<const char*>(normal), normalBytes.size());
     Qt3DRender::QBuffer *normalBuf = (new Qt3DRender::QBuffer());
     normalBuf->setData(normalBytes);
-
     Qt3DRender::QAttribute *normalAttribute = new Qt3DRender::QAttribute();
     normalAttribute->setBuffer(normalBuf);
     normalAttribute->setName(QAttribute::defaultNormalAttributeName());
@@ -925,11 +914,9 @@ GeneralMeshModel *ModelFactory::buildPcon(double SPhi, double DPhi, unsigned int
 
     QByteArray indexBytes;
     indexBytes.resize(( (numPerCircle-1) * ( (nPlanes-1)*4 + 4 ) + 4 *(nPlanes-1) ) * 3 * sizeof(quint32));
-
     memcpy(indexBytes.data(), reinterpret_cast<const char*>(index), indexBytes.size());
     Qt3DRender::QBuffer *indexBuffer(new QBuffer());
     indexBuffer->setData(indexBytes);
-
     QAttribute *indexAttribute = new QAttribute();
     indexAttribute->setAttributeType(QAttribute::IndexAttribute);
     indexAttribute->setBuffer(indexBuffer);
@@ -977,7 +964,152 @@ GeneralMeshModel *ModelFactory::buildCons(double rMin1, double rMin2, double rMa
 
 GeneralMeshModel *ModelFactory::buildTorus(double rMin, double rMax, double rTor, double SPhi, double DPhi){
     //TODO
-    return nullptr;
+    float maxSize = rTor + rMax;
+    setMaxSize(maxSize);
+
+    int numSlice = 40; // # of slices
+    float deltaSlice = 2 * M_PI / numSlice; // length of a slice, in radians
+    int numRing = 30;
+    float deltaRing = DPhi /(numRing - 1);
+    float vertex[2 * numRing * numSlice * 3];
+    float normal[2 * numRing * numSlice * 3];
+
+    // Vertices
+    for(int j = 0; j < numRing; j++){
+        // 3 coordinates per vertex: we set them by hand as i, i+1, i+2,
+        //so we use an offset of j*3 for each ietration over j
+        float u = SPhi + deltaRing * j;
+        float cu = qCos(u);
+        float su = qSin(u);
+        for(int z = 0; z < numSlice; z++){
+            // z-th ring inner
+            float v = deltaSlice * z;
+            float cv = qCos(v);
+            float sv = qSin(v);
+            float rInner = rTor + rMin * cv;
+            float zInner = rMin * sv;
+            vertex[j*numSlice*6 + z*3]   = rInner * cu;
+            vertex[j*numSlice*6 + z*3 + 1] = rInner * su;
+            vertex[j*numSlice*6 + z*3 + 2] = zInner;
+            normal[j*numSlice*6 + z*3] = -cu * cv;
+            normal[j*numSlice*6 + z*3 + 1] = -su * cv;
+            normal[j*numSlice*6 + z*3 + 2] = -sv;
+
+            // z-th ring outer
+            float rOuter = rTor + rMax * cv;
+            float zOuter = rMax * sv;
+            vertex[j*numSlice*6 + (z+numSlice)*3]   = rOuter * cu;
+            vertex[j*numSlice*6 + (z+numSlice)*3 + 1] = rOuter * su;
+            vertex[j*numSlice*6 + (z+numSlice)*3 + 2] = zOuter;
+            normal[j*numSlice*6 + (z+numSlice)*3] = cu * cv;
+            normal[j*numSlice*6 + (z+numSlice)*3 + 1] = su * cv;
+            normal[j*numSlice*6 + (z+numSlice)*3 + 2] = sv;
+        }
+    }
+
+    QByteArray bufferBytes;
+    bufferBytes.resize(numSlice * 2 * numRing * 3 * sizeof(float));
+    memcpy(bufferBytes.data(), reinterpret_cast<const char*>(vertex), bufferBytes.size());
+    Qt3DRender::QBuffer *buf = (new Qt3DRender::QBuffer());
+    buf->setData(bufferBytes);
+    Qt3DRender::QAttribute *positionAttribute = new Qt3DRender::QAttribute();
+    positionAttribute->setName(QAttribute::defaultPositionAttributeName());
+    positionAttribute->setAttributeType(QAttribute::VertexAttribute);
+    positionAttribute->setVertexBaseType(QAttribute::Float);
+    positionAttribute->setVertexSize(3);
+    positionAttribute->setBuffer(buf);
+    positionAttribute->setByteOffset(0);
+    positionAttribute->setByteStride(3 * sizeof(float));
+    positionAttribute->setCount(numSlice * 2 * numRing);
+
+    QByteArray normalBytes;
+    normalBytes.resize(numSlice * 2 * numRing * 3 * sizeof(float));
+    memcpy(normalBytes.data(), reinterpret_cast<const char*>(normal), normalBytes.size());
+    Qt3DRender::QBuffer *normalBuf = (new Qt3DRender::QBuffer());
+    normalBuf->setData(normalBytes);
+    Qt3DRender::QAttribute *normalAttribute = new Qt3DRender::QAttribute();
+    normalAttribute->setBuffer(normalBuf);
+    normalAttribute->setName(QAttribute::defaultNormalAttributeName());
+    normalAttribute->setAttributeType(QAttribute::VertexAttribute);
+    normalAttribute->setVertexBaseType(QAttribute::Float);
+    normalAttribute->setVertexSize(3);
+    normalAttribute->setByteOffset(0);
+    normalAttribute->setByteStride(3 * sizeof(float));
+    normalAttribute->setCount(numSlice * 2 * numRing);
+
+
+    unsigned int index[numSlice*(numRing-1)*12 + (numSlice)*12];
+    for(int j = 0; j < numRing-1; j++){
+        for(int z = 0; z < numSlice; z++){
+            // z-th ring inner face
+            index[j*numSlice*12 + 12*z] = 2*numSlice*j + z;
+            index[j*numSlice*12 + 12*z + 1] = 2*numSlice*j + (z+1) % numSlice;
+            index[j*numSlice*12 + 12*z + 2] = 2*numSlice*(j+1) + z;
+            index[j*numSlice*12 + 12*z + 3] = 2*numSlice*j + (z+1) % numSlice;
+            index[j*numSlice*12 + 12*z + 4] = 2*numSlice*(j+1) + (z+1) % numSlice;
+            index[j*numSlice*12 + 12*z + 5] = 2*numSlice*(j+1) + z;
+
+            // z-th ring outer face
+            index[j*numSlice*12 + 12*z + 6] = (2*j+1)*numSlice + z;
+            index[j*numSlice*12 + 12*z + 7] = (2*j+3)*numSlice + z;
+            index[j*numSlice*12 + 12*z + 8] = (2*j+1)*numSlice + (z+1) % numSlice;
+            index[j*numSlice*12 + 12*z + 9] = (2*j+1)*numSlice + (z+1) % numSlice;
+            index[j*numSlice*12 + 12*z + 10] = (2*j+3)*numSlice + z;
+            index[j*numSlice*12 + 12*z + 11] = (2*j+3)*numSlice + (z+1) % numSlice;
+        }
+    }
+    int endFace = numSlice*(numRing-1)*12;
+    int stride = 6;
+    for(int z = 0; z < numSlice; z++){
+       //beginning side face
+       index[endFace+stride*z] = z;
+       index[endFace+stride*z+1] = numSlice + z;
+       index[endFace+stride*z+2] = (z+1)%numSlice;
+
+       index[endFace+stride*z+3] = numSlice + z;
+       index[endFace+stride*z+4] = numSlice + (z+1)%numSlice;
+       index[endFace+stride*z+5] = (z+1)%numSlice;
+
+       // ending side face
+       index[endFace+6*numSlice+stride*z] = numSlice*2*(numRing-1) + z;
+       index[endFace+6*numSlice+stride*z+1] = numSlice*2*(numRing-1) + (z+1)%numSlice;
+       index[endFace+6*numSlice+stride*z+2] = numSlice*(2*numRing-1) + z;
+
+       index[endFace+6*numSlice+stride*z+3] = numSlice*2*(numRing-1) + (z+1)%numSlice;
+       index[endFace+6*numSlice+stride*z+4] = numSlice*(2*numRing-1) + (z+1)%numSlice;
+       index[endFace+6*numSlice+stride*z+5] = numSlice*(2*numRing-1) + z;
+    }
+/*
+    for(unsigned int i= 0; i < ( (numPerCircle-1) * ( (nPlanes-1)*4 + 4 ) + 4 *(nPlanes-1) ) * 3; i+=3){
+        qInfo() << i/3 <<" 1)"<< index[i] << " 2) " << index[i+1] << " 3) "<< index[i+2];
+    }
+*/
+    QByteArray indexBytes;
+    indexBytes.resize((numSlice*(numRing-1)*12 + (numSlice)*12) * sizeof(quint32));
+    memcpy(indexBytes.data(), reinterpret_cast<const char*>(index), indexBytes.size());
+    Qt3DRender::QBuffer *indexBuffer(new QBuffer());
+    indexBuffer->setData(indexBytes);
+    QAttribute *indexAttribute = new QAttribute();
+    indexAttribute->setAttributeType(QAttribute::IndexAttribute);
+    indexAttribute->setBuffer(indexBuffer);
+    indexAttribute->setVertexBaseType(QAttribute::UnsignedInt);
+    indexAttribute->setVertexSize(3);
+    indexAttribute->setByteOffset(0);
+    indexAttribute->setByteStride(3 * sizeof(unsigned int));
+    indexAttribute->setCount(numSlice*(numRing-1)*12 + (numSlice)*12);
+
+    QGeometryRenderer *customRenderer = new QGeometryRenderer;
+    Qt3DRender::QGeometry *geometry = new Qt3DRender::QGeometry(customRenderer);
+    geometry->addAttribute(positionAttribute);
+    geometry->addAttribute(normalAttribute);
+    geometry->addAttribute(indexAttribute);
+    customRenderer->setGeometry(geometry);
+    //customRenderer->setPrimitiveType(QGeometryRenderer::Lines);
+    customRenderer->setObjectName(QString("GeoTorus with:\nrMin: %1, rMax: %2, rTor: %3\nSPhi: %4, DPhi: %5")
+                                  .arg(rMin).arg(rMax).arg(rTor).arg(SPhi).arg(DPhi));
+    GeneralMeshModel *torus = new GeneralMeshModel(m_rootEntity, customRenderer);
+    torus->setObjectName("GeoTorus");
+    return torus;
 }
 
 GeneralMeshModel *ModelFactory::buildTessellatedSolid(size_t num, GeoFacet **faces){
@@ -1040,7 +1172,6 @@ GeneralMeshModel *ModelFactory::buildTessellatedSolid(size_t num, GeoFacet **fac
     memcpy(normalBytes.data(), reinterpret_cast<const char*>(normal), normalBytes.size());
     Qt3DRender::QBuffer *normalBuf = (new Qt3DRender::QBuffer());
     normalBuf->setData(normalBytes);
-
     Qt3DRender::QAttribute *normalAttribute = new Qt3DRender::QAttribute();
     normalAttribute->setBuffer(normalBuf);
     normalAttribute->setName(QAttribute::defaultNormalAttributeName());
