@@ -128,6 +128,7 @@ void GeoLoaderQt::loadChildren(GeneralMeshModel *container, const GeoVPhysVol *p
                         << std::endl;
               QMatrix4x4 transform = toQMatrix(childVolV->getX());
               model->setTransformMatrix(transform);
+              model->setVolume(childVolV);
               container->addSubModel(model);
               loadChildren(model, childVolV);
           }
