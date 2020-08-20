@@ -133,11 +133,21 @@ inline void loopDaughters(QTreeWidgetItem *item, GeneralMeshModel *model){
     for(int i = 0; i < n; i++){
         GeneralMeshModel *daughter = model->getSubModel(i);
         QTreeWidgetItem *subItem = new QTreeWidgetItem();
-        subItem->setText(0, daughter->objectName());
+        subItem->setText(0, QString::fromStdString(daughter->Volume()->getLogVol()->getName()));
         subItem->setText(1, QString::number(daughter->subModelCount()));
         loopDaughters(subItem, daughter);
         item->addChild(subItem);
     }
+}
+
+inline GeneralMeshModel *queryItem(QTreeWidgetItem *parent, GeneralMeshModel *model, QTreeWidgetItem *target){
+    int idx = parent->indexOfChild(target);
+    if(idx != -1)
+        return model->getSubModel(idx);
+    for(int i = 0; i < model->subModelCount(); i++){
+        return queryItem(parent->child(i), model->getSubModel(i), target);
+    }
+    return nullptr;
 }
 
 void ExaminerViewer::setupControlPanel(QVBoxLayout *vLayout, QWidget *mainWindow){
@@ -148,38 +158,31 @@ void ExaminerViewer::setupControlPanel(QVBoxLayout *vLayout, QWidget *mainWindow
 
     QTreeWidget *treeWidget = new QTreeWidget(mainWindow);
     treeWidget->setColumnCount(2);
+    treeWidget->setColumnWidth(0, 200);
+    treeWidget->setColumnWidth(1, 50);
     QStringList headerLabels;
     headerLabels.push_back("volume");
     headerLabels.push_back("#children");
     treeWidget->setHeaderLabels(headerLabels);
-    QList<QTreeWidgetItem *> items;
-    //QTreeWidgetItem *topItem = new QTreeWidgetItem(treeWidget);
-
-    for (int i = 0; i < m_worldModel->subModelCount(); ++i){
-        GeneralMeshModel *volume = m_worldModel->getSubModel(i);
-        QTreeWidgetItem *item = new QTreeWidgetItem(treeWidget);
-        item->setText(0, volume->objectName());
-        item->setText(1, QString::number(volume->subModelCount()));
-        //loopDaughters(item, volume);
-        //item->addChild(item);
-        //item->addChild(new QTreeWidgetItem(QStringList(QObject::tr("A"))));
-        //item->addChild(new QTreeWidgetItem(QStringList(QObject::tr("B"))));
-        //item->addChild(new QTreeWidgetItem(QStringList(QObject::tr("C"))));
-       // treeWidget->expandItem(item);
-        items.append(item);
+    QTreeWidgetItem *topItem = new QTreeWidgetItem(treeWidget);
+    topItem->setText(0, "world");
+    topItem->setText(1, QString::number(m_worldModel->subModelCount()));
+    loopDaughters(topItem, m_worldModel);
+    QObject::connect(treeWidget, &QTreeWidget::itemClicked, [this, topItem, treeWidget](QTreeWidgetItem *item){
+    int idx = treeWidget->indexOfTopLevelItem(item);
+    if(idx != -1){
+        this->m_cameraWrapper->viewAll();
     }
-
-    QObject::connect(treeWidget, &QTreeWidget::itemClicked, [this, treeWidget](QTreeWidgetItem *item){
-         int idx = treeWidget->indexOfTopLevelItem(item);
-         //qInfo() << "sec" << topItem->child(0)->indexOfChild(item);
-         //qInfo() << "third"  << topItem->child(0)->child(0)->indexOfChild(item);
-         qInfo() << "idx: " << idx;
-         this->m_cameraWrapper->camera()->viewEntity(m_worldModel->getSubModel(idx)->m_meshEntity);
-         m_worldModel->getSubModel(idx)->showMesh(true);
-         m_worldModel->getSubModel(idx)->getSelected();
+    GeneralMeshModel *target = queryItem(topItem, m_worldModel, item);
+    if(target==nullptr) return;
+    this->m_cameraWrapper->camera()->viewEntity(target->m_meshEntity);
+    target->showMesh(true);
+    target->getSelected();
     });
-    treeWidget->insertTopLevelItems(0, items);
-    //treeWidget->expandItem(topItem);
+    treeWidget->expandItem(topItem);
+    treeWidget->insertTopLevelItem(0, topItem);
+    vLayout->addWidget(treeWidget);
+
     vLayout->addWidget(treeWidget);
 
     /************ Volume control******************/

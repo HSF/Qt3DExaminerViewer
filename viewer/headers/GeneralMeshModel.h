@@ -40,6 +40,7 @@ public:
     void setColor(QColor color);
     void setTransformMatrix(QMatrix4x4 transform);
     void setVolume(const GeoVPhysVol *volume);
+    const GeoVPhysVol *Volume();
 
 signals:
     void mouseEnter(QString tip);

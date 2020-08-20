@@ -171,6 +171,11 @@ void GeneralMeshModel::setVolume(const GeoVPhysVol *volume){
     m_volume = volume;
 }
 
+const GeoVPhysVol *GeneralMeshModel::Volume(){
+    return m_volume;
+}
+
+
 void GeneralMeshModel::setTransformMatrix(QMatrix4x4 transform){
     for(GeneralMeshModel *subModel:m_subModels){
         subModel->setTransformMatrix(transform);

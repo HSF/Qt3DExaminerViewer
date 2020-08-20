@@ -16,6 +16,7 @@
 #include <GeoModelKernel/GeoPcon.h>
 #include <GeoModelKernel/GeoCons.h>
 #include <GeoModelKernel/GeoTorus.h>
+#include <GeoModelKernel/GeoTrd.h>
 #include <GeoModelKernel/GeoTessellatedSolid.h>
 
 class GeoLoaderQt{

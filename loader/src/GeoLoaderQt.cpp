@@ -139,9 +139,14 @@ void GeoLoaderQt::loadChildren(GeneralMeshModel *container, const GeoVPhysVol *p
                         << " material density: " << childVolV->getLogVol()->getMaterial()->getDensity()
                         << " material elementSize: " << childVolV->getLogVol()->getMaterial()->getNumElements()
                         << std::endl;
-              QMatrix4x4 transform = toQMatrix(childVolV->getX());
-              //qInfo() << transform;
-              model->setTransformMatrix(transform);
+              try {
+                QMatrix4x4 transform = toQMatrix(childVolV->getX());
+                   //qInfo() << transform;
+                   model->setTransformMatrix(transform);
+              } catch (...) {
+                    // TODO: this try-catch cannot prevent program from unexpectedly finished.
+                   std::cout << "error during calling childVolV->getX()" << std::endl;
+              }
               model->setVolume(childVolV);
               container->addSubModel(model);
               loadChildren(model, childVolV);
@@ -380,6 +385,20 @@ GeneralMeshModel *GeoLoaderQt::createTessellatedSolid(const GeoShape *shapeIn){
 }
 
 GeneralMeshModel *GeoLoaderQt::createTrd(const GeoShape *shapeIn){
-
-  return nullptr;
+    std::cout << "Trd parameters:\n";
+    const GeoTrd* shape = dynamic_cast<const GeoTrd*>(shapeIn);
+    //  Half-length along z axis
+    const double zHalf = shape->getZHalfLength();
+    //  Half-length along x at the surface positioned at -dz
+    const double xHalf1 = shape->getXHalfLength1();
+    //  Half-length along x at the surface positioned at +dz
+    const double xHalf2 = shape->getXHalfLength2();
+    //  Half-length along y at the surface positioned at -dz
+    const double yHalf1 = shape->getYHalfLength1();
+    //  Half-length along y at the surface positioned at +dz
+    const double yHalf2 = shape->getYHalfLength2();
+    std::cout << "zHalf: " << zHalf << " , xHalf1: " << xHalf1
+              << " , xHalf2: " << xHalf2 << ", yHalf1: " << yHalf1 << " , yHalf2: " << yHalf2  << std::endl;
+      std::cout << "Volume: " << shape->volume() << std::endl;
+    return nullptr;
 }
