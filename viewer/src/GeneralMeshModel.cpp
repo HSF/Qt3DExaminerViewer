@@ -144,7 +144,7 @@ void GeneralMeshModel::restoreState(bool checked){
 
 void GeneralMeshModel::openVolume(){
     if(m_subModels.size() == 0){
-        info->setDescription(QString("This volume has no children"));
+        info->setDescription(QString::fromStdString(m_volume->getLogVol()->getName()) + QString(" has no children"));
         return;
     }
     showMesh(false);
@@ -156,7 +156,7 @@ void GeneralMeshModel::openVolume(){
 
 void GeneralMeshModel::closeVolume(){
     if(m_parentModel == nullptr || m_parentModel->objectName()=="world"){
-        info->setDescription(QString("This volume has no parent"));
+        info->setDescription(QString::fromStdString(m_volume->getLogVol()->getName()) + QString(" has no parent"));
         return;
     }
     m_parentModel->showMesh(true);
