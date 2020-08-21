@@ -74,21 +74,6 @@ GeoPhysVol *GeoLoaderQt::introWorld(GMDBManager *db){
   return world;
 } 
 
-const GeoVPhysVol *GeoLoaderQt::introChild(PVConstLink nodeLink){
-  const GeoVPhysVol *childVolV = &(*( nodeLink ));
-  if ( dynamic_cast<const GeoPhysVol*>(childVolV) ) {
-    const GeoPhysVol *childVol = dynamic_cast<const GeoPhysVol*>(childVolV);
-    std::cout << "is a GeoPhysVol, whose GeoLogVol name is: " << childVol->getLogVol()->getName();
-    std::cout<< " and it has  "<<childVol->getNChildVols()<<" child volumes" << std::endl;
-  }
-  else if ( dynamic_cast<const GeoFullPhysVol*>(childVolV) ) {
-    const GeoFullPhysVol *childVol = dynamic_cast<const GeoFullPhysVol*>(childVolV);
-    std::cout << "is a GeoFullPhysVol, whose GeoLogVol name is: " << childVol->getLogVol()->getName();
-    std::cout<< " and it has  "<<childVol->getNChildVols()<<" child volumes" << std::endl;
-  }
-  return childVolV;
-}
-
 inline QMatrix4x4 toQMatrix(GeoTrf::Transform3D tr){
     QMatrix4x4 mtx;
     for(int i = 0; i < 4; i++){
@@ -96,6 +81,78 @@ inline QMatrix4x4 toQMatrix(GeoTrf::Transform3D tr){
             mtx(i,j) = tr.matrix()(i, j);
     }
     return mtx;
+}
+
+QStringList list;
+
+void GeoLoaderQt::loadChildren(GeneralMeshModel *container, const GeoVPhysVol *parent){
+    static int count = 0;
+    unsigned int nChil = parent->getNChildVols();
+    for (unsigned int idx = 0; idx < nChil; idx++){
+        count++;
+        qInfo() << "count: " << count << "sum: " << nChil;
+        if(count > 100) return;
+        PVConstLink nodeLink = parent->getChildVol(idx);
+        if ( dynamic_cast<const GeoVPhysVol*>( &(*( nodeLink ))) ) {
+          std::cout << "\n" << "the child n. " << idx << " ";
+          const GeoVPhysVol *childVolV = &(*( nodeLink ));
+          if ( dynamic_cast<const GeoPhysVol*>(childVolV) ) {
+            const GeoPhysVol *childVol = dynamic_cast<const GeoPhysVol*>(childVolV);
+            std::cout << "is a GeoPhysVol, whose GeoLogVol name is: " << childVol->getLogVol()->getName();
+            std::cout<< " and it has  "<<childVol->getNChildVols()<<" child volumes" << std::endl;
+          }
+          else if ( dynamic_cast<const GeoFullPhysVol*>(childVolV) ) {
+            const GeoFullPhysVol *childVol = dynamic_cast<const GeoFullPhysVol*>(childVolV);
+            std::cout << "is a GeoFullPhysVol, whose GeoLogVol name is: " << childVol->getLogVol()->getName();
+            std::cout<< " and it has  "<<childVol->getNChildVols()<<" child volumes" << std::endl;
+          } else {
+              std::cout << "unknown object! " << std::endl;
+              continue;
+          }
+          // Get shape type
+          const GeoShape* shapeIn = childVolV->getLogVol()->getShape();
+          std::cout << "the shape used by the VPhysVol is of type: " << shapeIn->type() << std::endl;
+          GeneralMeshModel *model = nullptr;
+          if(shapeIn->type() == "Box")
+              model = createBox(shapeIn);
+          else if(shapeIn->type() == "Tube")
+              model = createTube(shapeIn);
+          else if(shapeIn->type() == "Tubs")
+              model = createTubs(shapeIn);
+          else if(shapeIn->type() == "Pcon")
+              model = createPcon(shapeIn);
+          else if(shapeIn->type() == "Cons")
+              model = createCons(shapeIn);
+          else if(shapeIn->type() == "Torus")
+              model = createTorus(shapeIn);
+          else if(shapeIn->type() == "TessellatedSolid")
+              model = createTessellatedSolid(shapeIn);
+          else if(shapeIn->type() == "Trd")
+              model = createTrd(shapeIn);
+          else{
+              std::cout << "Unsupported shape: " << shapeIn->type();
+              list << QString::fromStdString(shapeIn->type());
+          }
+          if(model != nullptr){
+              std::cout << "name: " << childVolV->getLogVol()->getName();
+              std::cout << " material name: " << childVolV->getLogVol()->getMaterial()->getName()
+                        << " material density: " << childVolV->getLogVol()->getMaterial()->getDensity()
+                        << " material elementSize: " << childVolV->getLogVol()->getMaterial()->getNumElements()
+                        << std::endl;
+              try {
+                QMatrix4x4 transform = toQMatrix(childVolV->getX());
+                   //qInfo() << transform;
+                   model->setTransformMatrix(transform);
+              } catch (...) {
+                    // TODO: this try-catch cannot prevent program from unexpectedly finished.
+                   std::cout << "error during calling childVolV->getX()" << std::endl;
+              }
+              model->setVolume(childVolV);
+              container->addSubModel(model);
+              loadChildren(model, childVolV);
+          }
+        }
+    }
 }
 
 GeneralMeshModel *GeoLoaderQt::loadFromDB(QString path){
@@ -120,41 +177,10 @@ GeneralMeshModel *GeoLoaderQt::loadFromDB(QString path){
   container->setObjectName("world");
   // loop over all children nodes
   std::cout << "Looping over all 'volume' children (i.e., GeoPhysVol and GeoFullPhysVol)..." << std::endl;
-  for (unsigned int idx=0; idx<nChil; ++idx) {
-    PVConstLink nodeLink = world->getChildVol(idx);
-
-    if ( dynamic_cast<const GeoVPhysVol*>( &(*( nodeLink ))) ) {
-      std::cout << "\n" << "the child n. " << idx << " ";
-      const GeoVPhysVol *childVolV = introChild(nodeLink);
-      // Get shape type
-      const GeoShape* shapeIn = childVolV->getLogVol()->getShape();
-      std::cout << "the shape used by the VPhysVol is of type: " << shapeIn->type() << std::endl;
-      GeneralMeshModel *model = nullptr;
-      if(shapeIn->type() == "Box")
-          model = createBox(shapeIn);
-      else if(shapeIn->type() == "Tube")
-          model = createTube(shapeIn);
-      else if(shapeIn->type() == "Tubs")
-          model = createTubs(shapeIn);
-      else if(shapeIn->type() == "Pcon")
-          model = createPcon(shapeIn);
-      else if(shapeIn->type() == "Cons")
-          model = createCons(shapeIn);
-      else if(shapeIn->type() == "Torus")
-          model = createTorus(shapeIn);
-      else if(shapeIn->type() == "TessellatedSolid")
-          model = createTessellatedSolid(shapeIn);
-      else
-          std::cout << "Unsupported shape: " << shapeIn->type();
-      if(model != nullptr){
-          QMatrix4x4 transform = toQMatrix(childVolV->getX());
-          model->setTransformMatrix(transform);
-          container->addSubModel(model);
-      }
-
-    }
-  }
+  loadChildren(container, world);
   std::cout << "Everything done." << container->subModelCount() << std::endl;
+  qInfo() << "how many unknows: " <<  list.count();
+  qInfo() << list;
   return container;
 }
 
@@ -202,6 +228,7 @@ GeneralMeshModel *GeoLoaderQt::createBox(const GeoShape* shapeIn){
   //  Half-length in the z direction.
   const double zHalf = shape->getZHalfLength();
   std::cout << "xHalf: " << xHalf << " , yHalf: " << yHalf << " , zHalf: " << zHalf << std::endl;
+  std::cout << "Volume: " << shape->volume() << std::endl;
   return m_builder->buildBox(xHalf, yHalf, zHalf);
 }
 
@@ -216,7 +243,12 @@ GeneralMeshModel *GeoLoaderQt::createTube(const GeoShape* shapeIn){
   //  Tube half-length in the z direction.
   const double zHalf = shape->getZHalfLength();
   std::cout << "rMin: " << rMin << " , rMax: " << rMax << " , zHalf: " << zHalf << std::endl;
-  return m_builder->buildTube(rMin, rMax, zHalf);
+  std::cout << "Volume: " << shape->volume() << std::endl;
+  //TODO: to prevent shape from disappering, this is a temporary fix for rendering bug
+  if(rMin < 1e-2)
+      return m_builder->buildTube(1e-2, rMax, zHalf);
+  else
+      return m_builder->buildTube(rMin, rMax, zHalf);
 }
 
 GeneralMeshModel *GeoLoaderQt::createTubs(const GeoShape* shapeIn){
@@ -233,10 +265,22 @@ GeneralMeshModel *GeoLoaderQt::createTubs(const GeoShape* shapeIn){
   //  Delta angle of the tube section in radians.
   const double DPhi = shape->getDPhi();
   std::cout << "rMin: " << rMin << " , rMax: " << rMax << " , zHalf: " << zHalf << " , SPhi: " << SPhi << " , DPhi: " << DPhi << std::endl;
-  if(std::abs(DPhi - 2 * M_PI) < 1e-2)
-      return m_builder->buildTube(rMin, rMax, zHalf);
-  else
-      return m_builder->buildTubs(rMin, rMax, zHalf, SPhi, DPhi);
+  std::cout << "Volume: " << shape->volume() << std::endl;
+  if(std::abs(DPhi - 2 * M_PI) < 1e-2){
+      qInfo() << "run here to build tube";
+      // TOD: to prevent shape from disappering, this is a temporary fix for rendering bug
+      if(rMin < 1e-2)
+          return m_builder->buildTube(1e-2, rMax, zHalf);
+      else
+          return m_builder->buildTube(rMin, rMax, zHalf);
+  }
+  else{
+       // to prevent shape from disappering, this is a temporary fix for rendering bug
+      if(rMin < 1e-2)
+          return m_builder->buildTubs(1e-2, rMax, zHalf, SPhi, DPhi);
+      else
+          return m_builder->buildTubs(rMin, rMax, zHalf, SPhi, DPhi);
+  }
 }
 
 GeneralMeshModel *GeoLoaderQt::createPcon(const GeoShape* shapeIn){
@@ -255,16 +299,21 @@ GeneralMeshModel *GeoLoaderQt::createPcon(const GeoShape* shapeIn){
     const double nZP = shape->getZPlane(iP);
     planes[iP].ZPlane = nZP;
     //  Get the RMin of the specified plane.
-    const double nRmin = shape->getRMinPlane(iP);
+    double nRmin = shape->getRMinPlane(iP);
+    // TODO: to prevent shape from disappering, this is a temporary fix for rendering bug
+    if(nRmin < 1e-2)
+        nRmin = 1e-2;
     planes[iP].RMinPlane = nRmin;
     //  Get the RMax of the specified plane.
     const double nRmax = shape->getRMaxPlane(iP);
     planes[iP].RMaxPlane = nRmax;
     std::cout << "Plane # " << iP << " -- z: " << nZP << " , rMin: " << nRmin << " , rMax: " << nRmax << std::endl;
   }
+  std::cout << "Volume: " << shape->volume() << std::endl;
   //  True if the polycone has at least two planes.  False otherwise.
   bool isValid = shape->isValid();
   std::cout << "Is this GeoPcon shape valid? " << isValid << std::endl;
+   //TODO: to prevent shape from disappering, this is a temporary fix for rendering bug
   if(isValid)
     return m_builder->buildPcon(SPhi, DPhi, nPlanes, planes);
   else
@@ -290,7 +339,15 @@ GeneralMeshModel *GeoLoaderQt::createCons(const GeoShape* shapeIn){
   const double rMax2 = shape->getRMax2();
   std::cout << "rMin1: " << rMin1 << " , rMin2: " << rMin2 << " , rMax1: " << rMax1  << " , rMax2: " << rMax2
           << " , zHalf: " << zHalf << ", SPhi: " << SPhi << " , DPhi: " << DPhi  << std::endl;
-  return m_builder->buildCons(rMin1, rMin2, rMax1, rMax2, zHalf, SPhi, DPhi);
+  std::cout << "Volume: " << shape->volume() << std::endl;
+  //TODO: to prevent shape from disappering, this is a temporary fix for rendering bug
+  if(rMin1 < 1e-2 && rMin2 > 1e-2)
+      return m_builder->buildCons(0, rMin2, rMax1, rMax2, zHalf, SPhi, DPhi);
+  else if(rMin1 > 1e-2 && rMin2 < 1e-2)
+      return m_builder->buildCons(rMin1, 1e-2, rMax1, rMax2, zHalf, SPhi, DPhi);
+  else if(rMin1 < 1e-2 && rMin2 < 1e-2)
+      return m_builder->buildCons(1e-2, 1e-2, rMax1, rMax2, zHalf, SPhi, DPhi);
+  else return m_builder->buildCons(rMin1, rMin2, rMax1, rMax2, zHalf, SPhi, DPhi);
 }
 
 GeneralMeshModel *GeoLoaderQt::createTorus(const GeoShape* shapeIn){
@@ -308,6 +365,7 @@ GeneralMeshModel *GeoLoaderQt::createTorus(const GeoShape* shapeIn){
   const double rMax = shape->getRMax();
   std::cout << "rMin: " << rMin << " , rMax: " << rMax
           << " , rTor: " << rTor << ", SPhi: " << SPhi << " , DPhi: " << DPhi  << std::endl;
+  std::cout << "Volume: " << shape->volume() << std::endl;
   return m_builder->buildTorus(rMin, rMax, rTor, SPhi, DPhi);
 }
 
@@ -322,6 +380,25 @@ GeneralMeshModel *GeoLoaderQt::createTessellatedSolid(const GeoShape *shapeIn){
       faces[i] = shape->getFacet(i);
   }
   std::cout << "number of facets: " << num  << std::endl;
+  std::cout << "Volume: " << shape->volume() << std::endl;
   return m_builder->buildTessellatedSolid(num, faces);
 }
 
+GeneralMeshModel *GeoLoaderQt::createTrd(const GeoShape *shapeIn){
+    std::cout << "Trd parameters:\n";
+    const GeoTrd* shape = dynamic_cast<const GeoTrd*>(shapeIn);
+    //  Half-length along z axis
+    const double zHalf = shape->getZHalfLength();
+    //  Half-length along x at the surface positioned at -dz
+    const double xHalf1 = shape->getXHalfLength1();
+    //  Half-length along x at the surface positioned at +dz
+    const double xHalf2 = shape->getXHalfLength2();
+    //  Half-length along y at the surface positioned at -dz
+    const double yHalf1 = shape->getYHalfLength1();
+    //  Half-length along y at the surface positioned at +dz
+    const double yHalf2 = shape->getYHalfLength2();
+    std::cout << "zHalf: " << zHalf << " , xHalf1: " << xHalf1
+              << " , xHalf2: " << xHalf2 << ", yHalf1: " << yHalf1 << " , yHalf2: " << yHalf2  << std::endl;
+      std::cout << "Volume: " << shape->volume() << std::endl;
+    return nullptr;
+}

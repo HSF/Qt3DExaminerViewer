@@ -1,6 +1,7 @@
 #ifndef GENERALMESHMODEL_H
 #define GENERALMESHMODEL_H
 #include "CameraWrapper.h"
+#include <GeoModelKernel/GeoPhysVol.h>
 #include <QWidget>
 #include <QCamera>
 #include <QtCore/QString>
@@ -11,6 +12,7 @@
 #include <Qt3DExtras/QPhongMaterial>
 #include <QtWidgets/QCommandLinkButton>
 #include <Qt3DRender/QObjectPicker>
+
 
 #define TIPS QString("1) Left click to select volume\n" \
                      "2) press X key to deselect volume (mouse focus should in 3D Window\n" \
@@ -27,7 +29,8 @@ extern CameraWrapper *camera;
 class GeneralMeshModel: public QObject{
     Q_OBJECT
 public:
-    explicit GeneralMeshModel(Qt3DCore::QEntity *rootEntity, Qt3DRender::QGeometryRenderer *mesh, Qt3DRender::QMaterial* mat = nullptr /*if null, a default material will be used*/);
+    explicit GeneralMeshModel(Qt3DCore::QEntity *rootEntity, Qt3DRender::QGeometryRenderer *mesh,
+                              Qt3DRender::QMaterial* mat = nullptr /*if null, a default material will be used*/);
     ~GeneralMeshModel();
     void addSubModel(GeneralMeshModel *subModel);
     GeneralMeshModel *getSubModel(int i);
@@ -36,6 +39,8 @@ public:
     int subModelCount();
     void setColor(QColor color);
     void setTransformMatrix(QMatrix4x4 transform);
+    void setVolume(const GeoVPhysVol *volume);
+    const GeoVPhysVol *Volume();
 
 signals:
     void mouseEnter(QString tip);
@@ -62,6 +67,7 @@ private:
     QVector<GeneralMeshModel*> m_subModels;
     GeneralMeshModel *m_parentModel;
     bool m_isSelectMode;
+    const GeoVPhysVol *m_volume;
     friend class ExaminerViewer;
     friend class ModelFactory;
 };

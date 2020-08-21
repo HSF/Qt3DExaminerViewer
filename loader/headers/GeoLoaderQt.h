@@ -16,6 +16,7 @@
 #include <GeoModelKernel/GeoPcon.h>
 #include <GeoModelKernel/GeoCons.h>
 #include <GeoModelKernel/GeoTorus.h>
+#include <GeoModelKernel/GeoTrd.h>
 #include <GeoModelKernel/GeoTessellatedSolid.h>
 
 class GeoLoaderQt{
@@ -26,7 +27,7 @@ private:
     GeoPhysVol* createTheWorld(GeoPhysVol* world);
     GMDBManager* checkPath(QString path);
     GeoPhysVol* introWorld(GMDBManager *db);
-    const GeoVPhysVol* introChild(PVConstLink nodeLink);
+    void loadChildren(GeneralMeshModel *container, const GeoVPhysVol *parent);
 
 	GeneralMeshModel *createBox( const GeoShape* shapeIn);
 	GeneralMeshModel *createTube(const GeoShape* shapeIn);
@@ -35,6 +36,7 @@ private:
     GeneralMeshModel *createCons(const GeoShape* shapeIn);
     GeneralMeshModel *createTorus(const GeoShape* shapeIn);
     GeneralMeshModel *createTessellatedSolid(const GeoShape* shapeIn);
+    GeneralMeshModel *createTrd(const GeoShape* shapeIn);
     ModelFactory *m_builder;
 };
 

@@ -19,6 +19,7 @@ private:
     void setUpVolumePanel(QVBoxLayout *vLayout, QWidget *mainWindow);
     void setUpSliderController(QLabel *label, QSlider *slider, QString tip, int initalPos);
     QSequentialAnimationGroup *getRoute1Tour();
+    QSequentialAnimationGroup *getRoute2Tour();
     GeneralMeshModel *m_worldModel;
     CameraWrapper *m_cameraWrapper;
 };

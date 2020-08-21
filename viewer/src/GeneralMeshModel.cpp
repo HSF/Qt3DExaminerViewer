@@ -98,7 +98,21 @@ void GeneralMeshModel::getSelected(){
         topParent = topParent->getParentModel();
     topParent->deselect();
     setColor(QColor(120, 0, 0, 127));
-    info->setDescription(QString("This is ") + m_mesh->objectName());
+    QString message;
+    if(m_volume != nullptr){
+        const GeoMaterial *material = m_volume->getLogVol()->getMaterial();
+        message = QString("This is Shape ") + m_mesh->objectName();
+        message += QString("\nVolume: %1").arg(m_volume->getLogVol()->getShape()->volume());
+        message += QString("\n\nObject Name: ") + QString::fromStdString(m_volume->getLogVol()->getName());
+        message += QString("\n\nMaterial Name: ") + QString::fromStdString(material->getName());
+        message += QString("\nMaterial Density: %1").arg(material->getDensity());
+        unsigned int n = material->getNumElements();
+        for(unsigned int i = 0; i < n; i++){
+            message += QString("\nElement: ") + QString::fromStdString(material->getElement(i)->getName())
+                    + QString(": %1\%").arg(100*material->getFraction(i));
+        }
+    } else message = QString("Please set volume for this Mesh Model");
+    info->setDescription(message);
 }
 
 void GeneralMeshModel::deselect(){
@@ -130,7 +144,7 @@ void GeneralMeshModel::restoreState(bool checked){
 
 void GeneralMeshModel::openVolume(){
     if(m_subModels.size() == 0){
-        info->setDescription(QString("This volume has no children"));
+        info->setDescription(QString::fromStdString(m_volume->getLogVol()->getName()) + QString(" has no children"));
         return;
     }
     showMesh(false);
@@ -142,7 +156,7 @@ void GeneralMeshModel::openVolume(){
 
 void GeneralMeshModel::closeVolume(){
     if(m_parentModel == nullptr || m_parentModel->objectName()=="world"){
-        info->setDescription(QString("This volume has no parent"));
+        info->setDescription(QString::fromStdString(m_volume->getLogVol()->getName()) + QString(" has no parent"));
         return;
     }
     m_parentModel->showMesh(true);
@@ -152,6 +166,15 @@ void GeneralMeshModel::showMesh(bool visible){
     m_meshEntity->setEnabled(visible);
     if(m_isSelectMode) enablePick(visible);
 }
+
+void GeneralMeshModel::setVolume(const GeoVPhysVol *volume){
+    m_volume = volume;
+}
+
+const GeoVPhysVol *GeneralMeshModel::Volume(){
+    return m_volume;
+}
+
 
 void GeneralMeshModel::setTransformMatrix(QMatrix4x4 transform){
     for(GeneralMeshModel *subModel:m_subModels){

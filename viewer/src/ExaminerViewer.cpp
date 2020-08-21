@@ -128,6 +128,71 @@ QSequentialAnimationGroup *ExaminerViewer::getRoute1Tour(){
     return tour1;
 }
 
+QSequentialAnimationGroup *ExaminerViewer::getRoute2Tour(){
+    QSequentialAnimationGroup *tour1 = new QSequentialAnimationGroup();
+    int radius = m_cameraWrapper->init_distanceToOrigin-5;
+    QVector4D dof1 = QVector4D(radius, 0, 0, 0);
+    QVector4D dof2 = QVector4D(radius, 20, 90, 0);
+    QVector4D dof3 = QVector4D(radius, 30, 180, 0);
+    QVector4D dof4 = QVector4D(radius, 40, 270, 0);
+    QVector4D dof5 = QVector4D(radius, 50, 360, 0);
+    QVector4D dof6 = QVector4D(radius, 0, 360, 0);
+
+    QVector3D pos = camera->camera()->position();
+    int radius0 = (int)(pos.length());
+    int longitude = (int)qRadiansToDegrees(qAtan2(pos[0], pos[2]));
+    int latitude = (int)qRadiansToDegrees(qAtan2(pos[1], sqrt(pow(pos[0], 2) + pow(pos[2], 2))));
+    QVector4D dof4start = QVector4D(radius0, latitude, longitude, 0);
+
+    QPropertyAnimation *smoothMove1 = new QPropertyAnimation(m_cameraWrapper, "dof4");
+    smoothMove1->setDuration(1000);
+    smoothMove1->setStartValue(QVariant::fromValue(dof4start));
+    smoothMove1->setEndValue(QVariant::fromValue(dof1));
+
+    QPropertyAnimation *smoothMove2 = new QPropertyAnimation(m_cameraWrapper, "dof4");
+    smoothMove2->setDuration(9000);
+    smoothMove2->setKeyValueAt(0, dof1);
+    smoothMove2->setKeyValueAt(0.2, dof2);
+    smoothMove2->setKeyValueAt(0.4, dof3);
+    smoothMove2->setKeyValueAt(0.6, dof4);
+    smoothMove2->setKeyValueAt(0.8, dof5);
+    smoothMove2->setKeyValueAt(0.99999, dof6);
+    smoothMove2->setKeyValueAt(1.0, dof1);
+
+    QPropertyAnimation *smoothMove3 = new QPropertyAnimation(m_cameraWrapper, "dof4");
+    smoothMove3->setDuration(1000);
+    smoothMove3->setStartValue(QVariant::fromValue(dof1));
+    smoothMove3->setEndValue(QVariant::fromValue(dof4start));
+    if((dof4start - dof1).length() > 1e-1)
+        tour1->addAnimation(smoothMove1);
+    tour1->addAnimation(smoothMove2);
+    if((dof4start - dof1).length() > 1e-1)
+        tour1->addAnimation(smoothMove3);
+    return tour1;
+}
+
+inline void loopDaughters(QTreeWidgetItem *item, GeneralMeshModel *model){
+    int n = model->subModelCount();
+    for(int i = 0; i < n; i++){
+        GeneralMeshModel *daughter = model->getSubModel(i);
+        QTreeWidgetItem *subItem = new QTreeWidgetItem();
+        subItem->setText(0, QString::fromStdString(daughter->Volume()->getLogVol()->getName()));
+        subItem->setText(1, QString::number(daughter->subModelCount()));
+        loopDaughters(subItem, daughter);
+        item->addChild(subItem);
+    }
+}
+
+inline GeneralMeshModel *queryItem(QTreeWidgetItem *parent, GeneralMeshModel *model, QTreeWidgetItem *target){
+    int idx = parent->indexOfChild(target);
+    if(idx != -1)
+        return model->getSubModel(idx);
+    for(int i = 0; i < model->subModelCount(); i++){
+        return queryItem(parent->child(i), model->getSubModel(i), target);
+    }
+    return nullptr;
+}
+
 void ExaminerViewer::setupControlPanel(QVBoxLayout *vLayout, QWidget *mainWindow){
     /************ Info window ******************/
     // Create a info window to display mesh properties
@@ -135,22 +200,32 @@ void ExaminerViewer::setupControlPanel(QVBoxLayout *vLayout, QWidget *mainWindow
     vLayout->addWidget(info);
 
     QTreeWidget *treeWidget = new QTreeWidget(mainWindow);
-    treeWidget->setColumnCount(1);
-    QList<QTreeWidgetItem *> items;
-    for (int i = 0; i < m_worldModel->subModelCount(); ++i){
-        GeneralMeshModel *volume = m_worldModel->getSubModel(i);
-        QTreeWidgetItem *item = new QTreeWidgetItem(static_cast<QTreeWidget *>(nullptr),
-                     QStringList(QString("volume %1: ").arg(i) + volume->objectName()));
-        items.append(item);
+    treeWidget->setColumnCount(2);
+    treeWidget->setColumnWidth(0, 200);
+    treeWidget->setColumnWidth(1, 50);
+    QStringList headerLabels;
+    headerLabels.push_back("volume");
+    headerLabels.push_back("#children");
+    treeWidget->setHeaderLabels(headerLabels);
+    QTreeWidgetItem *topItem = new QTreeWidgetItem(treeWidget);
+    topItem->setText(0, "world");
+    topItem->setText(1, QString::number(m_worldModel->subModelCount()));
+    loopDaughters(topItem, m_worldModel);
+    QObject::connect(treeWidget, &QTreeWidget::itemClicked, [this, topItem, treeWidget](QTreeWidgetItem *item){
+    int idx = treeWidget->indexOfTopLevelItem(item);
+    if(idx != -1){
+        this->m_cameraWrapper->viewAll();
     }
-    QObject::connect(treeWidget, &QTreeWidget::itemClicked, [this, treeWidget](QTreeWidgetItem *item){
-         int idx = treeWidget->indexOfTopLevelItem(item);
-         this->m_cameraWrapper->camera()->viewEntity(m_worldModel->getSubModel(idx)->m_meshEntity);
-         m_worldModel->getSubModel(idx)->showMesh(true);
-         m_worldModel->getSubModel(idx)->getSelected();
+    GeneralMeshModel *target = queryItem(topItem, m_worldModel, item);
+    if(target==nullptr) return;
+    this->m_cameraWrapper->camera()->viewEntity(target->m_meshEntity);
+    target->showMesh(true);
+    target->getSelected();
     });
+    treeWidget->expandItem(topItem);
+    treeWidget->insertTopLevelItem(0, topItem);
+    vLayout->addWidget(treeWidget);
 
-    treeWidget->insertTopLevelItems(0, items);
     vLayout->addWidget(treeWidget);
 
     /************ Volume control******************/
@@ -292,8 +367,10 @@ void ExaminerViewer::setupControlPanel(QVBoxLayout *vLayout, QWidget *mainWindow
 
     // start a tour
     QLabel *tourTipView = new QLabel("Start tours", mainWindow);
-    QPushButton *tourBtn = new QPushButton("route 1", mainWindow);
-    tourBtn->setMaximumSize(70, 25);
+    QPushButton *tour1Btn = new QPushButton("route 1", mainWindow);
+    QPushButton *tour2Btn = new QPushButton("route 2", mainWindow);
+    tour1Btn->setMaximumSize(70, 25);
+    tour2Btn->setMaximumSize(70, 25);
     hLayoutPredefinedView -> addWidget(tipView, 0, 0);
     hLayoutPredefinedView -> addWidget(viewAllBtn, 0, 1);
     hLayoutPredefinedView -> addWidget(frontViewBtn, 1, 0);
@@ -301,7 +378,8 @@ void ExaminerViewer::setupControlPanel(QVBoxLayout *vLayout, QWidget *mainWindow
     hLayoutPredefinedView -> addWidget(topViewBtn, 1, 2);
 
     hLayoutPredefinedView -> addWidget(tourTipView, 3, 0);
-    hLayoutPredefinedView -> addWidget(tourBtn, 3, 1);
+    hLayoutPredefinedView -> addWidget(tour1Btn, 3, 1);
+    hLayoutPredefinedView -> addWidget(tour2Btn, 3, 2);
 
     quickLy->addLayout(hLayoutPredefinedView);
     quickLy->addLayout(hLayoutBookmark);
@@ -351,11 +429,15 @@ void ExaminerViewer::setupControlPanel(QVBoxLayout *vLayout, QWidget *mainWindow
         smoothMove->setEndValue(QVariant::fromValue(dof4end));
         smoothMove->start();
     });
-    QObject::connect(tourBtn, &QPushButton::clicked, [this](){
+    QObject::connect(tour1Btn, &QPushButton::clicked, [this](){
         QAnimationGroup *aniGroup = getRoute1Tour();
         aniGroup->start();
     });
-    QObject::connect(addViewBtn, &QPushButton::clicked, [this](){
+    QObject::connect(tour2Btn, &QPushButton::clicked, [this](){
+        QAnimationGroup *aniGroup = getRoute2Tour();
+        aniGroup->start();
+    });
+    QObject::connect(addViewBtn, &QPushButton::clicked, [](){
         QVector3D pos = -camera->camera()->viewVector();
         int radius = (int)(pos.length());
         int latitude = (int)qRadiansToDegrees(qAtan2(pos[1], sqrt(pow(pos[0], 2) + pow(pos[2], 2))));
