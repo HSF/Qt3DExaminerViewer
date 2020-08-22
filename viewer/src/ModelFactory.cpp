@@ -393,20 +393,51 @@ GeneralMeshModel *ModelFactory::buildTetrahedra(){
 }
 
 GeneralMeshModel *ModelFactory::buildBox(double xHalf, double yHalf, double zHalf){
-    Qt3DExtras::QCuboidMesh *meshBox = new Qt3DExtras::QCuboidMesh();
-    meshBox->setObjectName(QString("GeoBox with:\nxHalf:%1, yHalf:%2, zHalf:%3").arg(xHalf).arg(yHalf).arg(zHalf));
-    meshBox->setXExtent(float(2*xHalf));
-    meshBox->setYExtent(float(2*yHalf));
-    meshBox->setZExtent(float(2*zHalf));
+    BoxPara box;
+    box.xHalf = xHalf;
+    box.yHalf = yHalf;
+    box.zHalf = zHalf;
+    Qt3DExtras::QCuboidMesh *meshBox = nullptr;
+
+    for(BoxPara b : m_boxes){
+        if(box.equal(b)){
+            meshBox = b.mesh;
+        }
+    }
+
+    if(meshBox == nullptr){
+        meshBox = new Qt3DExtras::QCuboidMesh();
+        meshBox->setObjectName(QString("GeoBox with:\nxHalf:%1, yHalf:%2, zHalf:%3").arg(xHalf).arg(yHalf).arg(zHalf));
+        meshBox->setXExtent(float(2*xHalf));
+        meshBox->setYExtent(float(2*yHalf));
+        meshBox->setZExtent(float(2*zHalf));
+        float maxSize = std::max(std::max(xHalf, yHalf), zHalf);
+        setMaxSize(maxSize);
+        box.mesh = meshBox;
+        m_boxes.push_back(box);
+    }
+
     GeneralMeshModel *cuboidModel = new GeneralMeshModel(m_rootEntity, meshBox);
     cuboidModel->setObjectName("GeoBox");
-    float maxSize = std::max(std::max(xHalf, yHalf), zHalf);
-    setMaxSize(maxSize);
     return cuboidModel;
 }
 
 GeneralMeshModel *ModelFactory::buildTube(double rMin, double rMax, double zHalf){
-    
+    TubePara tubePara;
+    tubePara.rMin = rMin;
+    tubePara.rMax = rMax;
+    tubePara.zHalf = zHalf;
+
+    for(TubePara t : m_tubes){
+        if(tubePara.equal(t)){
+            tubePara.mesh = t.mesh;
+            GeneralMeshModel *tube = new GeneralMeshModel(m_rootEntity, tubePara.mesh);
+            tube->setObjectName("GeoTube");
+            qInfo() << "found same tube";
+            return tube;
+        }
+    }
+
     // the revolution shape is a rectangular: we need 4 vertexes per slice
     float maxSize = rMax > zHalf ? rMax : zHalf;
     setMaxSize(maxSize);
@@ -549,11 +580,28 @@ GeneralMeshModel *ModelFactory::buildTube(double rMin, double rMax, double zHalf
     geometry->addAttribute(normalAttribute);
     customRenderer->setGeometry(geometry);
     customRenderer->setObjectName(QString("GeoTube with:\nrMin:%1, rMax:%2, zHalf:%3").arg(rMin).arg(rMax).arg(zHalf));
+    // save to the list of built tubes
+    tubePara.mesh = customRenderer;
+    m_tubes.push_back(tubePara);
     GeneralMeshModel *tube = new GeneralMeshModel(m_rootEntity, customRenderer);
     tube->setObjectName("GeoTube");
     return tube;
 }
 GeneralMeshModel *ModelFactory::buildTubs(double rMin, double rMax, double zHalf, double SPhi, double DPhi){
+    TubsPara tubsPara;
+    tubsPara.rMin = rMin;
+    tubsPara.rMax = rMax;
+    tubsPara.zHalf = zHalf;
+    tubsPara.SPhi = SPhi;
+    tubsPara.DPhi = DPhi;
+
+    for(TubsPara t : m_tubses){
+        if(tubsPara.equal(t)){
+            GeneralMeshModel *pcon = new GeneralMeshModel(m_rootEntity, t.mesh);
+            pcon->setObjectName("GeoPcon");
+            return pcon;
+        }
+    }
     // the revolution shape is a rectangular: we need 4 vertexes per slice
     float maxSize = rMax > zHalf ? rMax : zHalf;
     setMaxSize(maxSize);
@@ -728,12 +776,28 @@ GeneralMeshModel *ModelFactory::buildTubs(double rMin, double rMax, double zHalf
     customRenderer->setGeometry(geometry);
     customRenderer->setObjectName(QString("GeoTubs with:\nrMin:%1, rMax:%2, \nzHalf:%3, SPhi:%4, DPhi:%5")
                                   .arg(rMin).arg(rMax).arg(zHalf).arg(SPhi).arg(DPhi));
+    tubsPara.mesh = customRenderer;
+    m_tubses.push_back(tubsPara);
     GeneralMeshModel *tubs = new GeneralMeshModel(m_rootEntity, customRenderer);
     tubs->setObjectName("GeoTubs");
     return tubs;
 }
 
 GeneralMeshModel *ModelFactory::buildPcon(double SPhi, double DPhi, unsigned int nPlanes, Pcon *planes){
+
+    PconPara pconPara;
+    pconPara.SPhi = SPhi;
+    pconPara.DPhi = DPhi;
+    pconPara.nPlanes = nPlanes;
+    pconPara.planes = planes;
+    for(PconPara p : m_pcons){
+        if(pconPara.equal(p)){
+            GeneralMeshModel *pcon = new GeneralMeshModel(m_rootEntity, p.mesh);
+            pcon->setObjectName("GeoPcon");
+            return pcon;
+        }
+    }
+
     // the revolution shape is a rectangular: we need 4 vertexes per slice
     float maxSize = planes[nPlanes-1].ZPlane - planes[0].ZPlane;
     for(unsigned int i = 0; i < nPlanes; i++){
@@ -930,12 +994,16 @@ GeneralMeshModel *ModelFactory::buildPcon(double SPhi, double DPhi, unsigned int
         info += subInfo;
     }
     customRenderer->setObjectName(info);
+    pconPara.mesh = customRenderer;
+    m_pcons.push_back(pconPara);
     GeneralMeshModel *pcon = new GeneralMeshModel(m_rootEntity, customRenderer);
     pcon->setObjectName("GeoPcon");
     return pcon;
 }
 
 GeneralMeshModel *ModelFactory::buildCons(double rMin1, double rMin2, double rMax1, double rMax2, double zHalf, double SPhi, double DPhi){
+
+
     Pcon planes[2];
     planes[0].ZPlane = -zHalf;
     planes[0].RMinPlane = rMin1;
@@ -944,6 +1012,21 @@ GeneralMeshModel *ModelFactory::buildCons(double rMin1, double rMin2, double rMa
     planes[1].ZPlane = zHalf;
     planes[1].RMinPlane = rMin2;
     planes[1].RMaxPlane = rMax2;
+
+    PconPara pconPara;
+    pconPara.SPhi = SPhi;
+    pconPara.DPhi = DPhi;
+    pconPara.nPlanes = 2;
+    pconPara.planes = planes;
+
+    for(PconPara c : m_pcons){
+        if(pconPara.equal(c)){
+            GeneralMeshModel *cons = new GeneralMeshModel(m_rootEntity, c.mesh);
+            cons->setObjectName("GeoCons");
+            return cons;
+        }
+    }
+
     GeneralMeshModel *cons = buildPcon(SPhi, DPhi, 2, planes);
     cons->m_mesh->setObjectName(QString("GeoCons with:\nrMin1:%1, rMin2:%2, \nrMax1:%3, rMax2:%4, \nzHalf:%5, SPhi:%6, DPhi:%7")
                                 .arg(rMin1).arg(rMin2).arg(rMax1).arg(rMax2).arg(zHalf).arg(SPhi).arg(DPhi));
@@ -952,7 +1035,20 @@ GeneralMeshModel *ModelFactory::buildCons(double rMin1, double rMin2, double rMa
 }
 
 GeneralMeshModel *ModelFactory::buildTorus(double rMin, double rMax, double rTor, double SPhi, double DPhi){
-    //TODO
+    TorusPara torusPara;
+    torusPara.rMin = rMin;
+    torusPara.rMax = rMax;
+    torusPara.rTor = rTor;
+    torusPara.SPhi = SPhi;
+    torusPara.DPhi = DPhi;
+    for(TorusPara t : m_toruses){
+        if(torusPara.equal(t)){
+            GeneralMeshModel *torus = new GeneralMeshModel(m_rootEntity, t.mesh);
+            torus->setObjectName("GeoTorus");
+            return torus;
+        }
+    }
+
     float maxSize = rTor + rMax;
     setMaxSize(maxSize);
 
@@ -1091,12 +1187,24 @@ GeneralMeshModel *ModelFactory::buildTorus(double rMin, double rMax, double rTor
     customRenderer->setGeometry(geometry);
     customRenderer->setObjectName(QString("GeoTorus with:\nrMin: %1, rMax: %2, rTor: %3\nSPhi: %4, DPhi: %5")
                                   .arg(rMin).arg(rMax).arg(rTor).arg(SPhi).arg(DPhi));
+    torusPara.mesh = customRenderer;
+    m_toruses.push_back(torusPara);
     GeneralMeshModel *torus = new GeneralMeshModel(m_rootEntity, customRenderer);
     torus->setObjectName("GeoTorus");
     return torus;
 }
 
 GeneralMeshModel *ModelFactory::buildTessellatedSolid(size_t num, GeoFacet **faces){
+    TessellatedSolidPara tesPara;
+    tesPara.num = num;
+    tesPara.faces = faces;
+    for(TessellatedSolidPara t : m_tess){
+        if(tesPara.equal(t)){
+            GeneralMeshModel *tessellatedSolid = new GeneralMeshModel(m_rootEntity, t.mesh);
+            tessellatedSolid->setObjectName("GeoTessellatedSolid");
+            return tessellatedSolid;
+        }
+    }
 
     float vertex[num*4*3]; // max 4 vertices per face, 3 float per vertex
     int sumVert = 0;
@@ -1192,6 +1300,7 @@ GeneralMeshModel *ModelFactory::buildTessellatedSolid(size_t num, GeoFacet **fac
         }
     }
     vertexBase = 0;
+    // define second layer of face with inversed vertex sequence.
     for (size_t i = 0; i < num; i++){
         int n = faces[i]->getNumberOfVertices();
         if(n == 3){
@@ -1238,6 +1347,8 @@ GeneralMeshModel *ModelFactory::buildTessellatedSolid(size_t num, GeoFacet **fac
     customRenderer->setGeometry(geometry);
     customRenderer->setObjectName(QString("GeoTessellatedSolid with:\nnumFacets: %1")
                                   .arg(num));
+    tesPara.mesh = customRenderer;
+    m_tess.push_back(tesPara);
     GeneralMeshModel *tessellatedSolid = new GeneralMeshModel(m_rootEntity, customRenderer);
     tessellatedSolid->setObjectName("GeoTessellatedSolid");
     return tessellatedSolid;

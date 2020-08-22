@@ -141,11 +141,11 @@ void GeoLoaderQt::loadChildren(GeneralMeshModel *container, const GeoVPhysVol *p
                         << std::endl;
               try {
                 QMatrix4x4 transform = toQMatrix(childVolV->getX());
-                   //qInfo() << transform;
-                   model->setTransformMatrix(transform);
+                //qInfo() << transform;
+                model->setTransformMatrix(transform);
               } catch (...) {
-                    // TODO: this try-catch cannot prevent program from unexpectedly finished.
-                   std::cout << "error during calling childVolV->getX()" << std::endl;
+                // TODO: this try-catch cannot prevent program from unexpectedly finished.
+                std::cout << "error during calling childVolV->getX()" << std::endl;
               }
               model->setVolume(childVolV);
               container->addSubModel(model);

@@ -212,15 +212,15 @@ void ExaminerViewer::setupControlPanel(QVBoxLayout *vLayout, QWidget *mainWindow
     topItem->setText(1, QString::number(m_worldModel->subModelCount()));
     loopDaughters(topItem, m_worldModel);
     QObject::connect(treeWidget, &QTreeWidget::itemClicked, [this, topItem, treeWidget](QTreeWidgetItem *item){
-    int idx = treeWidget->indexOfTopLevelItem(item);
-    if(idx != -1){
-        this->m_cameraWrapper->viewAll();
-    }
-    GeneralMeshModel *target = queryItem(topItem, m_worldModel, item);
-    if(target==nullptr) return;
-    this->m_cameraWrapper->camera()->viewEntity(target->m_meshEntity);
-    target->showMesh(true);
-    target->getSelected();
+        int idx = treeWidget->indexOfTopLevelItem(item);
+        if(idx != -1){
+            this->m_cameraWrapper->viewAll();
+        }
+        GeneralMeshModel *target = queryItem(topItem, m_worldModel, item);
+        if(target==nullptr) return;
+        this->m_cameraWrapper->camera()->viewEntity(target->m_meshEntity);
+        target->showMesh(true);
+        target->getSelected();
     });
     treeWidget->expandItem(topItem);
     treeWidget->insertTopLevelItem(0, topItem);
@@ -256,7 +256,7 @@ void ExaminerViewer::setupControlPanel(QVBoxLayout *vLayout, QWidget *mainWindow
     QLabel *labelScale = new QLabel(mainWindow);
     QSlider *sliderScale = new QSlider(mainWindow);
     setUpSliderController(labelScale, sliderScale, "Scale", int(m_cameraWrapper->init_distanceToOrigin));
-    sliderScale->setRange(int(m_cameraWrapper->init_distanceToOrigin)/3, int(m_cameraWrapper->init_distanceToOrigin*5));
+    sliderScale->setRange(int(m_cameraWrapper->init_distanceToOrigin)/4, int(m_cameraWrapper->init_distanceToOrigin*2));
     sliderScale->setValue(int(m_cameraWrapper->init_distanceToOrigin));
 
     QHBoxLayout *hLayoutScale = new QHBoxLayout(mainWindow);

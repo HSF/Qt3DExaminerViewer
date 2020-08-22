@@ -6,7 +6,7 @@
 #include <Qt3DRender/qpickevent.h>
 
 GeneralMeshModel::GeneralMeshModel(Qt3DCore::QEntity *rootEntity, Qt3DRender::QGeometryRenderer *mesh, Qt3DRender::QMaterial* mat)
-    : m_mesh(mesh), m_parentModel(nullptr), m_isSelectMode(true)
+    : m_mesh(mesh), m_parentModel(nullptr), m_isSelectMode(true), m_volume(nullptr)
 {
     // Build Mesh Entity
     m_meshEntity = new Qt3DCore::QEntity(rootEntity);
@@ -93,7 +93,7 @@ void GeneralMeshModel::addParentModel(GeneralMeshModel *parentModel){
 }
 
 void GeneralMeshModel::getSelected(){
-    GeneralMeshModel *topParent = m_parentModel;
+    GeneralMeshModel *topParent = this;
     while(topParent->getParentModel() != nullptr)
         topParent = topParent->getParentModel();
     topParent->deselect();
@@ -117,7 +117,8 @@ void GeneralMeshModel::getSelected(){
 
 void GeneralMeshModel::deselect(){
     for(GeneralMeshModel *subModel:m_subModels){
-        subModel->deselect();
+        if(subModel != nullptr)
+            subModel->deselect();
     }
     setColor(QColor(QRgb(0xbeb32b)));
 }
@@ -136,10 +137,12 @@ void GeneralMeshModel::enablePick(bool enable){
 
 void GeneralMeshModel::restoreState(bool checked){
     for(GeneralMeshModel *subModel:m_subModels){
-        subModel->restoreState(checked);
+        if(subModel != nullptr){
+            subModel->restoreState(checked);
+            subModel->showMesh(true);
+        }
     }
     setColor(QColor(QRgb(0xbeb32b)));
-    showMesh(true);
 }
 
 void GeneralMeshModel::openVolume(){
@@ -148,10 +151,9 @@ void GeneralMeshModel::openVolume(){
         return;
     }
     showMesh(false);
-    /*for(GeneralMeshModel *subModel:m_subModels){
+    for(GeneralMeshModel *subModel:m_subModels){
         subModel->showMesh(true);
-        subModel->enablePick(true);
-    }*/
+    }
 }
 
 void GeneralMeshModel::closeVolume(){
@@ -160,10 +162,19 @@ void GeneralMeshModel::closeVolume(){
         return;
     }
     m_parentModel->showMesh(true);
+    for(GeneralMeshModel *subModel:m_parentModel->m_subModels){
+        subModel->showMesh(false);
+    }
 }
 
 void GeneralMeshModel::showMesh(bool visible){
+    /*for(GeneralMeshModel *subModel:m_subModels){
+        subModel->showMesh(false);
+        subModel->enablePick(false);
+    }*/
     m_meshEntity->setEnabled(visible);
+    //qInfo() << QString::fromStdString(m_volume->getLogVol()->getName()) + " is " + QString::number(visible)
+    //           + QString::number(m_isSelectMode);
     if(m_isSelectMode) enablePick(visible);
 }
 

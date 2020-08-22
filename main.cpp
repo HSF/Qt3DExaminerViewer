@@ -73,7 +73,7 @@ int main(int argc, char **argv){
     // see: https://stackoverflow.com/a/58412885/32036
     auto rendersettings=view->renderSettings();
     rendersettings->pickingSettings()->setPickMethod(Qt3DRender::QPickingSettings::TrianglePicking);
-    rendersettings->pickingSettings()->setPickResultMode(Qt3DRender::QPickingSettings::AllPicks);
+    rendersettings->pickingSettings()->setPickResultMode(Qt3DRender::QPickingSettings::NearestPick);
 
     // Layout
     QWidget *mainWindow = new QWidget;
@@ -98,13 +98,15 @@ int main(int argc, char **argv){
 
     GeoLoaderQt *loader = new GeoLoaderQt(rootEntity);
     loadedModel = loader->loadFromDB(fileName);
-    qInfo() << "stil alive? ";
+    //for(int i = 0; i < loadedModel->subModelCount(); i++){
+        //loadedModel->getSubModel(i)->showMesh(true);
+    //}
 
 
     ModelFactory *builder = ModelFactory::GetInstance(rootEntity);
     cameraWrapper->init_distanceToOrigin = builder->MaxSize() * 1.5 / tan(qDegreesToRadians(22.5f));
     cameraWrapper->viewAll();
-    cameraWrapper->resetCameraView(builder->MaxSize()*22);
+    cameraWrapper->resetCameraView(builder->MaxSize()*7);
     camController->setLinearSpeed(builder->MaxSize()*3);
     qInfo() << "maxSize: " << builder->MaxSize();
     // Light source

@@ -53,12 +53,12 @@ public slots:
     void setPickMode(bool enable);
     void restoreState(bool checked);
     void deselect();
-
+    void enablePick(bool enable);
 private:
     void openVolume();
     void closeVolume();
     void getSelected();
-    void enablePick(bool enable);
+
     Qt3DCore::QEntity *m_meshEntity;
     Qt3DRender::QGeometryRenderer *m_mesh;
     Qt3DCore::QTransform *m_meshTransform;

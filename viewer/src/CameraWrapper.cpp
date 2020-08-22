@@ -20,7 +20,7 @@ Qt3DRender::QCamera *CameraWrapper::camera(){
 }
 
 void CameraWrapper::resetCameraView(float farPlanePos){
-    m_camera->lens()->setPerspectiveProjection(45.0f, 16.0f/9.0f, 0.1f, farPlanePos);
+    m_camera->lens()->setPerspectiveProjection(45.0f, 16.0f/9.0f, 1000.0f, farPlanePos);
     m_camera->setPosition(QVector3D(0, 0, init_distanceToOrigin));
     m_camera->setUpVector(QVector3D(0, 1, 0));
     m_camera->setViewCenter(QVector3D(0, 0, 0));
