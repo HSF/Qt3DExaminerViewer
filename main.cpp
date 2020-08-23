@@ -29,6 +29,10 @@
 #include <Qt3DExtras/qt3dwindow.h>
 #include <Qt3DExtras/qfirstpersoncameracontroller.h>
 #include <Qt3DExtras/qorbitcameracontroller.h>
+#include <QClearBuffers>
+#include <QDepthTest>
+#include <QRenderStateSet>
+#include <Qt3DRender/QCullFace>
 
 // Please change it according to where you put binary files
 // This path works if you put the "build" folder inside upper level of source
@@ -69,6 +73,22 @@ int main(int argc, char **argv){
     // Shows the framegraph
     view->activeFrameGraph()->dumpObjectTree();
     
+    auto buf = view->defaultFrameGraph()->findChild<Qt3DRender::QClearBuffers*>();
+
+    if(buf){
+        qInfo() << "found clearBuffers from framegraph";
+        Qt3DRender::QRenderStateSet *set = new Qt3DRender::QRenderStateSet(buf);
+        Qt3DRender::QDepthTest *depthTest = new Qt3DRender::QDepthTest;
+        depthTest->setDepthFunction(Qt3DRender::QDepthTest::Always);
+        //set->addRenderState(depthTest);
+        // Create a front face culling render state
+        Qt3DRender::QCullFace *cullFront = new Qt3DRender::QCullFace();
+        cullFront->setMode(Qt3DRender::QCullFace::Back);
+
+        // Add the render state to the render pass
+        //set->addRenderState(cullFront);
+    }
+
     // view's picking settings
     // see: https://stackoverflow.com/a/58412885/32036
     auto rendersettings=view->renderSettings();

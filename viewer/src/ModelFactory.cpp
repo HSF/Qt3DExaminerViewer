@@ -402,6 +402,8 @@ GeneralMeshModel *ModelFactory::buildBox(double xHalf, double yHalf, double zHal
     for(BoxPara b : m_boxes){
         if(box.equal(b)){
             meshBox = b.mesh;
+            qInfo() << "found same box";
+            break;
         }
     }
 
@@ -597,9 +599,10 @@ GeneralMeshModel *ModelFactory::buildTubs(double rMin, double rMax, double zHalf
 
     for(TubsPara t : m_tubses){
         if(tubsPara.equal(t)){
-            GeneralMeshModel *pcon = new GeneralMeshModel(m_rootEntity, t.mesh);
-            pcon->setObjectName("GeoPcon");
-            return pcon;
+            GeneralMeshModel *tubs = new GeneralMeshModel(m_rootEntity, t.mesh);
+            tubs->setObjectName("GeoTubs");
+            qInfo() << "found same tubs";
+            return tubs;
         }
     }
     // the revolution shape is a rectangular: we need 4 vertexes per slice
@@ -794,6 +797,7 @@ GeneralMeshModel *ModelFactory::buildPcon(double SPhi, double DPhi, unsigned int
         if(pconPara.equal(p)){
             GeneralMeshModel *pcon = new GeneralMeshModel(m_rootEntity, p.mesh);
             pcon->setObjectName("GeoPcon");
+            qInfo() << "found same pcon";
             return pcon;
         }
     }
@@ -1023,6 +1027,7 @@ GeneralMeshModel *ModelFactory::buildCons(double rMin1, double rMin2, double rMa
         if(pconPara.equal(c)){
             GeneralMeshModel *cons = new GeneralMeshModel(m_rootEntity, c.mesh);
             cons->setObjectName("GeoCons");
+            qInfo() << "found same cons";
             return cons;
         }
     }
@@ -1045,6 +1050,7 @@ GeneralMeshModel *ModelFactory::buildTorus(double rMin, double rMax, double rTor
         if(torusPara.equal(t)){
             GeneralMeshModel *torus = new GeneralMeshModel(m_rootEntity, t.mesh);
             torus->setObjectName("GeoTorus");
+            qInfo() << "found same torus";
             return torus;
         }
     }
@@ -1202,6 +1208,7 @@ GeneralMeshModel *ModelFactory::buildTessellatedSolid(size_t num, GeoFacet **fac
         if(tesPara.equal(t)){
             GeneralMeshModel *tessellatedSolid = new GeneralMeshModel(m_rootEntity, t.mesh);
             tessellatedSolid->setObjectName("GeoTessellatedSolid");
+            qInfo() << "found same tesselledatedSolid";
             return tessellatedSolid;
         }
     }

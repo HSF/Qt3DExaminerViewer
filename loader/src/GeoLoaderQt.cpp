@@ -245,8 +245,8 @@ GeneralMeshModel *GeoLoaderQt::createTube(const GeoShape* shapeIn){
   std::cout << "rMin: " << rMin << " , rMax: " << rMax << " , zHalf: " << zHalf << std::endl;
   std::cout << "Volume: " << shape->volume() << std::endl;
   //TODO: to prevent shape from disappering, this is a temporary fix for rendering bug
-  if(rMin < 1e-2)
-      return m_builder->buildTube(1e-2, rMax, zHalf);
+  if(rMin < TOL)
+      return m_builder->buildTube(TOL, rMax, zHalf);
   else
       return m_builder->buildTube(rMin, rMax, zHalf);
 }
@@ -266,18 +266,18 @@ GeneralMeshModel *GeoLoaderQt::createTubs(const GeoShape* shapeIn){
   const double DPhi = shape->getDPhi();
   std::cout << "rMin: " << rMin << " , rMax: " << rMax << " , zHalf: " << zHalf << " , SPhi: " << SPhi << " , DPhi: " << DPhi << std::endl;
   std::cout << "Volume: " << shape->volume() << std::endl;
-  if(std::abs(DPhi - 2 * M_PI) < 1e-2){
-      qInfo() << "run here to build tube";
+  if(std::abs(DPhi - 2 * M_PI) < TOL){
+      qInfo() << "some tubs should be tube";
       // TOD: to prevent shape from disappering, this is a temporary fix for rendering bug
-      if(rMin < 1e-2)
-          return m_builder->buildTube(1e-2, rMax, zHalf);
+      if(rMin < TOL)
+          return m_builder->buildTube(TOL, rMax, zHalf);
       else
           return m_builder->buildTube(rMin, rMax, zHalf);
   }
   else{
        // to prevent shape from disappering, this is a temporary fix for rendering bug
-      if(rMin < 1e-2)
-          return m_builder->buildTubs(1e-2, rMax, zHalf, SPhi, DPhi);
+      if(rMin < TOL)
+          return m_builder->buildTubs(TOL, rMax, zHalf, SPhi, DPhi);
       else
           return m_builder->buildTubs(rMin, rMax, zHalf, SPhi, DPhi);
   }
@@ -301,8 +301,8 @@ GeneralMeshModel *GeoLoaderQt::createPcon(const GeoShape* shapeIn){
     //  Get the RMin of the specified plane.
     double nRmin = shape->getRMinPlane(iP);
     // TODO: to prevent shape from disappering, this is a temporary fix for rendering bug
-    if(nRmin < 1e-2)
-        nRmin = 1e-2;
+    if(nRmin < TOL)
+        nRmin = TOL;
     planes[iP].RMinPlane = nRmin;
     //  Get the RMax of the specified plane.
     const double nRmax = shape->getRMaxPlane(iP);
@@ -341,12 +341,12 @@ GeneralMeshModel *GeoLoaderQt::createCons(const GeoShape* shapeIn){
           << " , zHalf: " << zHalf << ", SPhi: " << SPhi << " , DPhi: " << DPhi  << std::endl;
   std::cout << "Volume: " << shape->volume() << std::endl;
   //TODO: to prevent shape from disappering, this is a temporary fix for rendering bug
-  if(rMin1 < 1e-2 && rMin2 > 1e-2)
+  if(rMin1 < TOL && rMin2 > TOL)
       return m_builder->buildCons(0, rMin2, rMax1, rMax2, zHalf, SPhi, DPhi);
-  else if(rMin1 > 1e-2 && rMin2 < 1e-2)
-      return m_builder->buildCons(rMin1, 1e-2, rMax1, rMax2, zHalf, SPhi, DPhi);
-  else if(rMin1 < 1e-2 && rMin2 < 1e-2)
-      return m_builder->buildCons(1e-2, 1e-2, rMax1, rMax2, zHalf, SPhi, DPhi);
+  else if(rMin1 > TOL && rMin2 < TOL)
+      return m_builder->buildCons(rMin1, TOL, rMax1, rMax2, zHalf, SPhi, DPhi);
+  else if(rMin1 < TOL && rMin2 < TOL)
+      return m_builder->buildCons(TOL, TOL, rMax1, rMax2, zHalf, SPhi, DPhi);
   else return m_builder->buildCons(rMin1, rMin2, rMax1, rMax2, zHalf, SPhi, DPhi);
 }
 
