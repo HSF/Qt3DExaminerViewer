@@ -11,7 +11,6 @@ extern GeneralMeshModel *loadedModel;
 MainWindow::MainWindow(): Qt3DExtras::Qt3DWindow(){
 }
 MainWindow::~MainWindow(){
-   qInfo()<<"windows is closed";
 }
 void MainWindow::resizeEvent(QResizeEvent* event)
 {
@@ -32,7 +31,6 @@ void MainWindow::keyPressEvent(QKeyEvent *event){
     switch (event->key()) {
     case Qt::Key_X:
         loadedModel->deselect();
-        qInfo()<<"Key X is pressed";
         break;
     default:
         break;

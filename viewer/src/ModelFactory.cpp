@@ -53,56 +53,12 @@ GeneralMeshModel **ModelFactory::build3DText(){
     return textModel;
 }
 
-GeneralMeshModel *ModelFactory::buildTestVolume(){
-    // geometry model
-    Qt3DExtras::QCylinderMesh *meshCyliner = new Qt3DExtras::QCylinderMesh();
-    meshCyliner->setObjectName(QString("World Volume"));
-    meshCyliner->setProperty("maxLength", 4);
-    GeneralMeshModel *cylinderModel = new GeneralMeshModel(m_rootEntity, meshCyliner);
-    cylinderModel->translateMesh(QVector3D(0.0f, 0.0f, 0.0f));
-    cylinderModel->rotateMesh(Qt3DCore::QTransform::fromEulerAngles(90.0,0,0));
-    cylinderModel->scaleMesh(QVector3D(2,5,2));
-
-    Qt3DExtras::QCuboidMesh *meshBox1 = new Qt3DExtras::QCuboidMesh();
-    meshBox1->setObjectName(QString("Muon \n"));
-    meshBox1->setProperty("maxLength", 2);
-    GeneralMeshModel *cuboidModel1 = new GeneralMeshModel(m_rootEntity, meshBox1);
-    cuboidModel1->translateMesh(QVector3D(0.0f, 0.0f, 1.5f));
-    cuboidModel1->scaleMesh(QVector3D(2,2,2));
-
-    Qt3DExtras::QCuboidMesh *meshBox2 = new Qt3DExtras::QCuboidMesh();
-    meshBox2->setObjectName(QString("Calorimeter \n"));
-    meshBox2->setProperty("maxLength", 2);
-    GeneralMeshModel *cuboidModel2 = new GeneralMeshModel(m_rootEntity, meshBox2);
-    cuboidModel2->translateMesh(QVector3D(0.0f, 0.0f, -1.5f));
-    cuboidModel2->scaleMesh(QVector3D(2,2,2));
-
-    Qt3DExtras::QCuboidMesh *meshBox3 = new Qt3DExtras::QCuboidMesh();
-    meshBox3->setObjectName(QString("one daughter of Muon"));
-    meshBox3->setProperty("maxLength", 1);
-    GeneralMeshModel *cuboidModel3 = new GeneralMeshModel(m_rootEntity, meshBox3);
-    cuboidModel3->translateMesh(QVector3D(0.0f, 0.0f, 1.5f));
-
-    Qt3DExtras::QSphereMesh *meshSphere = new Qt3DExtras::QSphereMesh();
-    meshSphere->setObjectName(QString("one daughter of Calorimeter"));
-    meshSphere->setProperty("maxLength", 1);
-    GeneralMeshModel *sphereModel = new GeneralMeshModel(m_rootEntity, meshSphere);
-    sphereModel->translateMesh(QVector3D(0.0f, 0.0f, -1.5f));
-
-    cylinderModel->addSubModel(cuboidModel1);
-    cylinderModel->addSubModel(cuboidModel2);
-    cuboidModel1->addSubModel(cuboidModel3);
-    cuboidModel2->addSubModel(sphereModel);
-    return cylinderModel;
-}
-
 GeneralMeshModel *ModelFactory::buildCoordinatePlane()
 {
     Qt3DRender::QGeometryRenderer *meshRenderer = new Qt3DRender::QGeometryRenderer();
     Qt3DRender::QGeometry *geometry = new Qt3DRender::QGeometry(meshRenderer);
 
     Qt3DRender::QBuffer *vertexDataBuffer = new Qt3DRender::QBuffer();
-    //Qt3DRender::QBuffer *indexDataBuffer = new Qt3DRender::QBuffer(Qt3DRender::QBuffer::IndexBuffer, geometry);
 
     float netX1 = 1.0f, netX0 = 0.0f, netZ1 = 1.0f, netZ0 = 0.0f, netY = 0.0f;
     float netMajorStep = 0.1;
@@ -164,12 +120,8 @@ GeneralMeshModel *ModelFactory::buildCoordinatePlane()
     geometry->addAttribute(positionAttribute);
     geometry->addAttribute(colorAttribute);
 
-   // meshRenderer->setInstanceCount(1);
-   // meshRenderer->setIndexOffset(0);
-    //meshRenderer->setFirstInstance(0);
     meshRenderer->setPrimitiveType(Qt3DRender::QGeometryRenderer::Lines);
     meshRenderer->setGeometry(geometry);
-    //meshRenderer->setVertexCount(vertexNum / 2);
 
     Qt3DExtras::QPerVertexColorMaterial *material = new Qt3DExtras::QPerVertexColorMaterial(m_rootEntity);
     GeneralMeshModel *lineOne = new GeneralMeshModel(m_rootEntity, meshRenderer, material);
@@ -242,154 +194,6 @@ GeneralMeshModel *ModelFactory::buildCoordinateLine()
     lineTwo->scaleMesh(m_maxSize * QVector3D(1.3,1.3,1.3));
     lineTwo->setPickMode(false);
     return lineTwo;
-}
-
-GeneralMeshModel *ModelFactory::buildTetrahedra(){
-
-    // Material
-    //Qt3DExtras::QPhongMaterial *material = new Qt3DExtras::QPhongMaterial(rootEntity);
-    //material->setDiffuse(QColor(QRgb(0xbeb32b)));
-    Qt3DRender::QMaterial *material = new Qt3DExtras::QPerVertexColorMaterial(m_rootEntity);
-
-    // Custom Mesh (TetraHedron)
-    QGeometryRenderer *customMeshRenderer = new QGeometryRenderer;
-    QGeometry *customGeometry = new QGeometry(customMeshRenderer);
-
-    // vec3 for position
-    // vec3 for colors
-    // vec3 for normals
-
-    /*          2
-               /|\
-              / | \
-             / /3\ \
-             0/___\ 1
-    */
-
-    // Vertices
-    QVector3D v0(-1.0f, 0.0f, -1.0f);
-    QVector3D v1(1.0f, 0.0f, -1.0f);
-    QVector3D v2(0.0f, 1.0f, 0.0f);
-    QVector3D v3(0.0f, 0.0f, 1.0f);
-
-    // Faces Normals
-    QVector3D n023 = QVector3D::normal(v0, v2, v3);
-    QVector3D n012 = QVector3D::normal(v0, v1, v2);
-    QVector3D n310 = QVector3D::normal(v3, v1, v0);
-    QVector3D n132 = QVector3D::normal(v1, v3, v2);
-
-    // Vector Normals
-    QVector3D n0 = QVector3D(n023 + n012 + n310).normalized();
-    QVector3D n1 = QVector3D(n132 + n012 + n310).normalized();
-    QVector3D n2 = QVector3D(n132 + n012 + n023).normalized();
-    QVector3D n3 = QVector3D(n132 + n310 + n023).normalized();
-
-    // Colors
-    QVector3D red(1.0f, 0.0f, 0.0f);
-    QVector3D green(0.0f, 1.0f, 0.0f);
-    QVector3D blue(0.0f, 0.0f, 1.0f);
-    QVector3D white(1.0f, 1.0f, 1.0f);
-
-    QVector<QVector3D> vertices = QVector<QVector3D>()
-            << v0 << n0 << red
-            << v1 << n1 << blue
-            << v2 << n2 << green
-            << v3 << n3 << white;
-
-    // 4 distinct vertices
-    QByteArray vertexBufferData;
-    vertexBufferData.resize(4 * (3 + 3 + 3) * sizeof(float));
-    float *rawVertexArray = reinterpret_cast<float *>(vertexBufferData.data());
-    int idx = 0;
-
-    Q_FOREACH (const QVector3D &v, vertices) {
-        rawVertexArray[idx++] = v.x();
-        rawVertexArray[idx++] = v.y();
-        rawVertexArray[idx++] = v.z();
-    }
-
-    // Indices (12)
-    QByteArray indexBufferData;
-    indexBufferData.resize(4 * 3 * sizeof(ushort));
-    ushort *rawIndexArray = reinterpret_cast<ushort *>(indexBufferData.data());
-
-    // Front
-    rawIndexArray[0] = 0;
-    rawIndexArray[1] = 1;
-    rawIndexArray[2] = 2;
-    // Bottom
-    rawIndexArray[3] = 3;
-    rawIndexArray[4] = 1;
-    rawIndexArray[5] = 0;
-    // Left
-    rawIndexArray[6] = 0;
-    rawIndexArray[7] = 2;
-    rawIndexArray[8] = 3;
-    // Right
-    rawIndexArray[9] = 1;
-    rawIndexArray[10] = 3;
-    rawIndexArray[11] = 2;
-
-    QBuffer *vertexDataBuffer = new QBuffer();
-    QBuffer *indexDataBuffer = new QBuffer();
-
-    vertexDataBuffer->setData(vertexBufferData);
-    indexDataBuffer->setData(indexBufferData);
-
-    // Attributes
-    QAttribute *positionAttribute = new QAttribute();
-    positionAttribute->setName(QAttribute::defaultPositionAttributeName());
-    positionAttribute->setAttributeType(QAttribute::VertexAttribute);
-    positionAttribute->setVertexBaseType(Qt3DRender::QAttribute::Float);
-    positionAttribute->setBuffer(vertexDataBuffer);
-    positionAttribute->setVertexSize(3);
-    positionAttribute->setByteOffset(0);
-    positionAttribute->setByteStride(9 * sizeof(float));
-    positionAttribute->setCount(36);
-
-    QAttribute *normalAttribute = new QAttribute();
-    normalAttribute->setBuffer(vertexDataBuffer);
-    normalAttribute->setName(QAttribute::defaultNormalAttributeName());
-    normalAttribute->setAttributeType(QAttribute::VertexAttribute);
-    normalAttribute->setVertexBaseType(Qt3DRender::QAttribute::Float);
-    normalAttribute->setVertexSize(3);
-    normalAttribute->setByteOffset(3 * sizeof(float));
-    normalAttribute->setByteStride(9 * sizeof(float));
-    normalAttribute->setCount(36);
-
-
-    QAttribute *colorAttribute = new QAttribute();
-    colorAttribute->setBuffer(vertexDataBuffer);
-    colorAttribute->setName(QAttribute::defaultColorAttributeName());
-    colorAttribute->setAttributeType(QAttribute::VertexAttribute);
-    colorAttribute->setVertexBaseType(Qt3DRender::QAttribute::Float);
-    colorAttribute->setVertexSize(3);
-    colorAttribute->setByteOffset(6 * sizeof(float));
-    colorAttribute->setByteStride(9 * sizeof(float));
-    colorAttribute->setCount(36);
-
-
-    QAttribute *indexAttribute = new QAttribute();
-    indexAttribute->setBuffer(indexDataBuffer);
-    indexAttribute->setAttributeType(QAttribute::IndexAttribute);
-    indexAttribute->setVertexBaseType(Qt3DRender::QAttribute::UnsignedShort);
-    indexAttribute->setVertexSize(3);
-    indexAttribute->setByteOffset(0);
-    indexAttribute->setByteStride(3);
-    indexAttribute->setCount(12);
-
-    customGeometry->addAttribute(positionAttribute);
-    customGeometry->addAttribute(normalAttribute);
-    customGeometry->addAttribute(colorAttribute);
-    customGeometry->addAttribute(indexAttribute);
-
-    customMeshRenderer->setGeometry(customGeometry);
-
-    GeneralMeshModel *tetra = new GeneralMeshModel(m_rootEntity, customMeshRenderer, material);
-    tetra->translateMesh(QVector3D(0, 50, 0));
-    tetra->scaleMesh(QVector3D(20,20,20));
-    tetra->setPickMode(false);
-    return tetra;
 }
 
 GeneralMeshModel *ModelFactory::buildBox(double xHalf, double yHalf, double zHalf){
@@ -571,8 +375,6 @@ GeneralMeshModel *ModelFactory::buildTube(double rMin, double rMax, double zHalf
     indexAttribute->setBuffer(indexBuffer);
     indexAttribute->setVertexBaseType(QAttribute::UnsignedInt);
     indexAttribute->setVertexSize(3);
-    indexAttribute->setByteOffset(0);
-    indexAttribute->setByteStride(3 * sizeof(unsigned int));
     indexAttribute->setCount(8 * 3 * numPerCircle);
 
     QGeometryRenderer *customRenderer = new QGeometryRenderer;
@@ -639,10 +441,6 @@ GeneralMeshModel *ModelFactory::buildTubs(double rMin, double rMax, double zHalf
         vertex[i+2+3*floatPerCircle] = -zHalf;
     }
 
-    //for(int i = 0; i < numPerCircle*4*3; i+=3){
-    //    qInfo() << i/3 << ") x:" << vertex[i] << "y:" << vertex[i+1] << "z:" << vertex[i+2];
-    //}
-
     // 4 vertexes per slice; each vertex has 3 'float' coordinates ==> 4 * nSlices * 3 * size(float)
     QByteArray bufferBytes;
     bufferBytes.resize(4 * numPerCircle * 3 * sizeof(float));
@@ -685,9 +483,7 @@ GeneralMeshModel *ModelFactory::buildTubs(double rMin, double rMax, double zHalf
         normal[i+3*floatPerCircle+1] = normal[i+floatPerCircle+1];
         normal[i+3*floatPerCircle+2] = -1;
     }
-    //for(int i = 0; i < numPerCircle*4*3; i+=3){
-    //    qInfo() << i/3 << ") x:" << normal[i] << "y:" << normal[i+1] << "z:" << normal[i+2];
-    //}
+
     QByteArray normalBytes;
     normalBytes.resize(4 * numPerCircle * 3 * sizeof(float));
     memcpy(normalBytes.data(), reinterpret_cast<const char*>(normal), normalBytes.size());
@@ -753,10 +549,6 @@ GeneralMeshModel *ModelFactory::buildTubs(double rMin, double rMax, double zHalf
     index[endFace+10] = 4 * numPerCircle - 1;
     index[endFace+11] = 3 * numPerCircle - 1;
 
-    //for(int i= 0; i < numPerCircle * 8 * 3; i+=3){
-    //    qInfo() << i/3 <<" 1)"<< index[i] << " 2) " << index[i+1] << " 3) "<< index[i+2];
-    //}
-
     QByteArray indexBytes;
     indexBytes.resize((8 * (numPerCircle-1) + 4) * 3 * sizeof(quint32));
     memcpy(indexBytes.data(), reinterpret_cast<const char*>(index), indexBytes.size());
@@ -767,8 +559,6 @@ GeneralMeshModel *ModelFactory::buildTubs(double rMin, double rMax, double zHalf
     indexAttribute->setBuffer(indexBuffer);
     indexAttribute->setVertexBaseType(QAttribute::UnsignedInt);
     indexAttribute->setVertexSize(3);
-    indexAttribute->setByteOffset(0);
-    indexAttribute->setByteStride(3 * sizeof(unsigned int));
     indexAttribute->setCount((8 * (numPerCircle-1) + 4) * 3);
 
     QGeometryRenderer *customRenderer = new QGeometryRenderer;
@@ -835,10 +625,6 @@ GeneralMeshModel *ModelFactory::buildPcon(double SPhi, double DPhi, unsigned int
             vertex[i+(2*z+1)*floatPerCircle+2] = planes[z].ZPlane;
         }
     }
-    /*for(unsigned int i = 0; i < numPerCircle * 2 * nPlanes * 3; i+=3){
-        qInfo() << i/3 << ") x:" << vertex[i] << "y:" << vertex[i+1] << "z:" << vertex[i+2];
-    }*/
-
     // 4 vertexes per slice; each vertex has 3 'float' coordinates ==> 4 * nSlices * 3 * size(float)
     QByteArray bufferBytes;
     bufferBytes.resize(numPerCircle * 2 * nPlanes * 3 * sizeof(float));
@@ -881,9 +667,6 @@ GeneralMeshModel *ModelFactory::buildPcon(double SPhi, double DPhi, unsigned int
         normal[i+2*(nPlanes-1)*floatPerCircle+2] = 1;
         normal[i+2*(nPlanes+1)*floatPerCircle+2] = 1;
     }
-    /*for(unsigned int i = 0; i < numPerCircle * 2 * nPlanes * 3; i+=3){
-        qInfo() << i/3 << ") x:" << normal[i] << "y:" << normal[i+1] << "z:" << normal[i+2];
-    }*/
 
     QByteArray normalBytes;
     normalBytes.resize(numPerCircle * 2 * nPlanes * 3 * sizeof(float));
@@ -965,10 +748,6 @@ GeneralMeshModel *ModelFactory::buildPcon(double SPhi, double DPhi, unsigned int
        index[endFace+stride*z+11] = numPerCircle*(2*z+3)-1;
     }
 
-    /*for(unsigned int i= 0; i < ( (numPerCircle-1) * ( (nPlanes-1)*4 + 4 ) + 4 *(nPlanes-1) ) * 3; i+=3){
-        qInfo() << i/3 <<" 1)"<< index[i] << " 2) " << index[i+1] << " 3) "<< index[i+2];
-    }*/
-
     QByteArray indexBytes;
     indexBytes.resize(( (numPerCircle-1) * ( (nPlanes-1)*4 + 4 ) + 4 *(nPlanes-1) ) * 3 * sizeof(quint32));
     memcpy(indexBytes.data(), reinterpret_cast<const char*>(index), indexBytes.size());
@@ -979,8 +758,6 @@ GeneralMeshModel *ModelFactory::buildPcon(double SPhi, double DPhi, unsigned int
     indexAttribute->setBuffer(indexBuffer);
     indexAttribute->setVertexBaseType(QAttribute::UnsignedInt);
     indexAttribute->setVertexSize(3);
-    indexAttribute->setByteOffset(0);
-    indexAttribute->setByteStride(3 * sizeof(unsigned int));
     indexAttribute->setCount(( (numPerCircle-1) * ( (nPlanes-1)*4 + 4 ) + 4 *(nPlanes-1) ) * 3);
 
     QGeometryRenderer *customRenderer = new QGeometryRenderer;
@@ -989,7 +766,6 @@ GeneralMeshModel *ModelFactory::buildPcon(double SPhi, double DPhi, unsigned int
     geometry->addAttribute(indexAttribute);
     geometry->addAttribute(normalAttribute);
     customRenderer->setGeometry(geometry);
-    //customRenderer->setPrimitiveType(QGeometryRenderer::Lines);
     QString info;
     info = QString("GeoPcon with:\n");
     for(unsigned int z = 0; z < nPlanes; z++){
@@ -1181,8 +957,6 @@ GeneralMeshModel *ModelFactory::buildTorus(double rMin, double rMax, double rTor
     indexAttribute->setBuffer(indexBuffer);
     indexAttribute->setVertexBaseType(QAttribute::UnsignedInt);
     indexAttribute->setVertexSize(3);
-    indexAttribute->setByteOffset(0);
-    indexAttribute->setByteStride(3 * sizeof(unsigned int));
     indexAttribute->setCount(numSlice*(numRing-1)*12 + (numSlice)*12);
 
     QGeometryRenderer *customRenderer = new QGeometryRenderer;
@@ -1342,8 +1116,6 @@ GeneralMeshModel *ModelFactory::buildTessellatedSolid(size_t num, GeoFacet **fac
     indexAttribute->setBuffer(indexBuffer);
     indexAttribute->setVertexBaseType(QAttribute::UnsignedInt);
     indexAttribute->setVertexSize(3);
-    indexAttribute->setByteOffset(0);
-    indexAttribute->setByteStride(3 * sizeof(unsigned int));
     indexAttribute->setCount(indexBase);
 
     QGeometryRenderer *customRenderer = new QGeometryRenderer;

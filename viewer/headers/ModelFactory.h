@@ -148,10 +148,8 @@ public:
     void setMaxSize(float size);
     float MaxSize();
     GeneralMeshModel **build3DText();
-    GeneralMeshModel *buildTestVolume();
     GeneralMeshModel *buildCoordinatePlane();
     GeneralMeshModel *buildCoordinateLine();
-    GeneralMeshModel *buildTetrahedra();
     GeneralMeshModel *buildBox(double xHalf, double yHalf, double zHalf);
     GeneralMeshModel *buildTube(double rMin, double rMax, double zHalf);
     GeneralMeshModel *buildTubs(double rMin, double rMax, double zHalf, double SPhi, double DPhi);

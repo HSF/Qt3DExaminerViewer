@@ -113,13 +113,10 @@ void CameraWrapper::zoomOrth(int edge){
 
 void CameraWrapper::translatePosRad(int radius){
     // prevent divided by zero later
-    //QVector3D position = m_camera -> position();
-    //m_camera->setPosition(position * radius / m_distanceToOrigin);
     m_radius = radius;
     QVector3D dir = (m_camera->viewCenter() - m_camera->position()).normalized();
     QVector3D newPos =  - (dir * radius);
     m_camera->setPosition(newPos);
-    //qInfo() << "after viewAll: " << m_camera->viewVector().length();
 }
 
 void CameraWrapper::translateView(QVector3D bias, int scale){
@@ -187,14 +184,8 @@ void CameraWrapper::sphericalToPosition(){
     float x = m_radius * qCos(m_latitude) * qSin(m_longitude);
     float z = m_radius * qCos(m_latitude) * qCos(m_longitude);
     m_camera -> setPosition(m_bias + QVector3D(x, y, z));
-
-   /* m_camera -> setViewCenter(QVector3D(0, 0, 0));
-    float upVectorY, upVectorX, upVectorZ;
-    upVectorY = qCos(m_latitude);
-    upVectorX = - qSin(m_latitude) * qSin(m_longitude);
-    upVectorZ = - qSin(m_latitude) * qCos(m_longitude);
-    m_camera -> setUpVector(QVector3D(upVectorX, upVectorY, upVectorZ));*/
 }
+
 void CameraWrapper::sphericalToDirection(){
     float y = qSin(m_pitch);
     float x = qCos(m_pitch) * qSin(m_yaw);
@@ -221,8 +212,4 @@ void CameraWrapper::sphericalToDirection(){
     }
     QVector3D newUpVector = x * extraAxisX + y * extraAxisY;
     m_camera -> setUpVector(newUpVector);
-    /*qInfo() << "position: " << m_camera -> position();
-    qInfo() << "upvector: " << m_camera -> upVector();
-    qInfo() << "viewCenter: " << m_camera -> viewCenter();
-    qInfo() << "radius: " << m_radius;*/
 }

@@ -35,7 +35,6 @@ GMDBManager* GeoLoaderQt::checkPath(QString path){
   std::ifstream infile(path.toStdString().c_str());
   if ( ! infile.good() ) {
       std::cout << "\n\tERROR!! A '" << pathStd << "' file does not exist!! Please, check the path of the input file before running this program. Exiting...";
-      //exit(EXIT_FAILURE);
       return nullptr;
   }
   infile.close();
@@ -141,7 +140,6 @@ void GeoLoaderQt::loadChildren(GeneralMeshModel *container, const GeoVPhysVol *p
                         << std::endl;
               try {
                 QMatrix4x4 transform = toQMatrix(childVolV->getX());
-                //qInfo() << transform;
                 model->setTransformMatrix(transform);
               } catch (...) {
                 // TODO: this try-catch cannot prevent program from unexpectedly finished.
@@ -162,11 +160,6 @@ GeneralMeshModel *GeoLoaderQt::loadFromDB(QString path){
   GMDBManager *db = checkPath(path);
   if(db == nullptr)
       return nullptr;
-  // -- testing the input database
-  //std::cout << "Printing the list of all GeoMaterial nodes" << std::endl;
-  //db->printAllMaterials();
-  //std::cout << "Printing the list of all GeoElement nodes" << std::endl;
-  //db->printAllElements();
   GeoPhysVol *world = introWorld(db);
   // --- testing the imported Geometry
   // get number of children volumes
@@ -244,7 +237,6 @@ GeneralMeshModel *GeoLoaderQt::createTube(const GeoShape* shapeIn){
   const double zHalf = shape->getZHalfLength();
   std::cout << "rMin: " << rMin << " , rMax: " << rMax << " , zHalf: " << zHalf << std::endl;
   std::cout << "Volume: " << shape->volume() << std::endl;
-  //TODO: to prevent shape from disappering, this is a temporary fix for rendering bug
   if(rMin < TOL)
       return m_builder->buildTube(TOL, rMax, zHalf);
   else
@@ -267,8 +259,6 @@ GeneralMeshModel *GeoLoaderQt::createTubs(const GeoShape* shapeIn){
   std::cout << "rMin: " << rMin << " , rMax: " << rMax << " , zHalf: " << zHalf << " , SPhi: " << SPhi << " , DPhi: " << DPhi << std::endl;
   std::cout << "Volume: " << shape->volume() << std::endl;
   if(std::abs(DPhi - 2 * M_PI) < TOL){
-      qInfo() << "some tubs should be tube";
-      // TOD: to prevent shape from disappering, this is a temporary fix for rendering bug
       if(rMin < TOL)
           return m_builder->buildTube(TOL, rMax, zHalf);
       else
@@ -300,7 +290,6 @@ GeneralMeshModel *GeoLoaderQt::createPcon(const GeoShape* shapeIn){
     planes[iP].ZPlane = nZP;
     //  Get the RMin of the specified plane.
     double nRmin = shape->getRMinPlane(iP);
-    // TODO: to prevent shape from disappering, this is a temporary fix for rendering bug
     if(nRmin < TOL)
         nRmin = TOL;
     planes[iP].RMinPlane = nRmin;
@@ -313,7 +302,6 @@ GeneralMeshModel *GeoLoaderQt::createPcon(const GeoShape* shapeIn){
   //  True if the polycone has at least two planes.  False otherwise.
   bool isValid = shape->isValid();
   std::cout << "Is this GeoPcon shape valid? " << isValid << std::endl;
-   //TODO: to prevent shape from disappering, this is a temporary fix for rendering bug
   if(isValid)
     return m_builder->buildPcon(SPhi, DPhi, nPlanes, planes);
   else
@@ -340,7 +328,6 @@ GeneralMeshModel *GeoLoaderQt::createCons(const GeoShape* shapeIn){
   std::cout << "rMin1: " << rMin1 << " , rMin2: " << rMin2 << " , rMax1: " << rMax1  << " , rMax2: " << rMax2
           << " , zHalf: " << zHalf << ", SPhi: " << SPhi << " , DPhi: " << DPhi  << std::endl;
   std::cout << "Volume: " << shape->volume() << std::endl;
-  //TODO: to prevent shape from disappering, this is a temporary fix for rendering bug
   if(rMin1 < TOL && rMin2 > TOL)
       return m_builder->buildCons(0, rMin2, rMax1, rMax2, zHalf, SPhi, DPhi);
   else if(rMin1 > TOL && rMin2 < TOL)
@@ -357,7 +344,7 @@ GeneralMeshModel *GeoLoaderQt::createTorus(const GeoShape* shapeIn){
   const double SPhi = shape->getSPhi();
   //  Delta angle of the segment in radians.
   const double DPhi = shape->getDPhi();
-  //
+  //  Returns the radius of torus
   const double rTor = shape->getRTor();
   //  Returns the min radius of annulus
   const double rMin = shape->getRMin();

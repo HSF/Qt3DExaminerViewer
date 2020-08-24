@@ -77,12 +77,10 @@ void ExaminerViewer::setUpVolumePanel(QVBoxLayout *vLayout, QWidget *mainWindow)
     QObject::connect(restoreSelectBtn, SIGNAL(clicked(bool)), m_worldModel, SLOT(restoreState(bool)));
     QObject::connect(selectBtn, &QRadioButton::clicked,
                      [this](bool clicked){
-                      m_cameraWrapper->disableCameraController(clicked);
-                      /*m_cylinderModel->enablePickAll(clicked);*/ });
+                      m_cameraWrapper->disableCameraController(clicked);});
     QObject::connect(viewBtn, &QRadioButton::clicked,
                      [this](bool clicked){
-                      m_cameraWrapper->disableCameraController(!clicked);
-                      /*m_cylinderModel->enablePickAll(!clicked);*/ });
+                      m_cameraWrapper->disableCameraController(!clicked);});
 }
 
 QSequentialAnimationGroup *ExaminerViewer::getRoute1Tour(){
@@ -269,69 +267,6 @@ void ExaminerViewer::setupControlPanel(QVBoxLayout *vLayout, QWidget *mainWindow
 
     QTabWidget *posTab = new QTabWidget(mainWindow);
     posTab->setMaximumSize(QSize(240, 280));
-
-/*
-    // Control vertical rotation of Camera
-    QLabel *labelLng = new QLabel(mainWindow);
-    QSlider *sliderLng = new QSlider(mainWindow);
-    setUpSliderController(labelLng, sliderLng, "longitude", 0);
-    QHBoxLayout *hLayoutLng = new QHBoxLayout(mainWindow);
-    hLayoutLng->addWidget(labelLng);
-    hLayoutLng->addWidget(sliderLng);
-
-    // Control horizontional rotation of Camera
-    QLabel *labelLat = new QLabel(mainWindow);
-    QSlider *sliderLat = new QSlider(mainWindow);
-    setUpSliderController(labelLat, sliderLat, "latitude", 0);
-    sliderLat->setRange(-90, 90);
-    QHBoxLayout *hLayoutLat = new QHBoxLayout(mainWindow);
-    hLayoutLat->addWidget(labelLat);
-    hLayoutLat->addWidget(sliderLat);
-
-    QVBoxLayout *positionControlLayout = new QVBoxLayout(mainWindow);
-    positionControlLayout->addLayout(hLayoutLat);
-    positionControlLayout->addLayout(hLayoutLng);
-    QWidget *positionControl = new QWidget(mainWindow);
-    positionControl->setLayout(positionControlLayout);
-    positionControl->setFixedSize(230, 260);
-    positionControl->setMinimumSize(QSize(100, 100));
-    positionControl->setMaximumSize(QSize(230, 130));
-    posTab->addTab(positionControl, "Rotation");
-
-    QObject::connect(sliderLat, SIGNAL(valueChanged(int)), m_cameraWrapper, SLOT(translatePosLat(int)));
-    QObject::connect(sliderLng, SIGNAL(valueChanged(int)), m_cameraWrapper, SLOT(translatePosLng(int)));
-
-
-
-    // Control vertical translation of Camera
-    QLabel *labelHorz = new QLabel(mainWindow);
-    QSlider *sliderHorz = new QSlider(mainWindow);
-    setUpSliderController(labelHorz, sliderHorz, "horizontal", 0);
-    QHBoxLayout *hLayoutHorz = new QHBoxLayout(mainWindow);
-    hLayoutHorz->addWidget(labelHorz);
-    hLayoutHorz->addWidget(sliderHorz);
-
-    // Control horizontional translation of Camera
-    QHBoxLayout *hLayoutVert = new QHBoxLayout(mainWindow);
-    QLabel *labelVert = new QLabel(mainWindow);
-    QSlider *sliderVert = new QSlider(mainWindow);
-    setUpSliderController(labelVert, sliderVert, "vertical", 0);
-    sliderVert->setRange(-90, 90);
-    hLayoutVert->addWidget(labelVert);
-    hLayoutVert->addWidget(sliderVert);
-
-    QVBoxLayout *translationControlLayout = new QVBoxLayout(mainWindow);
-    translationControlLayout->addLayout(hLayoutHorz);
-    translationControlLayout->addLayout(hLayoutVert);
-    QWidget *translationControl = new QWidget(mainWindow);
-    translationControl->setLayout(translationControlLayout);
-    translationControl->setFixedSize(230, 260);
-    translationControl->setMinimumSize(QSize(100, 100));
-    translationControl->setMaximumSize(QSize(230, 130));
-    posTab->addTab(translationControl, "translation");
-
-
-    cameraLy->addWidget(posTab);*/
     cameraBox->setLayout(cameraLy);
     vLayout->addWidget(cameraBox);
 
@@ -342,8 +277,6 @@ void ExaminerViewer::setupControlPanel(QVBoxLayout *vLayout, QWidget *mainWindow
     // Predefined view
     QGridLayout *hLayoutPredefinedView = new QGridLayout(mainWindow);
     QLabel *tipView = new QLabel("Predef View", mainWindow);
-    //QPushButton *initialViewBtn = new QPushButton("initial", mainWindow);
-    //initialViewBtn->setMaximumSize(QSize(70, 25));
     QPushButton *viewAllBtn = new QPushButton("view all", mainWindow);
     viewAllBtn->setMaximumSize(QSize(70, 25));
     QPushButton *frontViewBtn = new QPushButton("front", mainWindow);

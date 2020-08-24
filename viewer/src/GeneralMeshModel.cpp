@@ -168,13 +168,11 @@ void GeneralMeshModel::closeVolume(){
 }
 
 void GeneralMeshModel::showMesh(bool visible){
-    /*for(GeneralMeshModel *subModel:m_subModels){
+    for(GeneralMeshModel *subModel:m_subModels){
         subModel->showMesh(false);
         subModel->enablePick(false);
-    }*/
+    }
     m_meshEntity->setEnabled(visible);
-    //qInfo() << QString::fromStdString(m_volume->getLogVol()->getName()) + " is " + QString::number(visible)
-    //           + QString::number(m_isSelectMode);
     if(m_isSelectMode) enablePick(visible);
 }
 

@@ -49,7 +49,6 @@ void setUpLight(Qt3DCore::QEntity *lightEntity, QVector3D position){
 
     Qt3DCore::QTransform *lightTransform = new Qt3DCore::QTransform(lightEntity);
     lightTransform->setTranslation(position);
-    //lightTransform->setTranslation(QVector3D(50,50,0));
     lightEntity->addComponent(lightTransform);
 }
 
@@ -76,7 +75,6 @@ int main(int argc, char **argv){
     auto buf = view->defaultFrameGraph()->findChild<Qt3DRender::QClearBuffers*>();
 
     if(buf){
-        qInfo() << "found clearBuffers from framegraph";
         Qt3DRender::QRenderStateSet *set = new Qt3DRender::QRenderStateSet(buf);
         Qt3DRender::QDepthTest *depthTest = new Qt3DRender::QDepthTest;
         depthTest->setDepthFunction(Qt3DRender::QDepthTest::Always);
@@ -109,7 +107,6 @@ int main(int argc, char **argv){
     CameraWrapper *cameraWrapper = new CameraWrapper(rootEntity, cameraEntity);
     Qt3DExtras::QOrbitCameraController *camController = new Qt3DExtras::QOrbitCameraController(rootEntity);
     cameraWrapper->addCameraController(camController);
-    //camController->setCamera(nullptr);
     camera = cameraWrapper;
 
     // load volume
@@ -118,17 +115,16 @@ int main(int argc, char **argv){
 
     GeoLoaderQt *loader = new GeoLoaderQt(rootEntity);
     loadedModel = loader->loadFromDB(fileName);
-    //for(int i = 0; i < loadedModel->subModelCount(); i++){
-        //loadedModel->getSubModel(i)->showMesh(true);
-    //}
+    for(int i = 0; i < loadedModel->subModelCount(); i++){
+        loadedModel->getSubModel(i)->showMesh(true);
+    }
 
 
     ModelFactory *builder = ModelFactory::GetInstance(rootEntity);
     cameraWrapper->init_distanceToOrigin = builder->MaxSize() * 1.5 / tan(qDegreesToRadians(22.5f));
     cameraWrapper->viewAll();
-    cameraWrapper->resetCameraView(builder->MaxSize()*7);
+    cameraWrapper->resetCameraView(builder->MaxSize()*10);
     camController->setLinearSpeed(builder->MaxSize()*3);
-    qInfo() << "maxSize: " << builder->MaxSize();
     // Light source
     Qt3DCore::QEntity *lightEntity = new Qt3DCore::QEntity(rootEntity);
     setUpLight(lightEntity, cameraEntity->position());
@@ -137,11 +133,6 @@ int main(int argc, char **argv){
     GeneralMeshModel **textList = builder->build3DText();
     builder->buildCoordinateLine();
     builder->buildCoordinatePlane();
-
-    //builder->buildTetrahedra();
-    //GeneralMeshModel *cylinderModel = builder->buildTestVolume();
-    //cylinderModel->enablePickAll(false);
-
     
     QObject::connect(cameraEntity, &Qt3DRender::QCamera::positionChanged,
                      [lightEntity,cameraEntity, textList](){
@@ -151,17 +142,12 @@ int main(int argc, char **argv){
         for(int i = 0; i < 6; i++){
             textList[i]->rotateMesh(viewDir);
         }
-        //qInfo() << "radius: " << cameraEntity->viewVector().length();
     });
 
     if(loadedModel != nullptr){
         ExaminerViewer *viewer = new ExaminerViewer(loadedModel, cameraWrapper);
         viewer->setupControlPanel(vLayout, mainWindow);
     }
-
-    //QQmlApplicationEngine engine;
-    //engine.load(QUrl("qrc:/qml/main.qml"));
-
     // Show window
     mainWindow->show();
     mainWindow->resize(1200, 800);
