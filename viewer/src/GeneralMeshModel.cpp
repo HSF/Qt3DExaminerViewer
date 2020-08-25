@@ -42,11 +42,11 @@ GeneralMeshModel::GeneralMeshModel(Qt3DCore::QEntity *rootEntity, Qt3DRender::QG
         else {
             // change the focus of camera
             if(event->button() == Qt3DRender::QPickEvent::LeftButton && event->modifiers() == Qt::ShiftModifier){
-                camera->translateView(event->worldIntersection(), 0);
+                cameraWrapper->translateView(event->worldIntersection(), 0);
             }
             else if(event->button() == Qt3DRender::QPickEvent::RightButton && event->modifiers() == Qt::ShiftModifier){
-                camera->camera()->viewEntity(m_meshEntity);
-                //camera->translateView(m_meshTransform->translation(), m_mesh->property("maxLength").toInt());
+                //camera->camera()->viewEntity(m_meshEntity);
+                cameraWrapper->translateView(m_meshTransform->translation(), m_mesh->property("maxLength").toInt());
             }
         }
     });
@@ -183,7 +183,6 @@ void GeneralMeshModel::setVolume(const GeoVPhysVol *volume){
 const GeoVPhysVol *GeneralMeshModel::Volume(){
     return m_volume;
 }
-
 
 void GeneralMeshModel::setTransformMatrix(QMatrix4x4 transform){
     for(GeneralMeshModel *subModel:m_subModels){

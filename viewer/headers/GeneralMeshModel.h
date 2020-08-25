@@ -24,7 +24,7 @@
                      "8) left click to translate view\n")
 
 extern QCommandLinkButton *info;
-extern CameraWrapper *camera;
+extern CameraWrapper *cameraWrapper;
 
 class GeneralMeshModel: public QObject{
     Q_OBJECT

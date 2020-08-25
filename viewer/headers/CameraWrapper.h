@@ -45,7 +45,7 @@ private:
     float m_longitude, m_latitude;
     float m_roll, m_yaw, m_pitch;
     int m_center;
-    QVector3D m_bias;
+    QVector3D m_viewCenter;
     Qt3DCore::QEntity *m_rootEntity;
     Qt3DRender::QCamera *m_camera;
     Qt3DCore::QTransform *m_cameraTransform;

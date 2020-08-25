@@ -1,5 +1,6 @@
 #ifndef MAINWINDOW_H
 #define MAINWINDOW_H
+#include "CameraWrapper.h"
 #include <Qt3DRender/QCamera>
 #include <Qt3DExtras/Qt3DWindow>
 #include <Qt3DInput/QLogicalDevice>

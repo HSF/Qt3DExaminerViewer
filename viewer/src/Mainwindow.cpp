@@ -5,8 +5,10 @@
 #include <Qt3DInput/QAnalogAxisInput>
 #include <Qt3DInput/QAxis>
 #include <Qt3DInput/QMouseDevice>
+#include <Qt3DInput/QMouseEvent>
 
 extern GeneralMeshModel *loadedModel;
+extern CameraWrapper *cameraWrapper;
 
 MainWindow::MainWindow(): Qt3DExtras::Qt3DWindow(){
 }
@@ -25,6 +27,16 @@ void MainWindow::resizeEvent(QResizeEvent* event)
 
 void MainWindow::mousePressEvent(QMouseEvent *event){
     Qt3DExtras::Qt3DWindow::mousePressEvent(event);
+    if (event->button() == Qt::LeftButton)
+    {
+        if(event->modifiers() == Qt3DInput::QMouseEvent::NoModifier){
+            qDebug() << "ok";
+            loadedModel->deselect();
+            //cameraWrapper->camera();
+            //cameraWrapper->setViewCenter(cameraWrapper->camera()->viewCenter());
+        }
+
+    }
 }
 
 void MainWindow::keyPressEvent(QKeyEvent *event){

@@ -38,7 +38,7 @@
 // This path works if you put the "build" folder inside upper level of source
 #define DEFAULT_FOLDER "../../../../resources/db/"
 
-CameraWrapper *camera;
+CameraWrapper *cameraWrapper;
 GeneralMeshModel *loadedModel;
 
 void setUpLight(Qt3DCore::QEntity *lightEntity, QVector3D position){
@@ -107,7 +107,7 @@ int main(int argc, char **argv){
     CameraWrapper *cameraWrapper = new CameraWrapper(rootEntity, cameraEntity);
     Qt3DExtras::QOrbitCameraController *camController = new Qt3DExtras::QOrbitCameraController(rootEntity);
     cameraWrapper->addCameraController(camController);
-    camera = cameraWrapper;
+    cameraWrapper = cameraWrapper;
 
     // load volume
     QString fileName;
@@ -123,7 +123,7 @@ int main(int argc, char **argv){
     ModelFactory *builder = ModelFactory::GetInstance(rootEntity);
     cameraWrapper->init_distanceToOrigin = builder->MaxSize() * 1.5 / tan(qDegreesToRadians(22.5f));
     cameraWrapper->viewAll();
-    cameraWrapper->resetCameraView(builder->MaxSize()*10);
+    cameraWrapper->resetCameraView(builder->MaxSize()*7);
     camController->setLinearSpeed(builder->MaxSize()*3);
     // Light source
     Qt3DCore::QEntity *lightEntity = new Qt3DCore::QEntity(rootEntity);

@@ -1,13 +1,10 @@
 #ifndef EXAMVIEWER_H
 #define EXAMVIEWER_H
-#include "CameraWrapper.h"
 #include "GeneralMeshModel.h"
 #include <QtWidgets/QVBoxLayout>
 #include <QSequentialAnimationGroup>
 #include <QtWidgets/QSlider>
 #include <QtWidgets/QLabel>
-
-extern CameraWrapper *camera;
 
 class ExaminerViewer{
 public:

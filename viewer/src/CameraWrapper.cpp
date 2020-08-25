@@ -12,7 +12,13 @@ CameraWrapper::CameraWrapper(Qt3DCore::QEntity *rootEntity,  Qt3DRender::QCamera
     resetCameraView(1000.0f);
     m_center = GLOBAL_CENTER;
     QObject::connect(m_camera, &Qt3DRender::QCamera::positionChanged, m_camera, [this](){emit positionChanged(m_camera->position());});
-    QObject::connect(m_camera, &Qt3DRender::QCamera::viewCenterChanged, m_camera, [this](){emit viewCenterChanged(m_camera->viewCenter());});
+    QObject::connect(m_camera, &Qt3DRender::QCamera::viewCenterChanged, m_camera, [this](){
+        QVector3D d1 = m_camera->viewCenter() - m_viewCenter;
+        QVector3D d2 = m_camera->position() - m_viewCenter;
+        // detect if translate view or zoom view, if translate, then udpate m_viewCenter
+        if(QVector3D::dotProduct(d2, d1) > 1e-2)
+            m_camera->setViewCenter(m_viewCenter);
+    });
 }
 
 Qt3DRender::QCamera *CameraWrapper::camera(){
@@ -30,7 +36,7 @@ void CameraWrapper::resetCameraView(float farPlanePos){
     m_pitch = 0;
     m_roll = 0;
     m_yaw = M_PI;
-    m_bias = QVector3D(0.0f, 0.0f, 0.0f);
+    m_viewCenter = QVector3D(0.0f, 0.0f, 0.0f);
 }
 
 void CameraWrapper::viewAll(){
@@ -56,20 +62,6 @@ void CameraWrapper::setCustomView(QVector4D dof4){
 const QVector4D CameraWrapper::customView(){
      return QVector4D(m_radius, int(qRadiansToDegrees(m_latitude)), int(qRadiansToDegrees(m_longitude)),
                       int(qRadiansToDegrees(m_roll)));
-}
-
-void CameraWrapper::setFullCustomView(const QVector<float> fullView){
-    m_radius = int(fullView[0]);
-    m_latitude = fullView[1];
-    m_longitude = fullView[2];
-    m_pitch = fullView[3];
-    m_yaw = fullView[4];
-    m_roll = fullView[5];
-    m_bias = QVector3D(fullView[6], fullView[7], fullView[8]);
-}
-
-const QVector<QVector3D> CameraWrapper::fullCustomView(){
-     return QVector<QVector3D>{m_camera->upVector(), m_camera->viewCenter(), m_camera->position()};
 }
 
 void CameraWrapper::setProjectiveMode(bool isPerspective){
@@ -120,7 +112,7 @@ void CameraWrapper::translatePosRad(int radius){
 }
 
 void CameraWrapper::translateView(QVector3D bias, int scale){
-    m_bias = bias;
+    m_viewCenter = bias;
     if(scale != 0 && m_camera->projectionType() == Qt3DRender::QCameraLens::PerspectiveProjection){
         m_radius = 10 * scale;
         QVector3D endPos = m_radius*(-m_camera->viewVector()).normalized() + bias;
@@ -138,8 +130,8 @@ void CameraWrapper::translateView(QVector3D bias, int scale){
 }
 
 void CameraWrapper::setViewCenter(QVector3D viewCenter){
-    m_camera->setViewCenter(viewCenter);
-    m_bias = viewCenter;
+    //m_camera->setViewCenter(viewCenter);
+    m_viewCenter = viewCenter;
 }
 
 void CameraWrapper::setPosition(QVector3D pos){
@@ -183,7 +175,7 @@ void CameraWrapper::sphericalToPosition(){
     float y = m_radius * qSin(m_latitude);
     float x = m_radius * qCos(m_latitude) * qSin(m_longitude);
     float z = m_radius * qCos(m_latitude) * qCos(m_longitude);
-    m_camera -> setPosition(m_bias + QVector3D(x, y, z));
+    m_camera -> setPosition(m_viewCenter + QVector3D(x, y, z));
 }
 
 void CameraWrapper::sphericalToDirection(){

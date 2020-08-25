@@ -386,6 +386,7 @@ GeneralMeshModel *ModelFactory::buildTube(double rMin, double rMax, double zHalf
     customRenderer->setObjectName(QString("GeoTube with:\nrMin:%1, rMax:%2, zHalf:%3").arg(rMin).arg(rMax).arg(zHalf));
     // save to the list of built tubes
     tubePara.mesh = customRenderer;
+    customRenderer->setProperty("maxLength", maxSize);
     m_tubes.push_back(tubePara);
     GeneralMeshModel *tube = new GeneralMeshModel(m_rootEntity, customRenderer);
     tube->setObjectName("GeoTube");
