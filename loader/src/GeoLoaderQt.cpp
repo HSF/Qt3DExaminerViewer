@@ -82,8 +82,6 @@ inline QMatrix4x4 toQMatrix(GeoTrf::Transform3D tr){
     return mtx;
 }
 
-QStringList list;
-
 void GeoLoaderQt::loadChildren(GeneralMeshModel *container, const GeoVPhysVol *parent){
     static int count = 0;
     unsigned int nChil = parent->getNChildVols();
@@ -129,7 +127,6 @@ void GeoLoaderQt::loadChildren(GeneralMeshModel *container, const GeoVPhysVol *p
               model = createTrd(shapeIn);
           else{
               std::cout << "Unsupported shape: " << shapeIn->type();
-              list << QString::fromStdString(shapeIn->type());
           }
           if(model != nullptr){
               std::cout << "name: " << childVolV->getLogVol()->getName();
@@ -171,8 +168,6 @@ GeneralMeshModel *GeoLoaderQt::loadFromDB(QString path){
   std::cout << "Looping over all 'volume' children (i.e., GeoPhysVol and GeoFullPhysVol)..." << std::endl;
   loadChildren(container, world);
   std::cout << "Everything done." << container->subModelCount() << std::endl;
-  qInfo() << "how many unknows: " <<  list.count();
-  qInfo() << list;
   return container;
 }
 

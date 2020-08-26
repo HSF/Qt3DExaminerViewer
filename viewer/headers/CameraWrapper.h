@@ -25,9 +25,6 @@ public slots:
     void viewAll();
     void setProjectiveMode(bool isPerspective);
     void disableCameraController(bool disEnble);
-
-    void translatePosLat(int latitude);
-    void translatePosLng(int longitude);
 private:
     int m_radius;
     float m_longitude, m_latitude;

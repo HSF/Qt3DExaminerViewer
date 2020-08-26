@@ -91,8 +91,8 @@ void CameraWrapper::zoomOrth(int edge){
 void CameraWrapper::translatePosRad(int radius){
     // prevent divided by zero later
     m_radius = radius;
-    QVector3D dir = (m_camera->viewVector()).normalized();
-    QVector3D newPos =  - (dir * radius);
+    QVector3D dir = (m_camera->viewCenter() - m_camera->position()).normalized();
+    QVector3D newPos =  -(dir * radius);
     m_camera->setPosition(newPos);
 }
 
@@ -124,15 +124,6 @@ void CameraWrapper::setPosition(QVector3D pos){
     m_camera->setPosition(pos);
 }
 
-void CameraWrapper::translatePosLat(int latitude){
-    m_latitude = qDegreesToRadians((float)latitude);;
-    sphericalToPosition();
-}
-
-void CameraWrapper::translatePosLng(int longitude){
-    m_longitude = qDegreesToRadians((float)longitude);
-    sphericalToPosition();
-}
 
 void CameraWrapper::sphericalToPosition(){
     float y = m_radius * qSin(m_latitude);
