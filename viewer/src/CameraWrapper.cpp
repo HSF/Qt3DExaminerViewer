@@ -81,7 +81,7 @@ void CameraWrapper::zoomInOut(int extent){
 }
 
 void CameraWrapper::zoomOrth(int edge){
-    float edgeF = edge * 20.0  / 100.0;
+    float edgeF = edge * 30.0  / 100.0;
     m_camera->setTop(edgeF);
     m_camera->setBottom(-edgeF);
     m_camera->setLeft(-edgeF*m_camera->aspectRatio());
@@ -89,7 +89,6 @@ void CameraWrapper::zoomOrth(int edge){
 }
 
 void CameraWrapper::translatePosRad(int radius){
-    // prevent divided by zero later
     m_radius = radius;
     QVector3D dir = (m_camera->viewCenter() - m_camera->position()).normalized();
     QVector3D newPos =  -(dir * radius);

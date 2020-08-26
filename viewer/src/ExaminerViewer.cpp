@@ -42,50 +42,8 @@ void ExaminerViewer::setUpInfoWindow(){
     info->setDescription(TIPS);
     info->setIconSize(QSize(0,0));
     info->setMaximumSize(QSize(300, 250));
-    info->setMinimumSize(QSize(300, 250));
+    info->setMinimumSize(QSize(150, 250));
     info->setFont(QFont ("Courier", 12));
-}
-
-void ExaminerViewer::setUpVolumePanel(QVBoxLayout *vLayout, QWidget *mainWindow){
-    // Control visibility of Volume
-    QGroupBox *volBox = new QGroupBox("Volume Control", mainWindow);
-    QVBoxLayout *volLy = new QVBoxLayout(mainWindow);
-
-    //Switch between navigation and select mode
-    QGridLayout *hLayoutSelect = new QGridLayout(mainWindow);
-    QLabel *labelSel = new QLabel("mouse", mainWindow);
-    QRadioButton *selectBtn = new QRadioButton("fixed", mainWindow);
-    QRadioButton *viewBtn = new QRadioButton("view", mainWindow);
-    viewBtn->setChecked(true);
-    hLayoutSelect->addWidget(labelSel, 0, 0);
-    hLayoutSelect->addWidget(viewBtn, 0, 2);
-    hLayoutSelect->addWidget(selectBtn, 0, 1);
-    volLy->addLayout(hLayoutSelect);
-
-    // Cancel selected and unpacked state
-    QHBoxLayout *hLayoutRestore = new QHBoxLayout(mainWindow);
-    QPushButton *restoreSelectBtn = new QPushButton("reset volume", volBox);
-    QPushButton *restoreViewBtn = new QPushButton("reset view", volBox);
-    restoreSelectBtn->setMaximumSize(QSize(200, 25));
-    hLayoutRestore->addWidget(restoreSelectBtn);
-    hLayoutRestore->addWidget(restoreViewBtn);
-    volLy->addLayout(hLayoutRestore);
-    volBox->setLayout(volLy);
-    vLayout->addWidget(volBox);
-
-    QObject::connect(restoreSelectBtn, SIGNAL(clicked(bool)), m_worldModel, SLOT(restoreState(bool)));
-    QObject::connect(restoreViewBtn, &QPushButton::clicked, [this](){
-        m_cameraWrapper->camera()->setPosition(QVector3D(0, 0, m_cameraWrapper->init_distanceToOrigin));
-        m_cameraWrapper->camera()->setUpVector(QVector3D(0, 1, 0));
-        m_cameraWrapper->camera()->setViewCenter(QVector3D(0, 0, 0));
-        m_cameraWrapper->viewAll();
-    });
-    QObject::connect(selectBtn, &QRadioButton::clicked,
-                     [this](bool clicked){
-                      m_cameraWrapper->disableCameraController(clicked);});
-    QObject::connect(viewBtn, &QRadioButton::clicked,
-                     [this](bool clicked){
-                      m_cameraWrapper->disableCameraController(!clicked);});
 }
 
 QSequentialAnimationGroup *ExaminerViewer::getRoute1Tour(){
@@ -205,6 +163,8 @@ void ExaminerViewer::setupControlPanel(QVBoxLayout *vLayout, QWidget *mainWindow
     vLayout->addWidget(info);
 
     QTreeWidget *treeWidget = new QTreeWidget(mainWindow);
+    treeWidget->setMaximumSize(QSize(300, 150));
+    treeWidget->setMinimumSize(QSize(150, 100));
     treeWidget->setColumnCount(2);
     treeWidget->setColumnWidth(0, 200);
     treeWidget->setColumnWidth(1, 50);
@@ -212,32 +172,27 @@ void ExaminerViewer::setupControlPanel(QVBoxLayout *vLayout, QWidget *mainWindow
     headerLabels.push_back("volume");
     headerLabels.push_back("#children");
     treeWidget->setHeaderLabels(headerLabels);
-    QTreeWidgetItem *topItem = new QTreeWidgetItem(treeWidget);
-    topItem->setText(0, "world");
-    topItem->setText(1, QString::number(m_worldModel->subModelCount()));
-    loopDaughters(topItem, m_worldModel);
-    QObject::connect(treeWidget, &QTreeWidget::itemClicked, [this, topItem, treeWidget](QTreeWidgetItem *item){
+    QTreeWidgetItem *volumeItem = new QTreeWidgetItem(treeWidget);
+    volumeItem->setText(0, "world");
+    volumeItem->setText(1, QString::number(m_worldModel->subModelCount()));
+    loopDaughters(volumeItem, m_worldModel);
+    QObject::connect(treeWidget, &QTreeWidget::itemClicked, [this, volumeItem, treeWidget](QTreeWidgetItem *item){
         int idx = treeWidget->indexOfTopLevelItem(item);
         if(idx != -1){
             this->m_cameraWrapper->viewAll();
+            return;
         }
-        GeneralMeshModel *target = queryItem(topItem, m_worldModel, item);
+        GeneralMeshModel *target = queryItem(volumeItem, m_worldModel, item);
         if(target==nullptr) {
-            qInfo() << "shouldn't happen";
             return;
         }
         m_cameraWrapper->translateView(target->m_meshTransform->translation(), m_cameraWrapper->init_distanceToOrigin);
         target->showMesh(true);
         target->getSelected();
     });
-    treeWidget->expandItem(topItem);
-    treeWidget->insertTopLevelItem(0, topItem);
+    treeWidget->expandItem(volumeItem);
+    treeWidget->insertTopLevelItem(0, volumeItem);
     vLayout->addWidget(treeWidget);
-
-    vLayout->addWidget(treeWidget);
-
-    /************ Volume control******************/
-    setUpVolumePanel(vLayout, mainWindow);
 
 
     /************ Camera control ******************/
@@ -275,10 +230,25 @@ void ExaminerViewer::setupControlPanel(QVBoxLayout *vLayout, QWidget *mainWindow
     vLayout->addWidget(cameraBox);
     QObject::connect(sliderScale,SIGNAL(valueChanged(int)), m_cameraWrapper, SLOT(zoomInOut(int)));
 
-    QTabWidget *posTab = new QTabWidget(mainWindow);
-    posTab->setMaximumSize(QSize(240, 280));
+    // reset volume and view
+    QHBoxLayout *hLayoutRestore = new QHBoxLayout(mainWindow);
+    QPushButton *restoreSelectBtn = new QPushButton("reset volume");
+    QPushButton *restoreViewBtn = new QPushButton("reset view");
+    restoreSelectBtn->setMaximumSize(QSize(200, 25));
+    hLayoutRestore->addWidget(restoreSelectBtn);
+    hLayoutRestore->addWidget(restoreViewBtn);
+    cameraLy->addLayout(hLayoutRestore);
+    QObject::connect(restoreSelectBtn, SIGNAL(clicked(bool)), m_worldModel, SLOT(restoreState(bool)));
+    QObject::connect(restoreViewBtn, &QPushButton::clicked, [this](){
+        m_cameraWrapper->camera()->setPosition(QVector3D(0, 0, m_cameraWrapper->init_distanceToOrigin));
+        m_cameraWrapper->camera()->setUpVector(QVector3D(0, 1, 0));
+        m_cameraWrapper->camera()->setViewCenter(QVector3D(0, 0, 0));
+        m_cameraWrapper->viewAll();
+    });
     cameraBox->setLayout(cameraLy);
     vLayout->addWidget(cameraBox);
+
+
 
     /************* quick visit *****************/
     QGroupBox *quickVisitBox = new QGroupBox("Quick Visit", mainWindow);
@@ -316,7 +286,7 @@ void ExaminerViewer::setupControlPanel(QVBoxLayout *vLayout, QWidget *mainWindow
     tour1Btn->setMaximumSize(70, 25);
     tour2Btn->setMaximumSize(70, 25);
     hLayoutPredefinedView -> addWidget(tipView, 0, 0);
-    hLayoutPredefinedView -> addWidget(viewAllBtn, 0, 1);
+    hLayoutPredefinedView -> addWidget(viewAllBtn, 0, 2);
     hLayoutPredefinedView -> addWidget(frontViewBtn, 1, 0);
     hLayoutPredefinedView -> addWidget(leftViewBtn, 1, 1);
     hLayoutPredefinedView -> addWidget(topViewBtn, 1, 2);
