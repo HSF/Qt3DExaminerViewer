@@ -87,7 +87,7 @@ void GeoLoaderQt::loadChildren(GeneralMeshModel *container, const GeoVPhysVol *p
     unsigned int nChil = parent->getNChildVols();
     for (unsigned int idx = 0; idx < nChil; idx++){
         count++;
-        if(count > 100) return;
+        //if(count > 100) return;
         PVConstLink nodeLink = parent->getChildVol(idx);
         if ( dynamic_cast<const GeoVPhysVol*>( &(*( nodeLink ))) ) {
           std::cout << "\n" << "the child n. " << idx << " ";
@@ -126,7 +126,7 @@ void GeoLoaderQt::loadChildren(GeneralMeshModel *container, const GeoVPhysVol *p
           else if(shapeIn->type() == "Trd")
               model = createTrd(shapeIn);
           else{
-              std::cout << "Unsupported shape: " << shapeIn->type();
+              std::cerr << "Unsupported shape: " << shapeIn->type();
           }
           if(model != nullptr){
               std::cout << "name: " << childVolV->getLogVol()->getName();
@@ -134,12 +134,12 @@ void GeoLoaderQt::loadChildren(GeneralMeshModel *container, const GeoVPhysVol *p
                         << " material density: " << childVolV->getLogVol()->getMaterial()->getDensity()
                         << " material elementSize: " << childVolV->getLogVol()->getMaterial()->getNumElements()
                         << std::endl;
+              qInfo() << "position: " << toQMatrix(parent->getXToChildVol(idx));
               try {
-                QMatrix4x4 transform = 0.01 * toQMatrix(childVolV->getX());
-                model->setTransformMatrix(transform);
+                 QMatrix4x4 transform = 0.01 * toQMatrix(parent->getXToChildVol(idx));
+                 model->setTransformMatrix(transform);
               } catch (...) {
-                // TODO: this try-catch cannot prevent program from unexpectedly finished.
-                std::cout << "error during calling childVolV->getX()" << std::endl;
+                std::cerr << "error during calling getX()" << std::endl;
               }
               model->setVolume(childVolV);
               container->addSubModel(model);

@@ -191,7 +191,9 @@ inline GeneralMeshModel *queryItem(QTreeWidgetItem *parent, GeneralMeshModel *mo
     if(idx != -1)
         return model->getSubModel(idx);
     for(int i = 0; i < model->subModelCount(); i++){
-        return queryItem(parent->child(i), model->getSubModel(i), target);
+        GeneralMeshModel *res = queryItem(parent->child(i), model->getSubModel(i), target);
+        if(res != nullptr)
+            return res;
     }
     return nullptr;
 }
@@ -220,7 +222,10 @@ void ExaminerViewer::setupControlPanel(QVBoxLayout *vLayout, QWidget *mainWindow
             this->m_cameraWrapper->viewAll();
         }
         GeneralMeshModel *target = queryItem(topItem, m_worldModel, item);
-        if(target==nullptr) return;
+        if(target==nullptr) {
+            qInfo() << "shouldn't happen";
+            return;
+        }
         m_cameraWrapper->translateView(target->m_meshTransform->translation(), m_cameraWrapper->init_distanceToOrigin);
         target->showMesh(true);
         target->getSelected();
