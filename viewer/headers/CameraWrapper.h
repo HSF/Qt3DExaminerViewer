@@ -6,7 +6,7 @@
 
 class CameraWrapper : public QObject{
     Q_OBJECT
-    Q_PROPERTY(QVector3D viewCenter WRITE setViewCenter)
+    Q_PROPERTY(QVector3D viewCenter WRITE setViewCenter READ viewCenter)
     Q_PROPERTY(QVector3D position WRITE setPosition)
     Q_PROPERTY(QVector4D dof4 WRITE setCustomView READ customView)
 public:
@@ -19,12 +19,10 @@ public:
     const QVector<QVector3D> fullCustomView();
     void setFullCustomView(const QVector<float> fullView);
     void setViewCenter(QVector3D viewCenter);
+    QVector3D viewCenter();
     void setPosition(QVector3D pos);
     void translateView(QVector3D bias, int scale);
     Qt3DRender::QCamera *camera();
-signals:
-    void viewCenterChanged(const QVector3D &viewCenter);
-    void positionChanged(const QVector3D &position);
 public slots:
     void resetCameraView(float farPlanePos);
     void updateCameraPos();

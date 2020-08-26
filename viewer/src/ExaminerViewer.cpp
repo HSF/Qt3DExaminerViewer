@@ -14,9 +14,6 @@
 #include <QTreeWidget>
 
 QCommandLinkButton *info;
-QComboBox *bookmarkedView;
-QVector<QVector4D> bookmarkedViewls;
-
 
 ExaminerViewer::ExaminerViewer(GeneralMeshModel *worldModel, CameraWrapper *cameraWrapper)
     : m_worldModel(worldModel),  m_cameraWrapper(cameraWrapper){
@@ -216,7 +213,8 @@ void ExaminerViewer::setupControlPanel(QVBoxLayout *vLayout, QWidget *mainWindow
         }
         GeneralMeshModel *target = queryItem(topItem, m_worldModel, item);
         if(target==nullptr) return;
-        this->m_cameraWrapper->camera()->viewEntity(target->m_meshEntity);
+        //this->m_cameraWrapper->camera()->viewEntity(target->m_meshEntity);
+        m_cameraWrapper->translateView(target->m_meshTransform->translation(), m_cameraWrapper->init_distanceToOrigin);
         target->showMesh(true);
         target->getSelected();
     });
@@ -287,9 +285,10 @@ void ExaminerViewer::setupControlPanel(QVBoxLayout *vLayout, QWidget *mainWindow
     topViewBtn->setMaximumSize(QSize(70, 25));
 
     // Bookmarked view
+    QComboBox *bookmarkedView = new QComboBox(mainWindow);
+    QVector<QVector4D> *bookmarkedViewls = new QVector<QVector4D>;
     QHBoxLayout *hLayoutBookmark = new QHBoxLayout(mainWindow);
     QLabel *bookmarkTip = new QLabel("Bookmarks", mainWindow);
-    bookmarkedView = new QComboBox(mainWindow);
     QPushButton *addViewBtn = new QPushButton("Add", mainWindow);
     bookmarkedView->setMaximumSize(QSize(100, 25));
     addViewBtn->setMaximumSize(QSize(50,25));
@@ -323,7 +322,7 @@ void ExaminerViewer::setupControlPanel(QVBoxLayout *vLayout, QWidget *mainWindow
     QObject::connect(frontViewBtn, &QPushButton::clicked, m_cameraWrapper,
                      [this](){
         QVector4D dof4end = QVector4D(m_cameraWrapper->camera()->viewVector().length(), 0, 0, 0);
-        QVector3D pos = -cameraWrapper->camera()->viewVector();
+        QVector3D pos = -m_cameraWrapper->camera()->viewVector();
         int radius = (int)(pos.length());
         int longitude = (int)qRadiansToDegrees(qAtan2(pos[0], pos[2]));
         int latitude = (int)qRadiansToDegrees(qAtan2(pos[1], sqrt(pow(pos[0], 2) + pow(pos[2], 2))));
@@ -370,24 +369,24 @@ void ExaminerViewer::setupControlPanel(QVBoxLayout *vLayout, QWidget *mainWindow
         QAnimationGroup *aniGroup = getRoute2Tour();
         aniGroup->start();
     });
-    QObject::connect(addViewBtn, &QPushButton::clicked, [this](){
+    QObject::connect(addViewBtn, &QPushButton::clicked, [this, bookmarkedViewls, bookmarkedView](){
         QVector3D pos = -m_cameraWrapper->camera()->viewVector();
         int radius = (int)(pos.length());
         int latitude = (int)qRadiansToDegrees(qAtan2(pos[1], sqrt(pow(pos[0], 2) + pow(pos[2], 2))));
         int longitude = (int)qRadiansToDegrees(qAtan2(pos[0], pos[2]));
-        QVector4D dof4current = QVector4D(radius, latitude, longitude, 0);
+        const QVector4D dof4current = QVector4D(radius, latitude, longitude, 0);
 
-        if((!(bookmarkedViewls.empty()) && ( radius != bookmarkedViewls.last()[0]
-            || latitude != bookmarkedViewls.last()[1]
-            || longitude != bookmarkedViewls.last()[2]) ) || (bookmarkedViewls.empty())){
-            bookmarkedView->addItem(QString("view") + QString::number(bookmarkedViewls.size()));
-            bookmarkedViewls.push_back(dof4current);
+        if((!(bookmarkedViewls->empty()) && ( radius != bookmarkedViewls->last()[0]
+            || latitude != bookmarkedViewls->last()[1]
+            || longitude != bookmarkedViewls->last()[2]) ) || (bookmarkedViewls->empty())){
+            bookmarkedView->addItem(QString("view") + QString::number(bookmarkedViewls->size()));
+            bookmarkedViewls->push_back(dof4current);
         }
         });
     QObject::connect(bookmarkedView, QOverload<int>::of(&QComboBox::currentIndexChanged),
-    [this](int index){
+    [this, bookmarkedViewls](int index){
         if(index==0) return;
-        QVector4D dof4end = bookmarkedViewls.at(index-1);
+        QVector4D dof4end = bookmarkedViewls->at(index-1);
         QVector3D pos = -m_cameraWrapper->camera()->viewVector();
         int radius = (int)(pos.length());
         int latitude = (int)qRadiansToDegrees(qAtan2(pos[1], sqrt(pow(pos[0], 2) + pow(pos[2], 2))));

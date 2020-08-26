@@ -139,7 +139,7 @@ void GeoLoaderQt::loadChildren(GeneralMeshModel *container, const GeoVPhysVol *p
                         << " material elementSize: " << childVolV->getLogVol()->getMaterial()->getNumElements()
                         << std::endl;
               try {
-                QMatrix4x4 transform = toQMatrix(childVolV->getX());
+                QMatrix4x4 transform = 0.01 * toQMatrix(childVolV->getX());
                 model->setTransformMatrix(transform);
               } catch (...) {
                 // TODO: this try-catch cannot prevent program from unexpectedly finished.

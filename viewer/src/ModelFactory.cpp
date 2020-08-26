@@ -28,7 +28,7 @@ void ModelFactory::setMaxSize(float size){
 }
 
 float ModelFactory::MaxSize(){
-    return m_maxSize;
+    return 0.01*m_maxSize;
 }
 
 GeneralMeshModel **ModelFactory::build3DText(){
@@ -45,16 +45,15 @@ GeneralMeshModel **ModelFactory::build3DText(){
         textMesh->setObjectName(text[i]);
         textMesh->setText(text[i]);
         textModel[i] = new GeneralMeshModel(m_rootEntity, textMesh);
-        textModel[i]->translateMesh(m_maxSize * position[i]);
-        textModel[i]->scaleMesh(m_maxSize * QVector3D(0.1f, 0.1f, 0.02f));
+        textModel[i]->translateMesh(MaxSize() * position[i]);
+        textModel[i]->scaleMesh(MaxSize() * QVector3D(0.1f, 0.1f, 0.02f));
         textModel[i]->setPickMode(false);
         textModel[i]->setColor(qColor);
     }
     return textModel;
 }
 
-GeneralMeshModel *ModelFactory::buildCoordinatePlane()
-{
+GeneralMeshModel *ModelFactory::buildCoordinatePlane(){
     Qt3DRender::QGeometryRenderer *meshRenderer = new Qt3DRender::QGeometryRenderer();
     Qt3DRender::QGeometry *geometry = new Qt3DRender::QGeometry(meshRenderer);
 
@@ -71,16 +70,14 @@ GeneralMeshModel *ModelFactory::buildCoordinatePlane()
     int idx = 0;
     QColor majorColor = QColor(220,220,220);
     QColor minorColor = QColor(243,243,243);
-    for(float x = netX0; x < netX1 + netMajorStep; x += netMajorStep)
-    {
+    for(float x = netX0; x < netX1 + netMajorStep; x += netMajorStep){
         vertexRawData[idx++] = x; vertexRawData[idx++] = netY; vertexRawData[idx++] = netZ0;
         vertexRawData[idx++] = majorColor.redF(); vertexRawData[idx++] = majorColor.greenF(); vertexRawData[idx++] = majorColor.blueF();
         vertexRawData[idx++] = x; vertexRawData[idx++] = netY; vertexRawData[idx++] = netZ1;
         vertexRawData[idx++] = minorColor.redF(); vertexRawData[idx++] = minorColor.greenF(); vertexRawData[idx++] = minorColor.blueF();
     }
 
-    for(float z = netZ0; z < netZ1 + netMajorStep; z += netMajorStep)
-    {
+    for(float z = netZ0; z < netZ1 + netMajorStep; z += netMajorStep){
         vertexRawData[idx++] = netX0; vertexRawData[idx++] = netY; vertexRawData[idx++] = z;
         vertexRawData[idx++] = majorColor.redF(); vertexRawData[idx++] = majorColor.greenF(); vertexRawData[idx++] = majorColor.blueF();
         vertexRawData[idx++] = netX1; vertexRawData[idx++] = netY; vertexRawData[idx++] = z;
@@ -125,15 +122,14 @@ GeneralMeshModel *ModelFactory::buildCoordinatePlane()
 
     Qt3DExtras::QPerVertexColorMaterial *material = new Qt3DExtras::QPerVertexColorMaterial(m_rootEntity);
     GeneralMeshModel *lineOne = new GeneralMeshModel(m_rootEntity, meshRenderer, material);
-    lineOne->translateMesh(m_maxSize * QVector3D(-1, 0, -1));
-    lineOne->scaleMesh(m_maxSize * QVector3D(2, 2, 2));
+    lineOne->translateMesh(MaxSize() * QVector3D(-1, 0, -1));
+    lineOne->scaleMesh(MaxSize() * QVector3D(2, 2, 2));
     lineOne->setPickMode(false);
     return lineOne;
 }
 
 
-GeneralMeshModel *ModelFactory::buildCoordinateLine()
-{
+GeneralMeshModel *ModelFactory::buildCoordinateLine(){
     Qt3DRender::QGeometryRenderer *mesh = new Qt3DRender::QGeometryRenderer();
 
     // initilise with 0.0f
@@ -191,7 +187,7 @@ GeneralMeshModel *ModelFactory::buildCoordinateLine()
     mesh->setPrimitiveType(QGeometryRenderer::Lines);
     Qt3DExtras::QPerVertexColorMaterial *material = new Qt3DExtras::QPerVertexColorMaterial(m_rootEntity);
     GeneralMeshModel *lineTwo = new GeneralMeshModel(m_rootEntity, mesh, material);
-    lineTwo->scaleMesh(m_maxSize * QVector3D(1.3,1.3,1.3));
+    lineTwo->scaleMesh(MaxSize() * QVector3D(1.3,1.3,1.3));
     lineTwo->setPickMode(false);
     return lineTwo;
 }
@@ -386,7 +382,6 @@ GeneralMeshModel *ModelFactory::buildTube(double rMin, double rMax, double zHalf
     customRenderer->setObjectName(QString("GeoTube with:\nrMin:%1, rMax:%2, zHalf:%3").arg(rMin).arg(rMax).arg(zHalf));
     // save to the list of built tubes
     tubePara.mesh = customRenderer;
-    customRenderer->setProperty("maxLength", maxSize);
     m_tubes.push_back(tubePara);
     GeneralMeshModel *tube = new GeneralMeshModel(m_rootEntity, customRenderer);
     tube->setObjectName("GeoTube");
@@ -463,7 +458,6 @@ GeneralMeshModel *ModelFactory::buildTubs(double rMin, double rMax, double zHalf
     for(int j = 0; j < numPerCircle; j++){
 
         int i = j * 3; // 3 coordinates per vertex, so we use an offset of j*3 at the start of each iteration
-
         // top inner
         normal[i]   = -qCos(SPhi + delta*j);
         normal[i+1] = -qSin(SPhi + delta*j);
@@ -804,7 +798,6 @@ GeneralMeshModel *ModelFactory::buildCons(double rMin1, double rMin2, double rMa
         if(pconPara.equal(c)){
             GeneralMeshModel *cons = new GeneralMeshModel(m_rootEntity, c.mesh);
             cons->setObjectName("GeoCons");
-            qInfo() << "found same cons";
             return cons;
         }
     }
@@ -827,7 +820,6 @@ GeneralMeshModel *ModelFactory::buildTorus(double rMin, double rMax, double rTor
         if(torusPara.equal(t)){
             GeneralMeshModel *torus = new GeneralMeshModel(m_rootEntity, t.mesh);
             torus->setObjectName("GeoTorus");
-            qInfo() << "found same torus";
             return torus;
         }
     }
@@ -983,7 +975,6 @@ GeneralMeshModel *ModelFactory::buildTessellatedSolid(size_t num, GeoFacet **fac
         if(tesPara.equal(t)){
             GeneralMeshModel *tessellatedSolid = new GeneralMeshModel(m_rootEntity, t.mesh);
             tessellatedSolid->setObjectName("GeoTessellatedSolid");
-            qInfo() << "found same tesselledatedSolid";
             return tessellatedSolid;
         }
     }

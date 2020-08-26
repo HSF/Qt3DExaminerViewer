@@ -39,7 +39,6 @@
 #define DEFAULT_FOLDER "../../../../resources/db/"
 
 CameraWrapper *cameraWrapper;
-GeneralMeshModel *loadedModel;
 
 void setUpLight(Qt3DCore::QEntity *lightEntity, QVector3D position){
     Qt3DRender::QPointLight *light = new Qt3DRender::QPointLight(lightEntity);
@@ -104,27 +103,27 @@ int main(int argc, char **argv){
 
     // Camera and Camera controls
     Qt3DRender::QCamera *cameraEntity = view->camera();
-    CameraWrapper *cameraWrapper = new CameraWrapper(rootEntity, cameraEntity);
+    cameraWrapper = new CameraWrapper(rootEntity, cameraEntity);
     Qt3DExtras::QOrbitCameraController *camController = new Qt3DExtras::QOrbitCameraController(rootEntity);
     cameraWrapper->addCameraController(camController);
-    cameraWrapper = cameraWrapper;
 
     // load volume
     QString fileName;
     fileName = QFileDialog::getOpenFileName(mainWindow, "Open database file", DEFAULT_FOLDER, "Database Files (*.db)");
 
     GeoLoaderQt *loader = new GeoLoaderQt(rootEntity);
-    loadedModel = loader->loadFromDB(fileName);
+    GeneralMeshModel *loadedModel = loader->loadFromDB(fileName);
     for(int i = 0; i < loadedModel->subModelCount(); i++){
         loadedModel->getSubModel(i)->showMesh(true);
     }
-
+    view->receiveModel(cameraWrapper, loadedModel);
 
     ModelFactory *builder = ModelFactory::GetInstance(rootEntity);
     cameraWrapper->init_distanceToOrigin = builder->MaxSize() * 1.5 / tan(qDegreesToRadians(22.5f));
     cameraWrapper->viewAll();
-    cameraWrapper->resetCameraView(builder->MaxSize()*7);
+    cameraWrapper->resetCameraView(builder->MaxSize()*30);
     camController->setLinearSpeed(builder->MaxSize()*3);
+
     // Light source
     Qt3DCore::QEntity *lightEntity = new Qt3DCore::QEntity(rootEntity);
     setUpLight(lightEntity, cameraEntity->position());

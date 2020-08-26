@@ -45,8 +45,7 @@ GeneralMeshModel::GeneralMeshModel(Qt3DCore::QEntity *rootEntity, Qt3DRender::QG
                 cameraWrapper->translateView(event->worldIntersection(), 0);
             }
             else if(event->button() == Qt3DRender::QPickEvent::RightButton && event->modifiers() == Qt::ShiftModifier){
-                //camera->camera()->viewEntity(m_meshEntity);
-                cameraWrapper->translateView(m_meshTransform->translation(), m_mesh->property("maxLength").toInt());
+                cameraWrapper->translateView(m_meshTransform->translation(), 0);
             }
         }
     });
