@@ -6,43 +6,32 @@
 
 class CameraWrapper : public QObject{
     Q_OBJECT
-    Q_PROPERTY(QVector3D viewCenter WRITE setViewCenter READ viewCenter)
+    Q_PROPERTY(QVector3D viewCenter WRITE setViewCenter)
     Q_PROPERTY(QVector3D position WRITE setPosition)
     Q_PROPERTY(QVector4D dof4 WRITE setCustomView READ customView)
 public:
-    int init_distanceToOrigin = 436;
-    const int GLOBAL_CENTER = 0, LOCAL_CENTER = 1;
+    int init_distanceToOrigin;
     explicit CameraWrapper(Qt3DCore::QEntity *parent = nullptr, Qt3DRender::QCamera *camera=nullptr);
     void addCameraController(Qt3DExtras::QAbstractCameraController *camController);
     void setCustomView(QVector4D dof4);
     const QVector4D customView();
-    const QVector<QVector3D> fullCustomView();
-    void setFullCustomView(const QVector<float> fullView);
     void setViewCenter(QVector3D viewCenter);
-    QVector3D viewCenter();
     void setPosition(QVector3D pos);
     void translateView(QVector3D bias, int scale);
     Qt3DRender::QCamera *camera();
 public slots:
-    void resetCameraView(float farPlanePos);
-    void updateCameraPos();
+    void resetCameraView();
     void zoomInOut(int extent);
     void viewAll();
     void setProjectiveMode(bool isPerspective);
-    void setCoordinateCenter(int index);
     void disableCameraController(bool disEnble);
 
     void translatePosLat(int latitude);
     void translatePosLng(int longitude);
-
-    void rotateViewRoll(int roll);
-    void rotateViewYaw(int yaw);
-    void rotateViewPitch(int pitch);
 private:
     int m_radius;
     float m_longitude, m_latitude;
     float m_roll, m_yaw, m_pitch;
-    int m_center;
     QVector3D m_viewCenter;
     Qt3DCore::QEntity *m_rootEntity;
     Qt3DRender::QCamera *m_camera;

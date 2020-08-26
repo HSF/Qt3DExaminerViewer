@@ -64,14 +64,22 @@ void ExaminerViewer::setUpVolumePanel(QVBoxLayout *vLayout, QWidget *mainWindow)
 
     // Cancel selected and unpacked state
     QHBoxLayout *hLayoutRestore = new QHBoxLayout(mainWindow);
-    QPushButton *restoreSelectBtn = new QPushButton("reset everything", volBox);
+    QPushButton *restoreSelectBtn = new QPushButton("reset volume", volBox);
+    QPushButton *restoreViewBtn = new QPushButton("reset view", volBox);
     restoreSelectBtn->setMaximumSize(QSize(200, 25));
     hLayoutRestore->addWidget(restoreSelectBtn);
+    hLayoutRestore->addWidget(restoreViewBtn);
     volLy->addLayout(hLayoutRestore);
     volBox->setLayout(volLy);
     vLayout->addWidget(volBox);
 
     QObject::connect(restoreSelectBtn, SIGNAL(clicked(bool)), m_worldModel, SLOT(restoreState(bool)));
+    QObject::connect(restoreViewBtn, &QPushButton::clicked, [this](){
+        m_cameraWrapper->camera()->setPosition(QVector3D(0, 0, m_cameraWrapper->init_distanceToOrigin));
+        m_cameraWrapper->camera()->setUpVector(QVector3D(0, 1, 0));
+        m_cameraWrapper->camera()->setViewCenter(QVector3D(0, 0, 0));
+        m_cameraWrapper->viewAll();
+    });
     QObject::connect(selectBtn, &QRadioButton::clicked,
                      [this](bool clicked){
                       m_cameraWrapper->disableCameraController(clicked);});
@@ -213,7 +221,6 @@ void ExaminerViewer::setupControlPanel(QVBoxLayout *vLayout, QWidget *mainWindow
         }
         GeneralMeshModel *target = queryItem(topItem, m_worldModel, item);
         if(target==nullptr) return;
-        //this->m_cameraWrapper->camera()->viewEntity(target->m_meshEntity);
         m_cameraWrapper->translateView(target->m_meshTransform->translation(), m_cameraWrapper->init_distanceToOrigin);
         target->showMesh(true);
         target->getSelected();

@@ -89,7 +89,6 @@ void GeoLoaderQt::loadChildren(GeneralMeshModel *container, const GeoVPhysVol *p
     unsigned int nChil = parent->getNChildVols();
     for (unsigned int idx = 0; idx < nChil; idx++){
         count++;
-        qInfo() << "count: " << count << "sum: " << nChil;
         if(count > 100) return;
         PVConstLink nodeLink = parent->getChildVol(idx);
         if ( dynamic_cast<const GeoVPhysVol*>( &(*( nodeLink ))) ) {

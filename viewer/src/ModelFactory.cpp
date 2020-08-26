@@ -202,7 +202,6 @@ GeneralMeshModel *ModelFactory::buildBox(double xHalf, double yHalf, double zHal
     for(BoxPara b : m_boxes){
         if(box.equal(b)){
             meshBox = b.mesh;
-            qInfo() << "found same box";
             break;
         }
     }
@@ -235,7 +234,6 @@ GeneralMeshModel *ModelFactory::buildTube(double rMin, double rMax, double zHalf
             tubePara.mesh = t.mesh;
             GeneralMeshModel *tube = new GeneralMeshModel(m_rootEntity, tubePara.mesh);
             tube->setObjectName("GeoTube");
-            qInfo() << "found same tube";
             return tube;
         }
     }
@@ -399,7 +397,6 @@ GeneralMeshModel *ModelFactory::buildTubs(double rMin, double rMax, double zHalf
         if(tubsPara.equal(t)){
             GeneralMeshModel *tubs = new GeneralMeshModel(m_rootEntity, t.mesh);
             tubs->setObjectName("GeoTubs");
-            qInfo() << "found same tubs";
             return tubs;
         }
     }
@@ -582,7 +579,6 @@ GeneralMeshModel *ModelFactory::buildPcon(double SPhi, double DPhi, unsigned int
         if(pconPara.equal(p)){
             GeneralMeshModel *pcon = new GeneralMeshModel(m_rootEntity, p.mesh);
             pcon->setObjectName("GeoPcon");
-            qInfo() << "found same pcon";
             return pcon;
         }
     }

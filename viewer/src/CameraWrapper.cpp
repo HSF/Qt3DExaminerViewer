@@ -8,16 +8,15 @@
 CameraWrapper::CameraWrapper(Qt3DCore::QEntity *rootEntity,  Qt3DRender::QCamera *camera) : m_rootEntity(rootEntity){
     m_camera = camera;
     m_camera->setProjectionType(Qt3DRender::QCameraLens::PerspectiveProjection);
-    resetCameraView(1000.0f);
-    m_center = GLOBAL_CENTER;
+    resetCameraView();
 }
 
 Qt3DRender::QCamera *CameraWrapper::camera(){
     return m_camera;
 }
 
-void CameraWrapper::resetCameraView(float farPlanePos){
-    m_camera->lens()->setPerspectiveProjection(45.0f, 16.0f/9.0f, 0.1f, farPlanePos);
+void CameraWrapper::resetCameraView(){
+    m_camera->lens()->setPerspectiveProjection(45.0f, 16.0f/9.0f, 0.1f, init_distanceToOrigin*20);
     m_camera->setPosition(QVector3D(0, 0, init_distanceToOrigin));
     m_camera->setUpVector(QVector3D(0, 1, 0));
     m_camera->setViewCenter(QVector3D(0, 0, 0));
@@ -32,10 +31,6 @@ void CameraWrapper::resetCameraView(float farPlanePos){
 
 void CameraWrapper::viewAll(){
     zoomInOut(init_distanceToOrigin);
-}
-
-void CameraWrapper::setCoordinateCenter(int index){
-    m_center = index;
 }
 
 void CameraWrapper::setCustomView(QVector4D dof4){
@@ -99,8 +94,6 @@ void CameraWrapper::translatePosRad(int radius){
     QVector3D dir = (m_camera->viewVector()).normalized();
     QVector3D newPos =  - (dir * radius);
     m_camera->setPosition(newPos);
-    qInfo() << "pos " << radius;
-    qInfo() << newPos;
 }
 
 void CameraWrapper::translateView(QVector3D bias, int scale){
@@ -119,8 +112,6 @@ void CameraWrapper::translateView(QVector3D bias, int scale){
     smoothTurn->setStartValue(m_camera->viewCenter());
     smoothTurn->setEndValue(bias);
     smoothTurn->start();
-    qInfo() << scale;
-    qInfo() << bias << camera()->position();
 }
 
 void CameraWrapper::setViewCenter(QVector3D viewCenter){
@@ -128,14 +119,9 @@ void CameraWrapper::setViewCenter(QVector3D viewCenter){
     m_viewCenter = viewCenter;
 }
 
-QVector3D CameraWrapper::viewCenter(){
-    return m_viewCenter;
-}
-
 void CameraWrapper::setPosition(QVector3D pos){
     m_radius = (m_camera->viewVector()).length();
     m_camera->setPosition(pos);
-    qInfo() << "view Vec" << m_camera->viewVector();
 }
 
 void CameraWrapper::translatePosLat(int latitude){
@@ -146,28 +132,6 @@ void CameraWrapper::translatePosLat(int latitude){
 void CameraWrapper::translatePosLng(int longitude){
     m_longitude = qDegreesToRadians((float)longitude);
     sphericalToPosition();
-}
-
-void CameraWrapper::rotateViewRoll(int roll){
-    m_roll = qDegreesToRadians((float)roll);
-    sphericalToDirection();
-}
-
-void CameraWrapper::rotateViewYaw(int yaw){
-    m_yaw = qDegreesToRadians((float)yaw);
-    sphericalToDirection();
-}
-
-void CameraWrapper::rotateViewPitch(int pitch){
-    m_pitch = qDegreesToRadians((float)pitch);
-    sphericalToDirection();
-}
-
-void CameraWrapper::updateCameraPos(){
-    QVector3D pos = -m_camera->viewVector();
-    m_radius = (int)(pos.length());
-    m_longitude = (int)qRadiansToDegrees(qAtan2(pos[0], pos[2]));
-    m_latitude = (int)qRadiansToDegrees(qAtan2(pos[1], sqrt(pow(pos[0], 2) + pow(pos[2], 2))));
 }
 
 void CameraWrapper::sphericalToPosition(){

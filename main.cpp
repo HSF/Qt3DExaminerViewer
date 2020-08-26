@@ -121,7 +121,7 @@ int main(int argc, char **argv){
     ModelFactory *builder = ModelFactory::GetInstance(rootEntity);
     cameraWrapper->init_distanceToOrigin = builder->MaxSize() * 1.5 / tan(qDegreesToRadians(22.5f));
     cameraWrapper->viewAll();
-    cameraWrapper->resetCameraView(builder->MaxSize()*30);
+    cameraWrapper->resetCameraView();
     camController->setLinearSpeed(builder->MaxSize()*3);
 
     // Light source
