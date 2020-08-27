@@ -20,9 +20,6 @@ HEADERS += \
     viewer/headers/ExaminerViewer.h \
     loader/headers/GeoLoaderQt.h \
 
-RESOURCES += \
-    resources.qrc \
-    #viewer/qml.qrc
 
 CONFIG += c++17 release
 
@@ -36,6 +33,7 @@ LIBS += $${GMEX_PATH}/libGeoModelRead.3.2.0.dylib \
         $${GMEX_PATH}/libGeoModelKernel.3.2.0.dylib \
         $${GMEX_PATH}/libGeoGenericFunctions.3.2.0.dylib \
 
+RESOURCES += resources.qrc \
 
 INCLUDEPATH += /usr/local/include/  \
         $${EIGEN_PATH}

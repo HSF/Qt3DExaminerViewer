@@ -23,7 +23,6 @@ GeoLoaderQt::GeoLoaderQt(Qt3DCore::QEntity *rootEntity){
 }
 
 GMDBManager* GeoLoaderQt::checkPath(QString path){
-  Q_INIT_RESOURCE(resources);
   std::string pathStd = path.toStdString();
 
   std::size_t botDirPos = pathStd.find_last_of("/");

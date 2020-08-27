@@ -1,10 +1,4 @@
 <RCC>
-    <qresource prefix="/mesh">
-        <file alias="Detector.obj">resources/mesh/TrackML-PixelDetector.obj</file>
-        <file alias="left_part.obj">resources/mesh/left_part.obj</file>
-        <file alias="middle_part.obj">resources/mesh/middle_part.obj</file>
-        <file alias="right_part.obj">resources/mesh/right_part.obj</file>
-    </qresource>
     <qresource prefix="/db">
         <file alias="box.db">resources/db/Step1_Box_Pixel_Brl1926A_BeamExtension.db</file>
         <file alias="tube.db">resources/db/Step2_Tube_Pixel_Brl1720A_PST_Stiffner.db</file>

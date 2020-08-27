@@ -176,11 +176,9 @@ void ExaminerViewer::setupControlPanel(QVBoxLayout *vLayout, QWidget *mainWindow
     volumeItem->setText(0, "world");
     volumeItem->setText(1, QString::number(m_worldModel->subModelCount()));
     loopDaughters(volumeItem, m_worldModel);
-    qInfo() << "count: " << m_worldModel->subModelCount();
     if(m_worldModel->subModelCount() == 1)
         m_cameraWrapper->translateView(m_worldModel->getSubModel(0)->m_meshTransform->translation(),
                                        m_cameraWrapper->init_distanceToOrigin);
-        //m_cameraWrapper->camera()->viewEntity(m_worldModel->getSubModel(0)->m_meshEntity);
     QObject::connect(treeWidget, &QTreeWidget::itemClicked, [this, volumeItem, treeWidget](QTreeWidgetItem *item){
         int idx = treeWidget->indexOfTopLevelItem(item);
         if(idx != -1){
