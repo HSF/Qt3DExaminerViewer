@@ -15,7 +15,7 @@
 
 
 #define TIPS QString("1) Left click to select volume\n" \
-                     "2) press X key to deselect volume (mouse focus should in 3D Window\n" \
+                     "2) press X or left click background to deselect volume (mouse focus should in 3D Window\n" \
                      "3) CMD/Ctrl + left click to open volume\n" \
                      "4) Option/Alt + left click to close volume\n" \
                      "5) Shift + left click to focus on clicked surface point\n" \

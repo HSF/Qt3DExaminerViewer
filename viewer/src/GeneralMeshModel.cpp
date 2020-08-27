@@ -92,15 +92,11 @@ void GeneralMeshModel::addParentModel(GeneralMeshModel *parentModel){
 }
 
 void GeneralMeshModel::getSelected(){
-    GeneralMeshModel *topParent = this;
-    while(topParent->getParentModel() != nullptr)
-        topParent = topParent->getParentModel();
-    topParent->deselect();
     setColor(QColor(120, 0, 0, 127));
     QString message;
     if(m_volume != nullptr){
         const GeoMaterial *material = m_volume->getLogVol()->getMaterial();
-        message = QString("This is Shape ") + m_mesh->objectName();
+        message = QString("The geometry is Shape ") + m_mesh->objectName();
         message += QString("\nVolume: %1").arg(m_volume->getLogVol()->getShape()->volume());
         message += QString("\n\nObject Name: ") + QString::fromStdString(m_volume->getLogVol()->getName());
         message += QString("\n\nMaterial Name: ") + QString::fromStdString(material->getName());

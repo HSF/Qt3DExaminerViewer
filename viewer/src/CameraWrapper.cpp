@@ -5,7 +5,7 @@
 #include <QtMath>
 #include <QPropertyAnimation>
 
-CameraWrapper::CameraWrapper(Qt3DCore::QEntity *rootEntity,  Qt3DRender::QCamera *camera) : m_rootEntity(rootEntity){
+CameraWrapper::CameraWrapper(Qt3DRender::QCamera *camera){
     m_camera = camera;
     m_camera->setProjectionType(Qt3DRender::QCameraLens::PerspectiveProjection);
     resetCameraView();
@@ -26,7 +26,6 @@ void CameraWrapper::resetCameraView(){
     m_pitch = 0;
     m_roll = 0;
     m_yaw = M_PI;
-    m_viewCenter = QVector3D(0.0f, 0.0f, 0.0f);
 }
 
 void CameraWrapper::viewAll(){
@@ -59,18 +58,6 @@ void CameraWrapper::setProjectiveMode(bool isPerspective){
     }
 }
 
-void CameraWrapper::addCameraController(Qt3DExtras::QAbstractCameraController *camController){
-    m_camController = camController;
-    m_camController ->setCamera(m_camera);
-}
-
-void CameraWrapper::disableCameraController(bool disEnble){
-    if(disEnble)
-        m_camController ->setCamera(nullptr);
-    else
-        m_camController ->setCamera(m_camera);
-}
-
 void CameraWrapper::zoomInOut(int extent){
     if(m_camera->projectionType() == Qt3DRender::QCameraLens::PerspectiveProjection){
         translatePosRad(extent);
@@ -96,7 +83,6 @@ void CameraWrapper::translatePosRad(int radius){
 }
 
 void CameraWrapper::translateView(QVector3D bias, int scale){
-    m_viewCenter = bias;
     if(scale != 0 && m_camera->projectionType() == Qt3DRender::QCameraLens::PerspectiveProjection){
         m_radius = scale;
         QVector3D endPos = m_radius*(-m_camera->viewVector()).normalized() + bias;
@@ -115,7 +101,6 @@ void CameraWrapper::translateView(QVector3D bias, int scale){
 
 void CameraWrapper::setViewCenter(QVector3D viewCenter){
     m_camera->setViewCenter(viewCenter);
-    m_viewCenter = viewCenter;
 }
 
 void CameraWrapper::setPosition(QVector3D pos){
@@ -128,7 +113,7 @@ void CameraWrapper::sphericalToPosition(){
     float y = m_radius * qSin(m_latitude);
     float x = m_radius * qCos(m_latitude) * qSin(m_longitude);
     float z = m_radius * qCos(m_latitude) * qCos(m_longitude);
-    m_camera -> setPosition(m_viewCenter + QVector3D(x, y, z));
+    m_camera -> setPosition(QVector3D(x, y, z));
 }
 
 void CameraWrapper::sphericalToDirection(){

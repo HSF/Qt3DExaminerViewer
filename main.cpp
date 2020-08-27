@@ -68,24 +68,6 @@ int main(int argc, char **argv){
     container->setMinimumSize(QSize(100, 100));
     container->setMaximumSize(screenSize);
 
-    // Shows the framegraph
-    view->activeFrameGraph()->dumpObjectTree();
-    
-    auto buf = view->defaultFrameGraph()->findChild<Qt3DRender::QClearBuffers*>();
-
-    if(buf){
-        Qt3DRender::QRenderStateSet *set = new Qt3DRender::QRenderStateSet(buf);
-        Qt3DRender::QDepthTest *depthTest = new Qt3DRender::QDepthTest;
-        depthTest->setDepthFunction(Qt3DRender::QDepthTest::Always);
-        //set->addRenderState(depthTest);
-        // Create a front face culling render state
-        Qt3DRender::QCullFace *cullFront = new Qt3DRender::QCullFace();
-        cullFront->setMode(Qt3DRender::QCullFace::Back);
-
-        // Add the render state to the render pass
-        //set->addRenderState(cullFront);
-    }
-
     // view's picking settings
     // see: https://stackoverflow.com/a/58412885/32036
     auto rendersettings=view->renderSettings();
@@ -103,9 +85,9 @@ int main(int argc, char **argv){
 
     // Camera and Camera controls
     Qt3DRender::QCamera *cameraEntity = view->camera();
-    cameraWrapper = new CameraWrapper(rootEntity, cameraEntity);
     Qt3DExtras::QOrbitCameraController *camController = new Qt3DExtras::QOrbitCameraController(rootEntity);
-    cameraWrapper->addCameraController(camController);
+    camController->setCamera(cameraEntity);
+    cameraWrapper = new CameraWrapper(cameraEntity);
 
     // load volume
     QString fileName;
@@ -123,6 +105,7 @@ int main(int argc, char **argv){
     cameraWrapper->viewAll();
     cameraWrapper->resetCameraView();
     camController->setLinearSpeed(builder->MaxSize()*3);
+
 
     // Light source
     Qt3DCore::QEntity *lightEntity = new Qt3DCore::QEntity(rootEntity);

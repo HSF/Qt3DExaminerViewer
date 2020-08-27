@@ -83,12 +83,8 @@ inline QMatrix4x4 toQMatrix(GeoTrf::Transform3D tr){
 }
 
 void GeoLoaderQt::loadChildren(GeneralMeshModel *container, const GeoVPhysVol *parent){
-    static int count = 0;
     unsigned int nChil = parent->getNChildVols();
     for (unsigned int idx = 0; idx < nChil; idx++){
-        count++;
-        qInfo() << count;
-        if(count > 100000) return;
         PVConstLink nodeLink = parent->getChildVol(idx);
         if ( dynamic_cast<const GeoVPhysVol*>( &(*( nodeLink ))) ) {
           std::cout << "\n" << "the child n. " << idx << " ";
@@ -381,6 +377,6 @@ GeneralMeshModel *GeoLoaderQt::createTrd(const GeoShape *shapeIn){
     const double yHalf2 = shape->getYHalfLength2();
     std::cout << "zHalf: " << zHalf << " , xHalf1: " << xHalf1
               << " , xHalf2: " << xHalf2 << ", yHalf1: " << yHalf1 << " , yHalf2: " << yHalf2  << std::endl;
-      std::cout << "Volume: " << shape->volume() << std::endl;
+    std::cout << "Volume: " << shape->volume() << std::endl;
     return nullptr;
 }
