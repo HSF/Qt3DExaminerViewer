@@ -27,7 +27,7 @@ private:
     GeoPhysVol* createTheWorld(GeoPhysVol* world);
     GMDBManager* checkPath(QString path);
     GeoPhysVol* introWorld(GMDBManager *db);
-    void loadChildren(GeneralMeshModel *container, const GeoVPhysVol *parent);
+    void loadChildren(GeneralMeshModel *container, const GeoVPhysVol *parent, QMatrix4x4 parentTransform);
 
 	GeneralMeshModel *createBox( const GeoShape* shapeIn);
 	GeneralMeshModel *createTube(const GeoShape* shapeIn);

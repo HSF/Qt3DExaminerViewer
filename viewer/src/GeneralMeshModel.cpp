@@ -31,7 +31,6 @@ GeneralMeshModel::GeneralMeshModel(Qt3DCore::QEntity *rootEntity, Qt3DRender::QG
     m_picker->setEnabled(true);
     m_picker->setHoverEnabled(true);
 
-    QObject::connect(m_picker, &Qt3DRender::QObjectPicker::exited, this, [](){ info->setDescription(TIPS);});
     QObject::connect(m_picker, &Qt3DRender::QObjectPicker::clicked, [this](Qt3DRender::QPickEvent *event){
         if(event->modifiers() == Qt::ControlModifier && event->button() == Qt3DRender::QPickEvent::LeftButton)
             openVolume();
@@ -42,9 +41,11 @@ GeneralMeshModel::GeneralMeshModel(Qt3DCore::QEntity *rootEntity, Qt3DRender::QG
         else {
             // change the focus of camera
             if(event->button() == Qt3DRender::QPickEvent::LeftButton && event->modifiers() == Qt::ShiftModifier){
+                getSelected();
                 cameraWrapper->translateView(event->worldIntersection(), 0);
             }
             else if(event->button() == Qt3DRender::QPickEvent::RightButton && event->modifiers() == Qt::ShiftModifier){
+                getSelected();
                 cameraWrapper->translateView(m_meshTransform->translation(), 0);
             }
         }
@@ -92,6 +93,10 @@ void GeneralMeshModel::addParentModel(GeneralMeshModel *parentModel){
 }
 
 void GeneralMeshModel::getSelected(){
+    GeneralMeshModel *topParent = this;
+    while(topParent->getParentModel() != nullptr)
+        topParent = topParent->getParentModel();
+    topParent->deselect();
     setColor(QColor(120, 0, 0, 127));
     QString message;
     if(m_volume != nullptr){
@@ -111,6 +116,7 @@ void GeneralMeshModel::getSelected(){
 }
 
 void GeneralMeshModel::deselect(){
+    info->setDescription(TIPS);
     for(GeneralMeshModel *subModel:m_subModels){
         if(subModel != nullptr)
             subModel->deselect();

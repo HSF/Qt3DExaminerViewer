@@ -81,7 +81,7 @@ inline QMatrix4x4 toQMatrix(GeoTrf::Transform3D tr){
     return mtx;
 }
 
-void GeoLoaderQt::loadChildren(GeneralMeshModel *container, const GeoVPhysVol *parent){
+void GeoLoaderQt::loadChildren(GeneralMeshModel *container, const GeoVPhysVol *parent, QMatrix4x4 parentTransform){
     unsigned int nChil = parent->getNChildVols();
     for (unsigned int idx = 0; idx < nChil; idx++){
         PVConstLink nodeLink = parent->getChildVol(idx);
@@ -130,16 +130,11 @@ void GeoLoaderQt::loadChildren(GeneralMeshModel *container, const GeoVPhysVol *p
                         << " material density: " << childVolV->getLogVol()->getMaterial()->getDensity()
                         << " material elementSize: " << childVolV->getLogVol()->getMaterial()->getNumElements()
                         << std::endl;
-              //qInfo() << "position: " << toQMatrix(parent->getXToChildVol(idx));
-              try {
-                 QMatrix4x4 transform = 0.01 * toQMatrix(parent->getXToChildVol(idx));
-                 model->setTransformMatrix(transform);
-              } catch (...) {
-                std::cerr << "error during calling getX()" << std::endl;
-              }
+              QMatrix4x4 childTransform = parentTransform * toQMatrix(parent->getXToChildVol(idx));
+              model->setTransformMatrix(childTransform);
               model->setVolume(childVolV);
               container->addSubModel(model);
-              loadChildren(model, childVolV);
+              loadChildren(model, childVolV, childTransform);
           }
         }
     }
@@ -162,7 +157,12 @@ GeneralMeshModel *GeoLoaderQt::loadFromDB(QString path){
   container->setObjectName("world");
   // loop over all children nodes
   std::cout << "Looping over all 'volume' children (i.e., GeoPhysVol and GeoFullPhysVol)..." << std::endl;
-  loadChildren(container, world);
+  // unit transfrom matrix, we resale the orginal geometry to its 0.01
+  QMatrix4x4 transform = QMatrix4x4(0.01f,0.0f, 0.0f, 0.0f,
+                                    0.0f, 0.01f,0.0f, 0.0f,
+                                    0.0f, 0.0f, 0.01f,0.0f,
+                                    0.0f, 0.0f, 0.0f, 1.0f);
+  loadChildren(container, world, transform);
   std::cout << "Everything done." << container->subModelCount() << std::endl;
   return container;
 }
