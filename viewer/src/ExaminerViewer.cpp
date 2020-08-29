@@ -162,6 +162,14 @@ void ExaminerViewer::setupControlPanel(QVBoxLayout *vLayout, QWidget *mainWindow
     setUpInfoWindow();
     vLayout->addWidget(info);
 
+    QHBoxLayout *browerLay = new QHBoxLayout(mainWindow);
+    QLabel *browerLabel = new QLabel("GeoBrowser", mainWindow);
+    QCheckBox *browerMode = new QCheckBox(mainWindow);
+    browerMode->setChecked(true);
+    browerMode->setText("show clicked item in context");
+    browerLay->addWidget(browerLabel);
+    browerLay->addWidget(browerMode);
+    vLayout->addLayout(browerLay);
     QTreeWidget *treeWidget = new QTreeWidget(mainWindow);
     treeWidget->setMaximumSize(QSize(300, 150));
     treeWidget->setMinimumSize(QSize(150, 100));
@@ -179,7 +187,7 @@ void ExaminerViewer::setupControlPanel(QVBoxLayout *vLayout, QWidget *mainWindow
     if(m_worldModel->subModelCount() == 1)
         m_cameraWrapper->translateView(m_worldModel->getSubModel(0)->m_meshTransform->translation(),
                                        m_cameraWrapper->init_distanceToOrigin);
-    QObject::connect(treeWidget, &QTreeWidget::itemClicked, [this, volumeItem, treeWidget](QTreeWidgetItem *item){
+    QObject::connect(treeWidget, &QTreeWidget::itemClicked, [this, volumeItem, treeWidget, browerMode](QTreeWidgetItem *item){
         int idx = treeWidget->indexOfTopLevelItem(item);
         if(idx != -1){
             this->m_cameraWrapper->viewAll();
@@ -189,8 +197,14 @@ void ExaminerViewer::setupControlPanel(QVBoxLayout *vLayout, QWidget *mainWindow
         if(target==nullptr) {
             return;
         }
-        m_cameraWrapper->translateView(target->m_meshTransform->translation(), m_cameraWrapper->init_distanceToOrigin);
         target->getSelected();
+        if(!browerMode->isChecked()){
+            m_worldModel->showMesh(false);
+            target->showMesh(true);
+            m_cameraWrapper->translateView(target->m_meshTransform->translation(), m_cameraWrapper->init_distanceToOrigin);
+        } else {
+            m_cameraWrapper->translateView(target->m_meshTransform->translation(), 0);
+        }
     });
     treeWidget->expandItem(volumeItem);
     treeWidget->insertTopLevelItem(0, volumeItem);
