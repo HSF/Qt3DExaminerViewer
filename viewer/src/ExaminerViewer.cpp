@@ -190,7 +190,6 @@ void ExaminerViewer::setupControlPanel(QVBoxLayout *vLayout, QWidget *mainWindow
             return;
         }
         m_cameraWrapper->translateView(target->m_meshTransform->translation(), m_cameraWrapper->init_distanceToOrigin);
-        target->showMesh(true);
         target->getSelected();
     });
     treeWidget->expandItem(volumeItem);
