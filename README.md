@@ -5,7 +5,7 @@
 **CERN-HSF mentor**: Dr. Riccardo Maria Bianchi (ATLAS, CERN & University of Pittsburgh)
 
 This repository is reserved for Google Summer of Code 2020 project, hosted by CERN-HSF. Thanks for giving the chance for me. 
-For more thorough documentation, please refer to my [final GSoC report](https://docs.google.com/document/d/10I00Gz-JkWyfkBxf3iAYtOhVq7QwVbnep8SsJHSZdho/edit?usp=sharing), [presentation slides](https://docs.google.com/presentation/d/10ut0qlqdP9e3BUP_aFZ-F3chzL1kFoLcUwCfs8jjQ3k/edit?usp=sharing), [application proposal](https://docs.google.com/document/d/1PuiWyJuALC7vUnVg-wExRN6eULU-tJmclNQYqueXAWI/edit?usp=sharing). 
+For more thorough documentation, please refer to my [final GSoC report](https://docs.google.com/document/d/10I00Gz-JkWyfkBxf3iAYtOhVq7QwVbnep8SsJHSZdho/edit?usp=sharing), [CERN-HSF workshop presentation slides](https://docs.google.com/presentation/d/10ut0qlqdP9e3BUP_aFZ-F3chzL1kFoLcUwCfs8jjQ3k/edit?usp=sharing), [CERN-HSF final meeting slides](https://docs.google.com/presentation/d/1vjeFn6d5Ma3eFupFU41fFQaKCtSuoyp1PunS9xKdRfs/edit?usp=sharing), [application proposal](https://docs.google.com/document/d/1PuiWyJuALC7vUnVg-wExRN6eULU-tJmclNQYqueXAWI/edit?usp=sharing). 
 
 ## Introduction 
 GeoExaminerViewer is a general viewer GUI module that offers manipulation and visualization functionalities similar to the Open Inventor / Coin Examiner viewer. 
